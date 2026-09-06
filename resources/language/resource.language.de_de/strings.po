@@ -1,0 +1,541 @@
+# Kodi Media Center language file
+# Addon Name: Home Assistant Dashboard
+# Addon id: script.homeassistant
+# Addon Provider: Kai Sommerfeld
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://github.com/ksooo/script.homeassistant/issues\n"
+"POT-Creation-Date: 2026-09-05 00:00+0000\n"
+"PO-Revision-Date: 2026-09-05 00:00+0000\n"
+"Last-Translator: Kai Sommerfeld\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30010"
+msgid "Connection"
+msgstr "Verbindung"
+
+msgctxt "#30011"
+msgid "Home Assistant address"
+msgstr "Adresse von Home Assistant"
+
+msgctxt "#30012"
+msgid "Verify SSL certificate"
+msgstr "SSL-Zertifikat prüfen"
+
+msgctxt "#30013"
+msgid "For example https://homeassistant.local:8123 or your Nabu Casa address"
+msgstr "Zum Beispiel https://homeassistant.local:8123 oder deine Nabu-Casa-Adresse"
+
+msgctxt "#30014"
+msgid "Turn off only for a self-signed certificate on your own network"
+msgstr "Nur bei selbstsigniertem Zertifikat im eigenen Netz abschalten"
+
+msgctxt "#30020"
+msgid "Login"
+msgstr "Anmeldung"
+
+msgctxt "#30021"
+msgid "User name"
+msgstr "Benutzername"
+
+msgctxt "#30022"
+msgid "Password"
+msgstr "Passwort"
+
+msgctxt "#30023"
+msgid "Long-lived access token"
+msgstr "Long-Lived Access Token"
+
+msgctxt "#30024"
+msgid "Used instead of user name and password when set. Create one in Home Assistant under your profile, Security."
+msgstr "Wird anstelle von Benutzername und Passwort verwendet, wenn gesetzt. In Home Assistant unter Profil, Sicherheit anlegen."
+
+msgctxt "#30025"
+msgid "Test connection"
+msgstr "Verbindung testen"
+
+msgctxt "#30026"
+msgid "Stored unencrypted in the addon settings"
+msgstr "Wird unverschlüsselt in den Addon-Einstellungen gespeichert"
+
+msgctxt "#30030"
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgctxt "#30031"
+msgid "Show favourites"
+msgstr "Favoriten anzeigen"
+
+msgctxt "#30032"
+msgid "Show summaries"
+msgstr "Übersichten anzeigen"
+
+msgctxt "#30033"
+msgid "Show areas"
+msgstr "Räume anzeigen"
+
+msgctxt "#30034"
+msgid "Hide empty areas"
+msgstr "Leere Räume ausblenden"
+
+msgctxt "#30035"
+msgid "Camera preview every"
+msgstr "Kameravorschau alle"
+
+msgctxt "#30036"
+msgid "Seconds between two stills; 0 turns the preview off"
+msgstr "Sekunden zwischen zwei Standbildern; 0 schaltet die Vorschau ab"
+
+msgctxt "#30100"
+msgid "On"
+msgstr "An"
+
+msgctxt "#30101"
+msgid "Off"
+msgstr "Aus"
+
+msgctxt "#30102"
+msgid "Open"
+msgstr "Offen"
+
+msgctxt "#30103"
+msgid "Closed"
+msgstr "Geschlossen"
+
+msgctxt "#30104"
+msgid "Opening"
+msgstr "Öffnet"
+
+msgctxt "#30105"
+msgid "Closing"
+msgstr "Schließt"
+
+msgctxt "#30106"
+msgid "Locked"
+msgstr "Verriegelt"
+
+msgctxt "#30107"
+msgid "Unlocked"
+msgstr "Entriegelt"
+
+msgctxt "#30108"
+msgid "Locking"
+msgstr "Verriegelt gerade"
+
+msgctxt "#30109"
+msgid "Unlocking"
+msgstr "Entriegelt gerade"
+
+msgctxt "#30110"
+msgid "Jammed"
+msgstr "Klemmt"
+
+msgctxt "#30111"
+msgid "Unavailable"
+msgstr "Nicht verfügbar"
+
+msgctxt "#30112"
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgctxt "#30113"
+msgid "Home"
+msgstr "Zu Hause"
+
+msgctxt "#30114"
+msgid "Away"
+msgstr "Unterwegs"
+
+msgctxt "#30115"
+msgid "Detected"
+msgstr "Erkannt"
+
+msgctxt "#30116"
+msgid "Clear"
+msgstr "Frei"
+
+msgctxt "#30117"
+msgid "Wet"
+msgstr "Nass"
+
+msgctxt "#30118"
+msgid "Dry"
+msgstr "Trocken"
+
+msgctxt "#30119"
+msgid "Problem"
+msgstr "Problem"
+
+msgctxt "#30120"
+msgid "OK"
+msgstr "In Ordnung"
+
+msgctxt "#30121"
+msgid "Low"
+msgstr "Schwach"
+
+msgctxt "#30122"
+msgid "Update available"
+msgstr "Update verfügbar"
+
+msgctxt "#30123"
+msgid "Up to date"
+msgstr "Aktuell"
+
+msgctxt "#30124"
+msgid "Run"
+msgstr "Ausführen"
+
+msgctxt "#30125"
+msgid "Brightness"
+msgstr "Helligkeit"
+
+msgctxt "#30126"
+msgid "Position"
+msgstr "Position"
+
+msgctxt "#30200"
+msgid "Favourites"
+msgstr "Favoriten"
+
+msgctxt "#30201"
+msgid "Lighting"
+msgstr "Beleuchtung"
+
+msgctxt "#30202"
+msgid "Climate"
+msgstr "Raumklima"
+
+msgctxt "#30203"
+msgid "Security"
+msgstr "Sicherheit"
+
+msgctxt "#30204"
+msgid "Media players"
+msgstr "Mediaplayer"
+
+msgctxt "#30205"
+msgid "Maintenance"
+msgstr "Wartung"
+
+msgctxt "#30206"
+msgid "Weather"
+msgstr "Wetter"
+
+msgctxt "#30207"
+msgid "Today's energy"
+msgstr "Heutige Energie"
+
+msgctxt "#30208"
+msgid "Unassigned"
+msgstr "Ohne Etage"
+
+msgctxt "#30209"
+msgid "Without device"
+msgstr "Ohne Gerät"
+
+msgctxt "#30210"
+msgid "Without room"
+msgstr "Ohne Raum"
+
+msgctxt "#30300"
+msgid "Home Assistant"
+msgstr "Home Assistant"
+
+msgctxt "#30301"
+msgid "Connecting ..."
+msgstr "Verbinde ..."
+
+msgctxt "#30302"
+msgid "Connected"
+msgstr "Verbunden"
+
+msgctxt "#30303"
+msgid "Not connected"
+msgstr "Nicht verbunden"
+
+msgctxt "#30304"
+msgid "Reconnecting ..."
+msgstr "Verbinde neu ..."
+
+msgctxt "#30305"
+msgid "Loading ..."
+msgstr "Lade ..."
+
+msgctxt "#30306"
+msgid "Nothing here"
+msgstr "Nichts vorhanden"
+
+msgctxt "#30307"
+msgid "OK: switch    C: more    R: refresh"
+msgstr "OK: Schalten    C: Menü"
+
+msgctxt "#30308"
+msgid "Actions"
+msgstr "Aktionen"
+
+msgctxt "#30309"
+msgid "Toggle"
+msgstr "Umschalten"
+
+msgctxt "#30310"
+msgid "Turn on"
+msgstr "Einschalten"
+
+msgctxt "#30311"
+msgid "Turn off"
+msgstr "Ausschalten"
+
+msgctxt "#30312"
+msgid "Open"
+msgstr "Öffnen"
+
+msgctxt "#30313"
+msgid "Close"
+msgstr "Schließen"
+
+msgctxt "#30314"
+msgid "Stop"
+msgstr "Anhalten"
+
+msgctxt "#30315"
+msgid "Lock"
+msgstr "Verriegeln"
+
+msgctxt "#30316"
+msgid "Unlock"
+msgstr "Entriegeln"
+
+msgctxt "#30317"
+msgid "Run"
+msgstr "Ausführen"
+
+msgctxt "#30318"
+msgid "Press"
+msgstr "Drücken"
+
+msgctxt "#30319"
+msgid "Start"
+msgstr "Starten"
+
+msgctxt "#30320"
+msgid "Return to dock"
+msgstr "Zur Station"
+
+msgctxt "#30321"
+msgid "Set value"
+msgstr "Wert setzen"
+
+msgctxt "#30322"
+msgid "Select option"
+msgstr "Option wählen"
+
+msgctxt "#30323"
+msgid "Set mode"
+msgstr "Betriebsart wählen"
+
+msgctxt "#30324"
+msgid "Set temperature"
+msgstr "Temperatur setzen"
+
+msgctxt "#30325"
+msgid "Enable/disable"
+msgstr "Aktivieren/Deaktivieren"
+
+msgctxt "#30326"
+msgid "Trigger"
+msgstr "Auslösen"
+
+msgctxt "#30327"
+msgid "Details"
+msgstr "Details"
+
+msgctxt "#30328"
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgctxt "#30329"
+msgid "Details"
+msgstr "Details"
+
+msgctxt "#30330"
+msgid "Read only"
+msgstr "Nur Anzeige"
+
+msgctxt "#30331"
+msgid "Command"
+msgstr "Befehl"
+
+msgctxt "#30332"
+msgid "Pause"
+msgstr "Pausieren"
+
+msgctxt "#30333"
+msgid "Locate"
+msgstr "Orten"
+
+msgctxt "#30334"
+msgid "Clean this spot"
+msgstr "Punktreinigung"
+
+msgctxt "#30335"
+msgid "Suction"
+msgstr "Saugstufe"
+
+msgctxt "#30336"
+msgid "Play"
+msgstr "Wiedergabe"
+
+msgctxt "#30337"
+msgid "Next"
+msgstr "Weiter"
+
+msgctxt "#30338"
+msgid "Previous"
+msgstr "Zurück"
+
+msgctxt "#30339"
+msgid "Mute"
+msgstr "Stumm"
+
+msgctxt "#30340"
+msgid "Volume"
+msgstr "Lautstärke"
+
+msgctxt "#30341"
+msgid "Source"
+msgstr "Quelle"
+
+msgctxt "#30342"
+msgid "Sound mode"
+msgstr "Klangmodus"
+
+msgctxt "#30343"
+msgid "Preset"
+msgstr "Voreinstellung"
+
+msgctxt "#30344"
+msgid "Fan mode"
+msgstr "Lüfterstufe"
+
+msgctxt "#30345"
+msgid "Open the door"
+msgstr "Tür öffnen"
+
+msgctxt "#30346"
+msgid "Brightness"
+msgstr "Helligkeit"
+
+msgctxt "#30347"
+msgid "Colour temperature"
+msgstr "Farbtemperatur"
+
+msgctxt "#30348"
+msgid "Effect"
+msgstr "Effekt"
+
+msgctxt "#30349"
+msgid "Clean rooms"
+msgstr "Bereiche reinigen"
+
+msgctxt "#30350"
+msgid "Arm, at home"
+msgstr "Anwesend scharf schalten"
+
+msgctxt "#30351"
+msgid "Arm, away"
+msgstr "Abwesend scharf schalten"
+
+msgctxt "#30352"
+msgid "Arm for the night"
+msgstr "Nachtmodus scharf schalten"
+
+msgctxt "#30353"
+msgid "Arm for a holiday"
+msgstr "Urlaubsmodus scharf schalten"
+
+msgctxt "#30354"
+msgid "Arm with exceptions"
+msgstr "Scharf schalten mit Ausnahmen"
+
+msgctxt "#30355"
+msgid "Disarm"
+msgstr "Unscharf schalten"
+
+msgctxt "#30356"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "#30357"
+msgid "Operating mode"
+msgstr "Betriebsart"
+
+msgctxt "#30358"
+msgid "Away mode"
+msgstr "Abwesenheitsmodus"
+
+msgctxt "#30359"
+msgid "Volume up"
+msgstr "Lauter"
+
+msgctxt "#30360"
+msgid "Volume down"
+msgstr "Leiser"
+
+msgctxt "#30361"
+msgid "Shuffle"
+msgstr "Zufallswiedergabe"
+
+msgctxt "#30362"
+msgid "Repeat"
+msgstr "Wiederholung"
+
+msgctxt "#30363"
+msgid "Off"
+msgstr "Aus"
+
+msgctxt "#30364"
+msgid "All"
+msgstr "Alle"
+
+msgctxt "#30365"
+msgid "This one"
+msgstr "Titel"
+
+msgctxt "#30400"
+msgid "No Home Assistant address configured"
+msgstr "Keine Adresse von Home Assistant eingetragen"
+
+msgctxt "#30401"
+msgid "No username, password or token configured"
+msgstr "Weder Benutzername und Passwort noch Token eingetragen"
+
+msgctxt "#30402"
+msgid "Cannot reach Home Assistant: %s"
+msgstr "Home Assistant nicht erreichbar: %s"
+
+msgctxt "#30403"
+msgid "Authentication failed: %s"
+msgstr "Anmeldung fehlgeschlagen: %s"
+
+msgctxt "#30404"
+msgid "Action failed: %s"
+msgstr "Aktion fehlgeschlagen: %s"
+
+msgctxt "#30405"
+msgid "Home Assistant login"
+msgstr "Home-Assistant-Anmeldung"
+
+msgctxt "#30406"
+msgid "Connected to Home Assistant %s"
+msgstr "Verbunden mit Home Assistant %s"
+
+msgctxt "#30407"
+msgid "Connection failed: %s"
+msgstr "Verbindung fehlgeschlagen: %s"

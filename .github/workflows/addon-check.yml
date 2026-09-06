@@ -1,0 +1,36 @@
+name: Kodi Addon-Check
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - v*
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  kodi-addon-checker:
+    runs-on: ubuntu-22.04
+    name: Kodi addon checker
+    steps:
+      # Into a directory named after the addon: the checker takes the folder
+      # name for the addon id and complains when they disagree.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: script.homeassistant
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Not xbmc/action-kodi-addon-checker: its image carries Python 3.7 and
+      # the current checker needs 3.8, so the action dies on import.
+      - name: Install the checker
+        run: pip install kodi-addon-checker
+
+      - name: Validate
+        run: kodi-addon-checker --branch=matrix script.homeassistant

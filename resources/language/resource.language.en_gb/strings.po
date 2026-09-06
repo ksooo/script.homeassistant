@@ -1,0 +1,541 @@
+# Kodi Media Center language file
+# Addon Name: Home Assistant Dashboard
+# Addon id: script.homeassistant
+# Addon Provider: Kai Sommerfeld
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://github.com/ksooo/script.homeassistant/issues\n"
+"POT-Creation-Date: 2026-09-05 00:00+0000\n"
+"PO-Revision-Date: 2026-09-05 00:00+0000\n"
+"Last-Translator: Kai Sommerfeld\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30010"
+msgid "Connection"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Home Assistant address"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Verify SSL certificate"
+msgstr ""
+
+msgctxt "#30013"
+msgid "For example https://homeassistant.local:8123 or your Nabu Casa address"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Turn off only for a self-signed certificate on your own network"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Login"
+msgstr ""
+
+msgctxt "#30021"
+msgid "User name"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Long-lived access token"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Used instead of user name and password when set. Create one in Home Assistant under your profile, Security."
+msgstr ""
+
+msgctxt "#30025"
+msgid "Test connection"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Stored unencrypted in the addon settings"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Dashboard"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Show favourites"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Show summaries"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Show areas"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Hide empty areas"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Camera preview every"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Seconds between two stills; 0 turns the preview off"
+msgstr ""
+
+msgctxt "#30100"
+msgid "On"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Open"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Closed"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Opening"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Closing"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Locked"
+msgstr ""
+
+msgctxt "#30107"
+msgid "Unlocked"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Locking"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Unlocking"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Jammed"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Unavailable"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Unknown"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Home"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Away"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Detected"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Clear"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Wet"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Dry"
+msgstr ""
+
+msgctxt "#30119"
+msgid "Problem"
+msgstr ""
+
+msgctxt "#30120"
+msgid "OK"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Low"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Update available"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Up to date"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Run"
+msgstr ""
+
+msgctxt "#30125"
+msgid "Brightness"
+msgstr ""
+
+msgctxt "#30126"
+msgid "Position"
+msgstr ""
+
+msgctxt "#30200"
+msgid "Favourites"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Lighting"
+msgstr ""
+
+msgctxt "#30202"
+msgid "Climate"
+msgstr ""
+
+msgctxt "#30203"
+msgid "Security"
+msgstr ""
+
+msgctxt "#30204"
+msgid "Media players"
+msgstr ""
+
+msgctxt "#30205"
+msgid "Maintenance"
+msgstr ""
+
+msgctxt "#30206"
+msgid "Weather"
+msgstr ""
+
+msgctxt "#30207"
+msgid "Today's energy"
+msgstr ""
+
+msgctxt "#30208"
+msgid "Unassigned"
+msgstr ""
+
+msgctxt "#30209"
+msgid "Without device"
+msgstr ""
+
+msgctxt "#30210"
+msgid "Without room"
+msgstr ""
+
+msgctxt "#30300"
+msgid "Home Assistant"
+msgstr ""
+
+msgctxt "#30301"
+msgid "Connecting ..."
+msgstr ""
+
+msgctxt "#30302"
+msgid "Connected"
+msgstr ""
+
+msgctxt "#30303"
+msgid "Not connected"
+msgstr ""
+
+msgctxt "#30304"
+msgid "Reconnecting ..."
+msgstr ""
+
+msgctxt "#30305"
+msgid "Loading ..."
+msgstr ""
+
+msgctxt "#30306"
+msgid "Nothing here"
+msgstr ""
+
+msgctxt "#30307"
+msgid "OK: switch    C: more    R: refresh"
+msgstr ""
+
+msgctxt "#30308"
+msgid "Actions"
+msgstr ""
+
+msgctxt "#30309"
+msgid "Toggle"
+msgstr ""
+
+msgctxt "#30310"
+msgid "Turn on"
+msgstr ""
+
+msgctxt "#30311"
+msgid "Turn off"
+msgstr ""
+
+msgctxt "#30312"
+msgid "Open"
+msgstr ""
+
+msgctxt "#30313"
+msgid "Close"
+msgstr ""
+
+msgctxt "#30314"
+msgid "Stop"
+msgstr ""
+
+msgctxt "#30315"
+msgid "Lock"
+msgstr ""
+
+msgctxt "#30316"
+msgid "Unlock"
+msgstr ""
+
+msgctxt "#30317"
+msgid "Run"
+msgstr ""
+
+msgctxt "#30318"
+msgid "Press"
+msgstr ""
+
+msgctxt "#30319"
+msgid "Start"
+msgstr ""
+
+msgctxt "#30320"
+msgid "Return to dock"
+msgstr ""
+
+msgctxt "#30321"
+msgid "Set value"
+msgstr ""
+
+msgctxt "#30322"
+msgid "Select option"
+msgstr ""
+
+msgctxt "#30323"
+msgid "Set mode"
+msgstr ""
+
+msgctxt "#30324"
+msgid "Set temperature"
+msgstr ""
+
+msgctxt "#30325"
+msgid "Enable/disable"
+msgstr ""
+
+msgctxt "#30326"
+msgid "Trigger"
+msgstr ""
+
+msgctxt "#30327"
+msgid "Details"
+msgstr ""
+
+msgctxt "#30328"
+msgid "Refresh"
+msgstr ""
+
+msgctxt "#30329"
+msgid "Details"
+msgstr ""
+
+msgctxt "#30330"
+msgid "Read only"
+msgstr ""
+
+msgctxt "#30331"
+msgid "Command"
+msgstr ""
+
+msgctxt "#30332"
+msgid "Pause"
+msgstr ""
+
+msgctxt "#30333"
+msgid "Locate"
+msgstr ""
+
+msgctxt "#30334"
+msgid "Clean this spot"
+msgstr ""
+
+msgctxt "#30335"
+msgid "Suction"
+msgstr ""
+
+msgctxt "#30336"
+msgid "Play"
+msgstr ""
+
+msgctxt "#30337"
+msgid "Next"
+msgstr ""
+
+msgctxt "#30338"
+msgid "Previous"
+msgstr ""
+
+msgctxt "#30339"
+msgid "Mute"
+msgstr ""
+
+msgctxt "#30340"
+msgid "Volume"
+msgstr ""
+
+msgctxt "#30341"
+msgid "Source"
+msgstr ""
+
+msgctxt "#30342"
+msgid "Sound mode"
+msgstr ""
+
+msgctxt "#30343"
+msgid "Preset"
+msgstr ""
+
+msgctxt "#30344"
+msgid "Fan mode"
+msgstr ""
+
+msgctxt "#30345"
+msgid "Open the door"
+msgstr ""
+
+msgctxt "#30346"
+msgid "Brightness"
+msgstr ""
+
+msgctxt "#30347"
+msgid "Colour temperature"
+msgstr ""
+
+msgctxt "#30348"
+msgid "Effect"
+msgstr ""
+
+msgctxt "#30349"
+msgid "Clean rooms"
+msgstr ""
+
+msgctxt "#30350"
+msgid "Arm, at home"
+msgstr ""
+
+msgctxt "#30351"
+msgid "Arm, away"
+msgstr ""
+
+msgctxt "#30352"
+msgid "Arm for the night"
+msgstr ""
+
+msgctxt "#30353"
+msgid "Arm for a holiday"
+msgstr ""
+
+msgctxt "#30354"
+msgid "Arm with exceptions"
+msgstr ""
+
+msgctxt "#30355"
+msgid "Disarm"
+msgstr ""
+
+msgctxt "#30356"
+msgid "Code"
+msgstr ""
+
+msgctxt "#30357"
+msgid "Operating mode"
+msgstr ""
+
+msgctxt "#30358"
+msgid "Away mode"
+msgstr ""
+
+msgctxt "#30359"
+msgid "Volume up"
+msgstr ""
+
+msgctxt "#30360"
+msgid "Volume down"
+msgstr ""
+
+msgctxt "#30361"
+msgid "Shuffle"
+msgstr ""
+
+msgctxt "#30362"
+msgid "Repeat"
+msgstr ""
+
+msgctxt "#30363"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30364"
+msgid "All"
+msgstr ""
+
+msgctxt "#30365"
+msgid "This one"
+msgstr ""
+
+msgctxt "#30400"
+msgid "No Home Assistant address configured"
+msgstr ""
+
+msgctxt "#30401"
+msgid "No username, password or token configured"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Cannot reach Home Assistant: %s"
+msgstr ""
+
+msgctxt "#30403"
+msgid "Authentication failed: %s"
+msgstr ""
+
+msgctxt "#30404"
+msgid "Action failed: %s"
+msgstr ""
+
+msgctxt "#30405"
+msgid "Home Assistant login"
+msgstr ""
+
+msgctxt "#30406"
+msgid "Connected to Home Assistant %s"
+msgstr ""
+
+msgctxt "#30407"
+msgid "Connection failed: %s"
+msgstr ""
