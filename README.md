@@ -21,9 +21,7 @@ Kodi ships none and the registries are not available over REST.
 
 ## Setup
 
-1. Copy the addon into Kodi's `addons` directory, then **enable** it in
-   *Add-ons -> My add-ons -> Program add-ons*. Kodi installs add-ons found
-   there in a disabled state, and *Run* stays greyed out until you do.
+1. Install the addon and enable it.
 2. Open its settings.
 3. Enter the address of your Home Assistant instance, for example
    `http://homeassistant.local:8123` or your Nabu Casa URL.
