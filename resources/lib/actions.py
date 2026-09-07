@@ -101,7 +101,7 @@ def menu_actions(store, entity_id):
         actions.append(Action("action_close", SERVICE, "cover", "close_cover"))
         actions.append(Action("action_stop", SERVICE, "cover", "stop_cover"))
         if features & _COVER_SET_POSITION:
-            actions.append(Action("action_set_value", NUMBER, "cover",
+            actions.append(Action("action_position", NUMBER, "cover",
                                   "set_cover_position"))
         actions.extend(_tilt_actions(features))
 
@@ -381,6 +381,69 @@ def _water_heater_commands(store, state):
     return commands
 
 
+# FanEntityFeature
+_FAN_SET_SPEED = 1
+_FAN_OSCILLATE = 2
+_FAN_DIRECTION = 4
+_FAN_ON_OFF = 8 | 16
+_FAN_PRESET_MODE = 32
+
+_DIRECTIONS = (("direction_forward", "forward"),
+               ("direction_reverse", "reverse"))
+
+
+def _fan_commands(store, state):
+    features = features_of(state)
+    attributes = state.attributes
+    commands = []
+    if features & _FAN_SET_SPEED:
+        commands.append(Action("action_speed", NUMBER, "fan", "set_percentage"))
+    if features & _FAN_PRESET_MODE and attributes.get("preset_modes"):
+        commands.append(Action("action_preset", PICK, "fan", "set_preset_mode",
+                               {"from": "preset_modes", "as": "preset_mode"}))
+    if features & _FAN_OSCILLATE:
+        commands.append(Action("action_oscillate", SERVICE, "fan", "oscillate",
+                               {"oscillating": not attributes.get("oscillating")}))
+    if features & _FAN_DIRECTION:
+        commands.append(Action("action_direction", PICK, "fan", "set_direction",
+                               {"as": "direction", "choices": list(_DIRECTIONS),
+                                "translate": True}))
+    return commands
+
+
+# HumidifierEntityFeature. Only the modes carry a bit: a target humidity is
+# what a humidifier is for, so it is offered whatever the entity reports.
+_HUMIDIFIER_MODES = 1
+
+
+def _humidifier_commands(store, state):
+    commands = [Action("action_target_humidity", NUMBER, "humidifier",
+                       "set_humidity")]
+    if (features_of(state) & _HUMIDIFIER_MODES
+            and state.attributes.get("available_modes")):
+        commands.append(Action("action_operation_mode", PICK, "humidifier",
+                               "set_mode",
+                               {"from": "available_modes", "as": "mode"}))
+    return commands
+
+
+# ValveEntityFeature
+_VALVE = ((1, "action_open", "open_valve"),
+          (2, "action_close", "close_valve"),
+          (8, "action_stop", "stop_valve"))
+_VALVE_SET_POSITION = 4
+
+
+def _valve_commands(store, state):
+    features = features_of(state)
+    commands = [Action(label, SERVICE, "valve", service)
+                for bit, label, service in _VALVE if features & bit]
+    if features & _VALVE_SET_POSITION:
+        commands.append(Action("action_position", NUMBER, "valve",
+                               "set_valve_position"))
+    return commands
+
+
 _COMMANDS = {
     "vacuum": _vacuum_commands,
     "media_player": _media_commands,
@@ -389,10 +452,14 @@ _COMMANDS = {
     "light": _light_commands,
     "alarm_control_panel": _alarm_commands,
     "water_heater": _water_heater_commands,
+    "fan": _fan_commands,
+    "humidifier": _humidifier_commands,
+    "valve": _valve_commands,
 }
 
-# Light is not among them: switching it is what OK is for, and most lights can
-# do nothing else. Its commands are reached through the context menu.
+# Light, fan, humidifier and valve are not among them: switching is what OK is
+# for, and for most of them it is all there is. Their commands are reached
+# through the context menu.
 _ASK_DOMAINS = ("vacuum", "media_player", "lock", "climate",
                 "alarm_control_panel", "water_heater")
 
@@ -454,6 +521,10 @@ KNOWN_FEATURES = {
                      | _WATER_AWAY_MODE | _WATER_ON_OFF),
     "siren": _SIREN_ON_OFF,
     "update": _UPDATE_INSTALL,
+    "fan": (_FAN_SET_SPEED | _FAN_OSCILLATE | _FAN_DIRECTION | _FAN_ON_OFF
+            | _FAN_PRESET_MODE),
+    "humidifier": _HUMIDIFIER_MODES,
+    "valve": _mask(_VALVE) | _VALVE_SET_POSITION,
 }
 
 # Bits that have been looked at and passed over, so that a run of

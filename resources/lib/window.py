@@ -673,6 +673,9 @@ def _shipped_icons():
 _NUMBER_FIELDS = {
     "set_cover_position": ("position", "current_position"),
     "set_cover_tilt_position": ("tilt_position", "current_tilt_position"),
+    "set_valve_position": ("position", "current_position"),
+    "set_percentage": ("percentage", "percentage"),
+    "set_humidity": ("humidity", "humidity"),
 }
 
 

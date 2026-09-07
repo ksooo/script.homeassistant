@@ -243,14 +243,14 @@ class CoverTilt(unittest.TestCase):
     def test_a_venetian_blind_is_offered_its_slats(self):
         self.assertEqual(self.menu(self.VENETIAN),
                          ["action_open", "action_close", "action_stop",
-                          "action_set_value", "action_open_tilt",
+                          "action_position", "action_open_tilt",
                           "action_close_tilt", "action_stop_tilt",
                           "action_set_tilt", "action_details"])
 
     def test_a_roller_shutter_is_offered_none_of_them(self):
         self.assertEqual(self.menu(self.ROLLER),
                          ["action_open", "action_close", "action_stop",
-                          "action_set_value", "action_details"])
+                          "action_position", "action_details"])
 
     def test_each_tilt_command_is_asked_for_on_its_own(self):
         self.assertEqual([label for label in self.menu(1 | 2 | 16 | 64)
@@ -263,6 +263,58 @@ class CoverTilt(unittest.TestCase):
                       if a.label_key == "action_set_tilt")
         self.assertEqual((action.kind, action.domain, action.service),
                          (actions.NUMBER, "cover", "set_cover_tilt_position"))
+
+
+class Fan(unittest.TestCase):
+    TOWER = 1 | 2 | 4 | 8 | 16 | 32
+
+    def test_everything_the_fan_reports(self):
+        self.assertEqual(
+            labels("fan.a", "on", supported_features=self.TOWER,
+                   preset_modes=["eco", "sleep"]),
+            ["action_speed", "action_preset", "action_oscillate",
+             "action_direction"])
+
+    def test_a_fan_that_only_switches_is_offered_nothing(self):
+        self.assertEqual(labels("fan.a", "on", supported_features=8 | 16), [])
+
+    def test_oscillating_flips_the_state_it_finds(self):
+        for swinging, expected in ((False, True), (True, False)):
+            store = one("fan.a", "on", supported_features=2,
+                        oscillating=swinging)
+            action = actions.commands_for(store, store.states["fan.a"])[0]
+            self.assertEqual(action.data, {"oscillating": expected})
+
+    def test_ok_still_toggles_a_fan(self):
+        store = one("fan.a", "on", supported_features=self.TOWER)
+        self.assertEqual(actions.default_action(store, "fan.a").service, "toggle")
+
+
+class Humidifier(unittest.TestCase):
+    def test_the_target_humidity_needs_no_feature_bit(self):
+        self.assertEqual(labels("humidifier.a", "on", supported_features=0),
+                         ["action_target_humidity"])
+
+    def test_modes_come_from_the_humidifier(self):
+        self.assertEqual(
+            labels("humidifier.a", "on", supported_features=1,
+                   available_modes=["normal", "boost"]),
+            ["action_target_humidity", "action_operation_mode"])
+
+    def test_a_humidifier_naming_no_modes_is_not_offered_them(self):
+        self.assertEqual(labels("humidifier.a", "on", supported_features=1),
+                         ["action_target_humidity"])
+
+
+class Valve(unittest.TestCase):
+    def test_only_what_the_valve_reports(self):
+        self.assertEqual(
+            labels("valve.a", "open", supported_features=1 | 2 | 4 | 8),
+            ["action_open", "action_close", "action_stop", "action_position"])
+
+    def test_a_valve_without_a_position_is_not_offered_one(self):
+        self.assertEqual(labels("valve.a", "open", supported_features=1 | 2),
+                         ["action_open", "action_close"])
 
 
 class Picking(unittest.TestCase):

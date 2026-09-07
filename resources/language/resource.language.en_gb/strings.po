@@ -524,6 +524,34 @@ msgctxt "#30369"
 msgid "Tilt position"
 msgstr ""
 
+msgctxt "#30370"
+msgid "Fan speed"
+msgstr ""
+
+msgctxt "#30371"
+msgid "Oscillate"
+msgstr ""
+
+msgctxt "#30372"
+msgid "Direction"
+msgstr ""
+
+msgctxt "#30373"
+msgid "Forward"
+msgstr ""
+
+msgctxt "#30374"
+msgid "Reverse"
+msgstr ""
+
+msgctxt "#30375"
+msgid "Target humidity"
+msgstr ""
+
+msgctxt "#30376"
+msgid "Position"
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr ""

@@ -524,6 +524,34 @@ msgctxt "#30369"
 msgid "Tilt position"
 msgstr "Kippstellung"
 
+msgctxt "#30370"
+msgid "Fan speed"
+msgstr "Drehzahl"
+
+msgctxt "#30371"
+msgid "Oscillate"
+msgstr "Oszillieren"
+
+msgctxt "#30372"
+msgid "Direction"
+msgstr "Drehrichtung"
+
+msgctxt "#30373"
+msgid "Forward"
+msgstr "Vorwärts"
+
+msgctxt "#30374"
+msgid "Reverse"
+msgstr "Rückwärts"
+
+msgctxt "#30375"
+msgid "Target humidity"
+msgstr "Sollluftfeuchtigkeit"
+
+msgctxt "#30376"
+msgid "Position"
+msgstr "Position"
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr "Keine Adresse von Home Assistant eingetragen"
