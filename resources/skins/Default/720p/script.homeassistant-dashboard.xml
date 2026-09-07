@@ -58,7 +58,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>0</top>
-                    <width>240</width>
+                    <width>294</width>
                     <height>56</height>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -69,7 +69,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>4</top>
-                    <width>240</width>
+                    <width>294</width>
                     <height>28</height>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
@@ -79,22 +79,11 @@
                 <control type="label">
                     <left>18</left>
                     <top>28</top>
-                    <width>240</width>
+                    <width>294</width>
                     <height>24</height>
                     <font>font10</font>
                     <textcolor>FFA0A0A0</textcolor>
                     <label>$INFO[ListItem.Label2]</label>
-                </control>
-                <control type="label">
-                    <left>250</left>
-                    <top>0</top>
-                    <width>62</width>
-                    <height>56</height>
-                    <aligny>center</aligny>
-                    <align>right</align>
-                    <font>font12</font>
-                    <textcolor>FFA0A0A0</textcolor>
-                    <label>$INFO[ListItem.Property(count)]</label>
                 </control>
             </itemlayout>
             <focusedlayout height="56" width="330">
@@ -117,7 +106,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>0</top>
-                    <width>240</width>
+                    <width>294</width>
                     <height>56</height>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -128,7 +117,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>4</top>
-                    <width>240</width>
+                    <width>294</width>
                     <height>28</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -138,22 +127,11 @@
                 <control type="label">
                     <left>18</left>
                     <top>28</top>
-                    <width>240</width>
+                    <width>294</width>
                     <height>24</height>
                     <font>font10</font>
                     <textcolor>FFE2EAF2</textcolor>
                     <label>$INFO[ListItem.Label2]</label>
-                </control>
-                <control type="label">
-                    <left>250</left>
-                    <top>0</top>
-                    <width>62</width>
-                    <height>56</height>
-                    <aligny>center</aligny>
-                    <align>right</align>
-                    <font>font12</font>
-                    <textcolor>FFE2EAF2</textcolor>
-                    <label>$INFO[ListItem.Property(count)]</label>
                 </control>
             </focusedlayout>
         </control>

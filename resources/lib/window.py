@@ -288,7 +288,6 @@ class Dashboard(xbmcgui.WindowXML):
         for section in self._sections:
             item = xbmcgui.ListItem(label=section.title, label2=section.subtitle,
                                     offscreen=True)
-            item.setProperty("count", str(len(section)))
             items.append(item)
         if items:
             categories.addItems(items)
