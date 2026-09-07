@@ -229,7 +229,7 @@ msgid "Weather"
 msgstr ""
 
 msgctxt "#30207"
-msgid "Today's energy"
+msgid "Energy"
 msgstr ""
 
 msgctxt "#30208"

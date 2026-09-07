@@ -87,6 +87,11 @@ verified against an English Home Assistant - the frontend keeps those strings
 in its own bundle, out of reach of both the WebSocket API and
 `frontend/get_translations`.
 
+The one deliberate departure is the energy summary. Home Assistant's title
+names the day, which its own version earns: it can show a day's statistics.
+This one only lists the entities the energy dashboard is built from, with no
+notion of a day, so it is titled just "Energy".
+
 Some choices are calibrated against that one installation as well, and are
 merely useless rather than wrong elsewhere: the TLS handshake ladder comes from
 a cloud endpoint that refuses a post-quantum key share, the reconnect timings

@@ -229,8 +229,8 @@ msgid "Weather"
 msgstr "Wetter"
 
 msgctxt "#30207"
-msgid "Today's energy"
-msgstr "Heutige Energie"
+msgid "Energy"
+msgstr "Energie"
 
 msgctxt "#30208"
 msgid "Unassigned"
