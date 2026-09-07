@@ -129,13 +129,6 @@ Both are deterministic, so a rerun without changes produces no diff.
 `make_icons.py` fetches the Material Design path data once and rasterises with
 `rsvg-convert`, falling back to macOS QuickLook.
 
-Strings are not generated. `resources/language/resource.language.en_gb/strings.po`
-is the original and is edited by hand; translations into other languages belong
-to Kodi's translation system. `resources/lib/strings.py` only gives each id a
-name, because most strings are picked by Home Assistant's vocabulary rather
-than by a call site, and `tests/test_strings.py` holds the two against each
-other so that an id cannot end up in one language file only.
-
 The addon icon is the Home Assistant logo from
 https://thesvg.org/icon/home-assistant, kept as `tools/icon.svg` with a margin
 so Kodi cannot clip it. No script turns it into `resources/icon.png` - that was
