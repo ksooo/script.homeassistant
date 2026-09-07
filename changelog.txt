@@ -1,2 +1,9 @@
+v1.1.0
+- Venetian blinds: open, close, stop and set the slats
+- Fans: speed, preset, oscillation and direction
+- Humidifiers: target humidity and mode
+- Valves: open, close, stop and position
+- The changelog is now shown in Kodi's addon browser
+
 v1.0.0
 - Initial release
