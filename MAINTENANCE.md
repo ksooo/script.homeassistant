@@ -66,7 +66,7 @@ rather than on a device that answered back.
 | --- | --- |
 | `alarm_control_panel` | arming and disarming are implemented, including asking for the code where the panel reports a `code_format`; setting the alarm off is deliberately not offered. Never run against a panel. |
 | `water_heater` | operating mode, target temperature, away mode and power are implemented. Never run against a boiler. |
-| `cover` | open, close, stop and position are offered; the four tilt features are not implemented at all. |
+| `cover` | open, close, stop, position and all four tilt features are implemented. Never run against a blind. |
 | `fan`, `humidifier`, `valve`, `siren`, `remote` | switched on and off only. Speed, target humidity and position are not offered. |
 | `lawn_mower` | not handled anywhere - a command list like the vacuum's is the obvious shape. |
 | `text`, `date`, `time`, `datetime` | no way to enter a value. |

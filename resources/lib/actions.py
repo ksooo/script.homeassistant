@@ -96,12 +96,14 @@ def menu_actions(store, entity_id):
         actions.append(Action("action_trigger", SERVICE, "automation", "trigger"))
 
     if domain == "cover":
+        features = features_of(state)
         actions.append(Action("action_open", SERVICE, "cover", "open_cover"))
         actions.append(Action("action_close", SERVICE, "cover", "close_cover"))
         actions.append(Action("action_stop", SERVICE, "cover", "stop_cover"))
-        if features_of(state) & _COVER_SET_POSITION:
+        if features & _COVER_SET_POSITION:
             actions.append(Action("action_set_value", NUMBER, "cover",
                                   "set_cover_position"))
+        actions.extend(_tilt_actions(features))
 
     if domain in ("number", "input_number"):
         actions.append(Action("action_set_value", NUMBER, domain, "set_value"))
@@ -399,6 +401,29 @@ _ASK_DOMAINS = ("vacuum", "media_player", "lock", "climate",
 _COVER_OPEN_CLOSE_STOP = 1 | 2 | 8
 _COVER_SET_POSITION = 4
 
+# CoverEntityFeature, the tilt half. Home Assistant calls it the tilt; a
+# venetian blind has it, a roller shutter has not.
+_TILT = ((16, "action_open_tilt", "open_cover_tilt"),
+         (32, "action_close_tilt", "close_cover_tilt"),
+         (64, "action_stop_tilt", "stop_cover_tilt"))
+_COVER_SET_TILT_POSITION = 128
+
+
+def _tilt_actions(features):
+    """The slats, each asked for by its own bit.
+
+    Opening and closing a cover are offered whatever it reports, because every
+    cover does them. Tilt is the opposite: offering it where there are no slats
+    would be offering nothing.
+    """
+    actions = [Action(label, SERVICE, "cover", service)
+               for bit, label, service in _TILT if features & bit]
+    if features & _COVER_SET_TILT_POSITION:
+        actions.append(Action("action_set_tilt", NUMBER, "cover",
+                              "set_cover_tilt_position"))
+    return actions
+
+
 _LIGHT_EFFECT = 4
 
 _SIREN_ON_OFF = 1 | 2
@@ -421,7 +446,8 @@ KNOWN_FEATURES = {
     "lock": _LOCK_OPEN,
     "climate": (_CLIMATE_TARGET_TEMPERATURE | _CLIMATE_FAN_MODE
                 | _CLIMATE_PRESET_MODE | _CLIMATE_TURN_ON | _CLIMATE_TURN_OFF),
-    "cover": _COVER_OPEN_CLOSE_STOP | _COVER_SET_POSITION,
+    "cover": (_COVER_OPEN_CLOSE_STOP | _COVER_SET_POSITION | _mask(_TILT)
+              | _COVER_SET_TILT_POSITION),
     "light": _LIGHT_EFFECT,
     "alarm_control_panel": _mask(_ALARM),
     "water_heater": (_WATER_TARGET_TEMPERATURE | _WATER_OPERATION_MODE

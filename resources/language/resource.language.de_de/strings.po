@@ -508,6 +508,22 @@ msgctxt "#30365"
 msgid "This one"
 msgstr "Titel"
 
+msgctxt "#30366"
+msgid "Open the tilt"
+msgstr "Kippstellung öffnen"
+
+msgctxt "#30367"
+msgid "Close the tilt"
+msgstr "Kippstellung schließen"
+
+msgctxt "#30368"
+msgid "Stop the tilt"
+msgstr "Kippbewegung anhalten"
+
+msgctxt "#30369"
+msgid "Tilt position"
+msgstr "Kippstellung"
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr "Keine Adresse von Home Assistant eingetragen"

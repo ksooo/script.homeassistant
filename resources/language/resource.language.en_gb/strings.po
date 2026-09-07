@@ -508,6 +508,22 @@ msgctxt "#30365"
 msgid "This one"
 msgstr ""
 
+msgctxt "#30366"
+msgid "Open the tilt"
+msgstr ""
+
+msgctxt "#30367"
+msgid "Close the tilt"
+msgstr ""
+
+msgctxt "#30368"
+msgid "Stop the tilt"
+msgstr ""
+
+msgctxt "#30369"
+msgid "Tilt position"
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr ""

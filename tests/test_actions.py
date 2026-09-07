@@ -232,6 +232,39 @@ class WaterHeater(unittest.TestCase):
         self.assertEqual(labels("water_heater.a", "eco", supported_features=2), [])
 
 
+class CoverTilt(unittest.TestCase):
+    VENETIAN = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128
+    ROLLER = 1 | 2 | 4 | 8
+
+    def menu(self, features):
+        store = one("cover.a", "open", supported_features=features)
+        return [a.label_key for a in actions.menu_actions(store, "cover.a")]
+
+    def test_a_venetian_blind_is_offered_its_slats(self):
+        self.assertEqual(self.menu(self.VENETIAN),
+                         ["action_open", "action_close", "action_stop",
+                          "action_set_value", "action_open_tilt",
+                          "action_close_tilt", "action_stop_tilt",
+                          "action_set_tilt", "action_details"])
+
+    def test_a_roller_shutter_is_offered_none_of_them(self):
+        self.assertEqual(self.menu(self.ROLLER),
+                         ["action_open", "action_close", "action_stop",
+                          "action_set_value", "action_details"])
+
+    def test_each_tilt_command_is_asked_for_on_its_own(self):
+        self.assertEqual([label for label in self.menu(1 | 2 | 16 | 64)
+                          if label.endswith("_tilt")],
+                         ["action_open_tilt", "action_stop_tilt"])
+
+    def test_the_angle_goes_to_the_tilt_service(self):
+        store = one("cover.a", "open", supported_features=128)
+        action = next(a for a in actions.menu_actions(store, "cover.a")
+                      if a.label_key == "action_set_tilt")
+        self.assertEqual((action.kind, action.domain, action.service),
+                         (actions.NUMBER, "cover", "set_cover_tilt_position"))
+
+
 class Picking(unittest.TestCase):
     def test_a_choice_names_where_it_reads_from_and_writes_to(self):
         store = one("select.a", "one", options=["one", "two"])

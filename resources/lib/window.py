@@ -506,11 +506,12 @@ class Dashboard(xbmcgui.WindowXML):
             return dict(action.data)
 
         if action.kind == ha_actions.NUMBER:
-            if action.service == "set_cover_position":
-                key, current = "position", attributes.get("current_position", 0)
+            field = _NUMBER_FIELDS.get(action.service)
+            if field:
+                key, current = field[0], attributes.get(field[1], 0)
             else:
                 key, current = "value", state.state if state else "0"
-            value = dialog.numeric(0, kodi.tr("action_set_value"), str(_as_int(current)))
+            value = dialog.numeric(0, kodi.tr(action.label_key), str(_as_int(current)))
             return None if value in (None, "") else {key: float(value)}
 
         if action.kind == ha_actions.TEMPERATURE:
@@ -665,6 +666,14 @@ def _shipped_icons():
         return {name[:-4] for name in os.listdir(directory) if name.endswith(".png")}
     except OSError:
         return set()
+
+
+# The service field a number goes into, and the attribute holding what it is
+# now. Anything not named here sets a value and reads the state.
+_NUMBER_FIELDS = {
+    "set_cover_position": ("position", "current_position"),
+    "set_cover_tilt_position": ("tilt_position", "current_tilt_position"),
+}
 
 
 def _choices(action, attributes):
