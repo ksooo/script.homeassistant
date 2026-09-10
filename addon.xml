@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.1.0"
+       version="1.2.0"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -17,7 +17,11 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.1.0
+    <news>v1.2.0
+- The section tiles no longer count their entities, which leaves the names more room
+- The energy summary is called "Energy" now: it lists what the energy dashboard is built from, it does not add up a day
+
+v1.1.0
 - Venetian blinds: open, close, stop and set the slats
 - Fans: speed, preset, oscillation and direction
 - Humidifiers: target humidity and mode
