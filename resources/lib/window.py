@@ -17,9 +17,11 @@ import time
 import xbmcgui
 
 from . import actions as ha_actions
-from . import cameras, formatting, icons, kodi, model, sections
+from . import cameras, formatting, icons, kodi, mediadialog, model, sections
 from .ha import auth as ha_auth
 from .ha import client as ha_client
+
+MEDIA_XML = "script.homeassistant-media.xml"
 
 ROW_LIST = 50
 CATEGORY_LIST = 51
@@ -70,6 +72,7 @@ class Dashboard(xbmcgui.WindowXML):
             verify_ssl=self._settings.verify_ssl, log=kodi.log)
         self._camera_worker = None
         self._camera_due = 0.0
+        self._media = None
         self._started = False
 
         # Notes left by the session thread, taken by pump().
@@ -156,6 +159,9 @@ class Dashboard(xbmcgui.WindowXML):
 
     def shutdown(self):
         self.closed = True
+        if self._media is not None:
+            self._media.close()
+            self._media = None
         self._store.cancel_pending_reload()
         self._session.stop()
         self._snapshots.clean_up()
@@ -185,6 +191,20 @@ class Dashboard(xbmcgui.WindowXML):
         if stills:
             self._show_stills(stills)
         self._take_camera_stills()
+        self._tick_media()
+
+    def _tick_media(self):
+        """Let the media dialog redraw. Window thread, like everything here.
+
+        The dialog is shown rather than run modally, so nothing else would
+        drive it: without this it draws once and then stands still.
+        """
+        if self._media is None:
+            return
+        if self._media.closed:
+            self._media = None
+        else:
+            self._media.tick()
 
     # -- session callbacks, background thread ----------------------------
 
@@ -465,6 +485,10 @@ class Dashboard(xbmcgui.WindowXML):
             self._ask_command(entity_id)
             return
 
+        if action.kind == ha_actions.MEDIA:
+            self._open_media(entity_id)
+            return
+
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
@@ -502,7 +526,7 @@ class Dashboard(xbmcgui.WindowXML):
         dialog = xbmcgui.Dialog()
 
         if action.kind == ha_actions.SERVICE:
-            return dict(action.data)
+            return ha_actions.service_data(action, state)
 
         if action.kind == ha_actions.NUMBER:
             field = _NUMBER_FIELDS.get(action.service)
@@ -579,6 +603,28 @@ class Dashboard(xbmcgui.WindowXML):
         return [(heading, area_id)
                 for heading, area_id in sections.room_headings(self._store)
                 if area_id in mapped]
+
+    def _open_media(self, entity_id):
+        icon = icons.icon_for(self._store, entity_id)
+        self._media = mediadialog.MediaDialog(
+            MEDIA_XML, kodi.ADDON_PATH, "Default", "720p",
+            store=self._store, entity_id=entity_id,
+            icon="icons/%s.png" % icon if icon in self._icons else "",
+            art_url=lambda picture: kodi.image_url(
+                self._settings.url, picture, self._image_token),
+            call=self._call_service)
+        self._media.show()
+
+    def _call_service(self, entity_id, service):
+        client = self._session.client
+        if client is None:
+            kodi.notify(kodi.tr("disconnected"), error=True)
+            return
+        try:
+            client.call_service("media_player", service,
+                                target={"entity_id": entity_id})
+        except ha_client.HomeAssistantError as error:
+            kodi.notify(kodi.tr("error_service") % error, error=True)
 
     def _show_details(self, entity_id):
         state = self._store.states.get(entity_id)

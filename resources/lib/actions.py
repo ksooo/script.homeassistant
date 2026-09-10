@@ -16,6 +16,8 @@ PICK = "pick"
 AREAS = "areas"
 # A service the panel may want its code for.
 ALARM = "alarm"
+# The media player's own window.
+MEDIA = "media"
 COMMANDS = "commands"
 DETAILS = "details"
 
@@ -63,6 +65,9 @@ def default_action(store, entity_id):
 
     if domain in ("button", "input_button"):
         return Action("action_press", SERVICE, domain, "press")
+
+    if domain == "media_player":
+        return Action("action_media", MEDIA)
 
     if domain in _ASK_DOMAINS:
         # These do more than one useful thing, and which of them is wanted
@@ -124,6 +129,27 @@ def menu_actions(store, entity_id):
 
 def features_of(state):
     return state.attributes.get("supported_features") or 0
+
+
+def service_data(action, state=None):
+    """The data a service call carries, with any flip resolved now.
+
+    A command that turns something around - muting, shuffle, oscillation,
+    away mode - has to read the state at the moment it is pressed, not when
+    the menu was built: between the two, someone else may have flipped it.
+    """
+    data = {key: value for key, value in action.data.items() if key != "flip"}
+    attribute = action.data.get("flip")
+    if attribute and state is not None:
+        data[attribute] = not _is_on(state.attributes.get(attribute))
+    return data
+
+
+def _is_on(value):
+    """A flag an attribute reports either as a boolean or as on and off."""
+    if isinstance(value, str):
+        return value.lower() == "on"
+    return bool(value)
 
 
 def commands_for(store, state):
@@ -206,8 +232,7 @@ def _media_commands(store, state):
 
     if features & _MEDIA_SHUFFLE:
         commands.append(Action("action_shuffle", SERVICE, "media_player",
-                               "shuffle_set",
-                               {"shuffle": not state.attributes.get("shuffle")}))
+                               "shuffle_set", {"flip": "shuffle"}))
     if features & _MEDIA_REPEAT:
         commands.append(Action("action_repeat", PICK, "media_player",
                                "repeat_set",
@@ -222,11 +247,8 @@ def _media_commands(store, state):
         commands.append(Action("action_volume_down", SERVICE, "media_player",
                                "volume_down"))
     if features & _MEDIA_VOLUME_MUTE:
-        # A mute command needs to know which way to flip.
         commands.append(Action("action_mute", SERVICE, "media_player",
-                               "volume_mute",
-                               {"is_volume_muted":
-                                not state.attributes.get("is_volume_muted")}))
+                               "volume_mute", {"flip": "is_volume_muted"}))
     if features & _MEDIA_SELECT_SOURCE and state.attributes.get("source_list"):
         commands.append(Action("action_source", PICK, "media_player",
                                "select_source",
@@ -369,10 +391,8 @@ def _water_heater_commands(store, state):
         commands.append(Action("action_set_temperature", TEMPERATURE,
                                "water_heater", "set_temperature"))
     if features & _WATER_AWAY_MODE:
-        # Reads the mode it finds and flips it, the way muting does.
-        away = state.attributes.get("away_mode") == "on"
         commands.append(Action("action_away_mode", SERVICE, "water_heater",
-                               "set_away_mode", {"away_mode": not away}))
+                               "set_away_mode", {"flip": "away_mode"}))
     if features & _WATER_ON_OFF:
         commands.append(Action("action_turn_on", SERVICE, "water_heater",
                                "turn_on"))
@@ -403,7 +423,7 @@ def _fan_commands(store, state):
                                {"from": "preset_modes", "as": "preset_mode"}))
     if features & _FAN_OSCILLATE:
         commands.append(Action("action_oscillate", SERVICE, "fan", "oscillate",
-                               {"oscillating": not attributes.get("oscillating")}))
+                               {"flip": "oscillating"}))
     if features & _FAN_DIRECTION:
         commands.append(Action("action_direction", PICK, "fan", "set_direction",
                                {"as": "direction", "choices": list(_DIRECTIONS),
@@ -458,9 +478,9 @@ _COMMANDS = {
 }
 
 # Light, fan, humidifier and valve are not among them: switching is what OK is
-# for, and for most of them it is all there is. Their commands are reached
-# through the context menu.
-_ASK_DOMAINS = ("vacuum", "media_player", "lock", "climate",
+# for, and for most of them it is all there is. Nor is media_player, which has
+# a window of its own. All of them keep their commands in the context menu.
+_ASK_DOMAINS = ("vacuum", "lock", "climate",
                 "alarm_control_panel", "water_heater")
 
 # Offered without asking: a cover that reports none of these still opens and

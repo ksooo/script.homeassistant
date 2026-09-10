@@ -134,6 +134,13 @@ def main():
     made.append(write_png(os.path.join(MEDIA, "separator.png"), 8, 2,
                           rounded_rect(8, 2, 0, (0xFF, 0xFF, 0xFF), 0.15)))
 
+    # The media window's panel, and the one bar its progress is drawn with:
+    # tinted faint for the track and accent for the part already played.
+    made.append(write_png(os.path.join(MEDIA, "panel.png"), 64, 64,
+                          rounded_rect(64, 64, 16, (0x16, 0x1C, 0x26), 0.98)))
+    made.append(write_png(os.path.join(MEDIA, "bar.png"), 8, 2,
+                          rounded_rect(8, 2, 0, (0xFF, 0xFF, 0xFF), 1.0)))
+
     # One white circle, tinted per entity by the skin.
     made.append(write_png(os.path.join(MEDIA, "circle.png"), 64,
                           64, circle(64, (0xFF, 0xFF, 0xFF))))

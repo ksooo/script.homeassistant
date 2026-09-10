@@ -121,6 +121,7 @@ IDS = {
     "action_close_tilt": 30367,
     "action_stop_tilt": 30368,
     "action_set_tilt": 30369,
+    "action_media": 30377,
     "action_speed": 30370,
     "action_oscillate": 30371,
     "action_direction": 30372,

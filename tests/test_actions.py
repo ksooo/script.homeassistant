@@ -25,10 +25,15 @@ MAPPED = {"vacuum": {"area_mapping": {"kueche": ["1_18"], "flur_ug": ["2_19"]}}}
 
 class Asking(unittest.TestCase):
     def test_ok_asks_where_the_state_does_not_say_what_is_wanted(self):
-        for entity_id in ("vacuum.a", "media_player.a", "lock.a", "climate.a"):
+        for entity_id in ("vacuum.a", "lock.a", "climate.a"):
             store = one(entity_id)
             self.assertEqual(actions.default_action(store, entity_id).kind,
                              actions.COMMANDS, entity_id)
+
+    def test_ok_on_a_media_player_opens_its_window(self):
+        store = one("media_player.a")
+        self.assertEqual(actions.default_action(store, "media_player.a").kind,
+                         actions.MEDIA)
 
     def test_a_lamp_still_just_toggles(self):
         store = one("light.a", "off")
@@ -72,12 +77,10 @@ class MediaPlayer(unittest.TestCase):
                       labels("media_player.a", supported_features=self.TELEVISION,
                              source_list=["HDMI 1", "HDMI 2"]))
 
-    def test_shuffle_flips_the_state_it_finds(self):
-        for shuffling, expected in ((False, True), (True, False)):
-            store = one("media_player.a", supported_features=32768,
-                        shuffle=shuffling)
-            action = actions.commands_for(store, store.states["media_player.a"])[0]
-            self.assertEqual(action.data, {"shuffle": expected})
+    def test_shuffle_says_what_to_flip(self):
+        store = one("media_player.a", supported_features=32768)
+        action = actions.commands_for(store, store.states["media_player.a"])[0]
+        self.assertEqual(action.data, {"flip": "shuffle"})
 
     def test_repeat_names_the_three_modes_home_assistant_takes(self):
         store = one("media_player.a", supported_features=262144)
@@ -91,12 +94,10 @@ class MediaPlayer(unittest.TestCase):
         self.assertEqual(labels("media_player.a", supported_features=1024),
                          ["action_volume_up", "action_volume_down"])
 
-    def test_muting_flips_the_state_it_finds(self):
-        for muted, expected in ((False, True), (True, False)):
-            store = one("media_player.a", supported_features=8,
-                        is_volume_muted=muted)
-            mute = actions.commands_for(store, store.states["media_player.a"])[0]
-            self.assertEqual(mute.data, {"is_volume_muted": expected})
+    def test_muting_says_what_to_flip(self):
+        store = one("media_player.a", supported_features=8)
+        mute = actions.commands_for(store, store.states["media_player.a"])[0]
+        self.assertEqual(mute.data, {"flip": "is_volume_muted"})
 
 
 class Lock(unittest.TestCase):
@@ -221,12 +222,10 @@ class WaterHeater(unittest.TestCase):
             ["action_operation_mode", "action_set_temperature",
              "action_away_mode", "action_turn_on", "action_turn_off"])
 
-    def test_away_mode_flips_what_it_finds(self):
-        for away, expected in (("off", True), ("on", False)):
-            store = one("water_heater.a", "eco", supported_features=4,
-                        away_mode=away)
-            action = actions.commands_for(store, store.states["water_heater.a"])[0]
-            self.assertEqual(action.data, {"away_mode": expected})
+    def test_away_mode_says_what_to_flip(self):
+        store = one("water_heater.a", "eco", supported_features=4)
+        action = actions.commands_for(store, store.states["water_heater.a"])[0]
+        self.assertEqual(action.data, {"flip": "away_mode"})
 
     def test_a_boiler_that_names_no_modes_is_not_offered_them(self):
         self.assertEqual(labels("water_heater.a", "eco", supported_features=2), [])
@@ -278,12 +277,10 @@ class Fan(unittest.TestCase):
     def test_a_fan_that_only_switches_is_offered_nothing(self):
         self.assertEqual(labels("fan.a", "on", supported_features=8 | 16), [])
 
-    def test_oscillating_flips_the_state_it_finds(self):
-        for swinging, expected in ((False, True), (True, False)):
-            store = one("fan.a", "on", supported_features=2,
-                        oscillating=swinging)
-            action = actions.commands_for(store, store.states["fan.a"])[0]
-            self.assertEqual(action.data, {"oscillating": expected})
+    def test_oscillating_says_what_to_flip(self):
+        store = one("fan.a", "on", supported_features=2)
+        action = actions.commands_for(store, store.states["fan.a"])[0]
+        self.assertEqual(action.data, {"flip": "oscillating"})
 
     def test_ok_still_toggles_a_fan(self):
         store = one("fan.a", "on", supported_features=self.TOWER)
@@ -315,6 +312,41 @@ class Valve(unittest.TestCase):
     def test_a_valve_without_a_position_is_not_offered_one(self):
         self.assertEqual(labels("valve.a", "open", supported_features=1 | 2),
                          ["action_open", "action_close"])
+
+
+class Flipping(unittest.TestCase):
+    def resolve(self, attribute, value):
+        store = one("media_player.a", **{attribute: value})
+        action = actions.Action("x", actions.SERVICE, "d", "s",
+                                {"flip": attribute})
+        return actions.service_data(action, store.states["media_player.a"])
+
+    def test_a_boolean_attribute_turns_around(self):
+        self.assertEqual(self.resolve("is_volume_muted", False),
+                         {"is_volume_muted": True})
+        self.assertEqual(self.resolve("is_volume_muted", True),
+                         {"is_volume_muted": False})
+
+    def test_an_attribute_reported_as_on_or_off_turns_around_too(self):
+        # A water heater says away_mode: "on", not True.
+        self.assertEqual(self.resolve("away_mode", "off"), {"away_mode": True})
+        self.assertEqual(self.resolve("away_mode", "on"), {"away_mode": False})
+
+    def test_an_attribute_the_entity_never_mentions_counts_as_off(self):
+        self.assertEqual(self.resolve("shuffle", None), {"shuffle": True})
+
+    def test_the_rest_of_the_data_passes_through(self):
+        action = actions.Action("x", actions.SERVICE, "d", "s",
+                                {"flip": "shuffle", "entity_id": "light.a"})
+        store = one("media_player.a", shuffle=True)
+        self.assertEqual(actions.service_data(action,
+                                              store.states["media_player.a"]),
+                         {"shuffle": False, "entity_id": "light.a"})
+
+    def test_without_a_state_nothing_is_invented(self):
+        action = actions.Action("x", actions.SERVICE, "d", "s",
+                                {"flip": "shuffle"})
+        self.assertEqual(actions.service_data(action, None), {})
 
 
 class Picking(unittest.TestCase):

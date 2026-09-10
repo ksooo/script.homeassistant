@@ -872,6 +872,8 @@ pool-thermometer
 popcorn
 post-lamp
 power
+power-off
+power-on
 power-plug
 power-plug-battery
 power-plug-battery-outline

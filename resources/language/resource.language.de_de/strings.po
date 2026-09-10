@@ -552,6 +552,10 @@ msgctxt "#30376"
 msgid "Position"
 msgstr "Position"
 
+msgctxt "#30377"
+msgid "Player"
+msgstr "Player"
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr "Keine Adresse von Home Assistant eingetragen"
