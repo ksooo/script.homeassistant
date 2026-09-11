@@ -43,49 +43,20 @@ _ACTIVE_STATES = ("on", "open", "opening", "closing", "unlocked", "home",
                   "playing", "cleaning", "returning", "heat", "cool", "auto",
                   "heat_cool", "dry", "fan_only", "active")
 
-# Wording per binary sensor device class: (state on, state off).
-_BINARY_WORDS = {
-    "door": ("open", "closed"),
-    "window": ("open", "closed"),
-    "garage_door": ("open", "closed"),
-    "opening": ("open", "closed"),
-    "lock": ("unlocked", "locked"),
-    "motion": ("detected", "clear"),
-    "occupancy": ("detected", "clear"),
-    "presence": ("at_home", "away"),
-    "moisture": ("wet", "dry"),
-    "problem": ("problem", "ok"),
-    "safety": ("problem", "ok"),
-    "battery": ("low", "ok"),
-    "update": ("update_available", "up_to_date"),
-}
-
-_SIMPLE_WORDS = {
-    "on": "on",
-    "off": "off",
-    "open": "open",
-    "closed": "closed",
-    "opening": "opening",
-    "closing": "closing",
-    "locked": "locked",
-    "unlocked": "unlocked",
-    "locking": "locking",
-    "unlocking": "unlocking",
-    "jammed": "jammed",
-    "home": "at_home",
-    "not_home": "away",
-}
-
 _RUNNABLE_DOMAINS = ("scene", "script", "button", "input_button")
 
 
 def state_text(store, entity_id, translate=None):
-    """The value line of a tile."""
+    """The value line of a tile.
+
+    The wording is Home Assistant's own, down to the device class of a binary
+    sensor, so that a row reads here as it reads there. Two things this addon
+    words itself, because Home Assistant has no state for them: a row that
+    cannot be reached, and one that is there to be run.
+    """
     tr = translate or strings.fallback
     state = store.states.get(entity_id)
-    if state is None:
-        return tr("unavailable")
-    if state.state in _UNAVAILABLE_STATES:
+    if state is None or state.state in _UNAVAILABLE_STATES:
         return tr("unavailable")
 
     domain = state.domain
@@ -94,32 +65,22 @@ def state_text(store, entity_id, translate=None):
     if domain in _RUNNABLE_DOMAINS:
         return tr("run")
 
-    if domain == "binary_sensor":
-        words = _BINARY_WORDS.get(store.device_class_of(entity_id))
-        if words:
-            return tr(words[0] if state.state == "on" else words[1])
-        return tr("on" if state.state == "on" else "off")
-
-    if domain == "update":
-        return tr("update_available" if state.state == "on" else "up_to_date")
+    word = _word(store, entity_id, state.state)
 
     if domain == "light":
-        if state.state != "on":
-            return tr("off")
         brightness = attributes.get("brightness")
-        if brightness is None:
-            return tr("on")
-        return "%s  %d %%" % (tr("on"), round(float(brightness) / 255.0 * 100))
+        if state.state != "on" or brightness is None:
+            return word
+        return "%s  %d %%" % (word, round(float(brightness) / 255.0 * 100))
 
     if domain == "cover":
-        text = tr(_SIMPLE_WORDS.get(state.state, state.state))
         position = attributes.get("current_position")
         if position is not None and state.state in ("open", "opening", "closing"):
-            return "%s  %d %%" % (text, int(position))
-        return text
+            return "%s  %d %%" % (word, int(position))
+        return word
 
     if domain == "climate":
-        text = _hvac_text(state, tr)
+        text = _hvac_text(store, entity_id, state, word)
         current = attributes.get("current_temperature")
         target = attributes.get("temperature")
         unit = store.unit_of_temperature
@@ -132,39 +93,42 @@ def state_text(store, entity_id, translate=None):
     if domain == "media_player":
         title = attributes.get("media_title")
         if title and state.state in ("playing", "paused"):
-            return "%s: %s" % (_word(tr, state.state), title)
-        return _word(tr, state.state)
+            return "%s: %s" % (word, title)
+        return word
 
     if domain == "weather":
         temperature = attributes.get("temperature")
-        condition = state.state.replace("-", " ").capitalize()
         if temperature is None:
-            return condition
-        return "%s  %s %s" % (condition, _number(temperature),
+            return word
+        return "%s  %s %s" % (word, _number(temperature),
                               attributes.get("temperature_unit", ""))
-
-    if domain in ("person", "device_tracker"):
-        return tr(_SIMPLE_WORDS.get(state.state, state.state))
 
     if domain in ("sensor", "number", "input_number", "counter"):
         unit = attributes.get("unit_of_measurement")
-        value = _number(state.state) if _is_number(state.state) else state.state
-        return "%s %s" % (value, unit) if unit else str(value)
+        if _is_number(state.state):
+            value = _number(state.state)
+            return "%s %s" % (value, unit) if unit else str(value)
+        return word
 
-    return _word(tr, state.state, state_word(store, entity_id, state.state))
+    return word
 
 
-def _word(tr, state, offered=""):
-    """This addon's wording first, Home Assistant's next, readable text last.
+def _word(store, entity_id, state):
+    """Home Assistant's word for a state, or the state itself."""
+    return state_word(store, entity_id, state) or _readable(state)
 
-    The addon's own words stay in front: they are hand-kept and cover the
-    states a dashboard shows all day. Home Assistant is asked for the rest - a
-    select's options, a vacuum's own vocabulary - which used to arrive as a
-    slug with its underscores rubbed out.
+
+def _readable(value):
+    """A state Home Assistant has no word for, made presentable.
+
+    Only a slug is tidied. A sensor whose value is a sentence, a name or an
+    address is not a state to be capitalised, and rubbing out its underscores
+    would ruin it - "Built-in Speaker" is not "Built-in speaker".
     """
-    if state in _SIMPLE_WORDS:
-        return tr(_SIMPLE_WORDS[state])
-    return offered or str(state).replace("_", " ").capitalize()
+    text = str(value)
+    if text.islower() and text.replace("_", "").isalnum():
+        return text.replace("_", " ").capitalize()
+    return text
 
 
 def colour(store, entity_id):
@@ -233,30 +197,40 @@ def state_word(store, entity_id, state):
 
 
 def _attribute_keys(store, entity_id, attribute, value):
-    entity = store.entities.get(entity_id)
-    if entity is None or not attribute:
+    if not attribute:
         return []
+    domain = entity_id.split(".", 1)[0]
+    entity = store.entities.get(entity_id)
     keys = []
-    if entity.translation_key:
+    if entity is not None and entity.translation_key:
         keys.append("component.%s.entity.%s.%s.state_attributes.%s.state.%s"
-                    % (entity.platform, entity.domain, entity.translation_key,
+                    % (entity.platform, domain, entity.translation_key,
                        attribute, value))
     keys.append("component.%s.entity_component._.state_attributes.%s.state.%s"
-                % (entity.domain, attribute, value))
+                % (domain, attribute, value))
     return keys
 
 
 def _state_keys(store, entity_id, value):
+    """Where Home Assistant keeps the word for a state.
+
+    Its own order: what the integration calls it, then what the domain calls it
+    for this device class - a window sensor is open, not on - then the domain's
+    plain wording. The domain comes from the entity id rather than the
+    registry, because an entity without a registry entry, and sun.sun is one,
+    still has a domain.
+    """
+    domain = entity_id.split(".", 1)[0]
     entity = store.entities.get(entity_id)
-    if entity is None:
-        return []
     keys = []
-    if entity.translation_key:
+    if entity is not None and entity.translation_key:
         keys.append("component.%s.entity.%s.%s.state.%s"
-                    % (entity.platform, entity.domain, entity.translation_key,
-                       value))
-    keys.append("component.%s.entity_component._.state.%s"
-                % (entity.domain, value))
+                    % (entity.platform, domain, entity.translation_key, value))
+    device_class = store.device_class_of(entity_id)
+    if device_class:
+        keys.append("component.%s.entity_component.%s.state.%s"
+                    % (domain, device_class, value))
+    keys.append("component.%s.entity_component._.state.%s" % (domain, value))
     return keys
 
 
@@ -268,10 +242,16 @@ def _translated(store, keys):
     return ""
 
 
-def _hvac_text(state, tr):
+def _hvac_text(store, entity_id, state, word):
+    """What a thermostat is doing, which is not the same as its mode.
+
+    Home Assistant words hvac_action as the value of an attribute and the mode
+    as a state, so the two come from different keys.
+    """
     action = state.attributes.get("hvac_action")
-    text = action or state.state
-    return str(text).replace("_", " ").capitalize()
+    if not action:
+        return word
+    return option_text(store, entity_id, "hvac_action", action)
 
 
 def _is_number(value):

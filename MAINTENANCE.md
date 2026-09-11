@@ -51,18 +51,25 @@ This is the group that needs looking after.
 | What | Where |
 | --- | --- |
 | The icon fallback chain: state pairs, device class table, domain table, and the battery ladder in ten percent steps | `resources/lib/icons.py` |
-| State wording and colours, the active and unavailable state lists, the alarming device classes | `resources/lib/formatting.py` |
+| State colours, the active and unavailable state lists, the alarming device classes | `resources/lib/formatting.py` |
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
-| The addon's own translations of state words, rather than Home Assistant's frontend translations | `resources/language/*/strings.po` |
+| The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
 
 A new or renamed icon in Home Assistant ends as an empty square here, not as an
 error.
 
-The last row of that table has a limit worth knowing: the *values* in an option
-list are not translated here at all, they come from Home Assistant over
-`frontend/get_translations`. The same channel carries the state words, which
-this addon still translates itself - moving those over is a decision, not an
-oversight.
+Almost no wording is decided here any more. What a row says about a state, and
+what the values in an option list are called, both come from Home Assistant
+over `frontend/get_translations` - down to the device class of a binary sensor,
+so that a window reads as open rather than as on. Only two words are the
+addon's own, because Home Assistant has no state for them: a row it cannot
+reach, and one that is there to be run.
+
+The price is a dependency. Before the first connection there is no wording, and
+in a language Home Assistant does not ship, a row falls back to the state as it
+arrived while the rest of the addon still speaks Kodi's language. A state that
+Home Assistant does not translate at all is shown as it arrived, tidied only
+where it is a plain slug.
 
 ## Tried against one installation only
 

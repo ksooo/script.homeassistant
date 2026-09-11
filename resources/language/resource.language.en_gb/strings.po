@@ -92,112 +92,12 @@ msgctxt "#30036"
 msgid "Seconds between two stills; 0 turns the preview off"
 msgstr ""
 
-msgctxt "#30100"
-msgid "On"
-msgstr ""
-
-msgctxt "#30101"
-msgid "Off"
-msgstr ""
-
-msgctxt "#30102"
-msgid "Open"
-msgstr ""
-
-msgctxt "#30103"
-msgid "Closed"
-msgstr ""
-
-msgctxt "#30104"
-msgid "Opening"
-msgstr ""
-
-msgctxt "#30105"
-msgid "Closing"
-msgstr ""
-
-msgctxt "#30106"
-msgid "Locked"
-msgstr ""
-
-msgctxt "#30107"
-msgid "Unlocked"
-msgstr ""
-
-msgctxt "#30108"
-msgid "Locking"
-msgstr ""
-
-msgctxt "#30109"
-msgid "Unlocking"
-msgstr ""
-
-msgctxt "#30110"
-msgid "Jammed"
-msgstr ""
-
 msgctxt "#30111"
 msgid "Unavailable"
 msgstr ""
 
-msgctxt "#30112"
-msgid "Unknown"
-msgstr ""
-
-msgctxt "#30113"
-msgid "Home"
-msgstr ""
-
-msgctxt "#30114"
-msgid "Away"
-msgstr ""
-
-msgctxt "#30115"
-msgid "Detected"
-msgstr ""
-
-msgctxt "#30116"
-msgid "Clear"
-msgstr ""
-
-msgctxt "#30117"
-msgid "Wet"
-msgstr ""
-
-msgctxt "#30118"
-msgid "Dry"
-msgstr ""
-
-msgctxt "#30119"
-msgid "Problem"
-msgstr ""
-
-msgctxt "#30120"
-msgid "OK"
-msgstr ""
-
-msgctxt "#30121"
-msgid "Low"
-msgstr ""
-
-msgctxt "#30122"
-msgid "Update available"
-msgstr ""
-
-msgctxt "#30123"
-msgid "Up to date"
-msgstr ""
-
 msgctxt "#30124"
 msgid "Run"
-msgstr ""
-
-msgctxt "#30125"
-msgid "Brightness"
-msgstr ""
-
-msgctxt "#30126"
-msgid "Position"
 msgstr ""
 
 msgctxt "#30200"

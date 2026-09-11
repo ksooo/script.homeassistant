@@ -5,7 +5,7 @@ other languages come from Kodi's translation system. Nothing here holds text.
 
 The names exist because most of these strings are chosen by Home Assistant's
 own vocabulary rather than by a call site - a summary is titled by the
-shortcut key Home Assistant lists, a state by the value it reports - so
+shortcut key Home Assistant lists - so
 something has to map that vocabulary onto ids. tests/test_strings.py holds
 this table against the language files.
 """
@@ -25,33 +25,8 @@ IDS = {
     "no_room": 30210,
 
     # states
-    "on": 30100,
-    "off": 30101,
-    "open": 30102,
-    "closed": 30103,
-    "opening": 30104,
-    "closing": 30105,
-    "locked": 30106,
-    "unlocked": 30107,
-    "locking": 30108,
-    "unlocking": 30109,
-    "jammed": 30110,
     "unavailable": 30111,
-    "unknown": 30112,
-    "at_home": 30113,
-    "away": 30114,
-    "detected": 30115,
-    "clear": 30116,
-    "wet": 30117,
-    "dry": 30118,
-    "problem": 30119,
-    "ok": 30120,
-    "low": 30121,
-    "update_available": 30122,
-    "up_to_date": 30123,
     "run": 30124,
-    "brightness": 30125,
-    "position": 30126,
 
     # user interface
     "dashboard_title": 30300,
