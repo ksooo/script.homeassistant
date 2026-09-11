@@ -756,6 +756,7 @@ lock-remove
 lock-remove-outline
 lock-reset
 lock-smart
+login-variant
 looks
 magnify
 map

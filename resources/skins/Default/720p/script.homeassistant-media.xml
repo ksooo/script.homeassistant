@@ -27,6 +27,16 @@
             <left>914</left><top>72</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
+        <control type="button" id="144">
+            <left>762</left><top>56</top><width>56</width><height>56</height>
+            <texturefocus border="10">item_focus.png</texturefocus>
+            <texturenofocus border="10">item.png</texturenofocus>
+            <label></label>
+        </control>
+        <control type="image" id="145">
+            <left>778</left><top>72</top><width>24</width><height>24</height>
+            <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
+        </control>
         <control type="button" id="142">
             <left>830</left><top>56</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>

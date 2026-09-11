@@ -115,6 +115,27 @@ class Volume(unittest.TestCase):
                          (False, None, False))
 
 
+class Sources(unittest.TestCase):
+    def test_the_inputs_come_from_the_player(self):
+        # The Yamaha is the only one here that offers this at all.
+        self.assertEqual(
+            media.sources(player("on", supported_features=2048,
+                                 source_list=["SHIELD", "HDMI 2", "TUNER"])),
+            ["SHIELD", "HDMI 2", "TUNER"])
+
+    def test_a_player_that_cannot_switch_inputs_offers_none(self):
+        self.assertEqual(media.sources(player("on", supported_features=4,
+                                              source_list=["HDMI 1"])), [])
+
+    def test_a_player_naming_no_inputs_offers_none(self):
+        self.assertEqual(media.sources(player("on", supported_features=2048)), [])
+
+    def test_an_unavailable_player_offers_none(self):
+        self.assertEqual(media.sources(player("unavailable",
+                                              supported_features=2048,
+                                              source_list=["HDMI 1"])), [])
+
+
 class Naming(unittest.TestCase):
     def test_the_subtitle_falls_through_to_what_is_there(self):
         self.assertEqual(

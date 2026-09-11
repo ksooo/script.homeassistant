@@ -22,6 +22,7 @@ _TURN_OFF = 256
 _VOLUME_SET = 4
 _VOLUME_MUTE = 8
 _VOLUME_STEP = 1024
+_SELECT_SOURCE = 2048
 
 # Nothing to transport: for a player that is off, Home Assistant offers a
 # power button and nothing else, and that is not part of this row.
@@ -106,6 +107,19 @@ def muted(state):
     row only needs to know which way round to draw its speaker.
     """
     return bool(state.attributes.get("is_volume_muted"))
+
+
+def sources(state):
+    """The inputs the player can be switched to, if it offers that.
+
+    Not gated on the player being off: Home Assistant keeps this row of
+    buttons alive there too, and an amplifier woken by its input choice is a
+    reasonable thing to want.
+    """
+    features = state.attributes.get("supported_features") or 0
+    if state.state in ("unavailable", "unknown") or not features & _SELECT_SOURCE:
+        return []
+    return [str(name) for name in state.attributes.get("source_list") or []]
 
 
 def clock(seconds):

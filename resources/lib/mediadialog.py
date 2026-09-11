@@ -27,11 +27,14 @@ LABEL_DURATION = 109
 # Five slots, filled left to right with whatever the player offers.
 BUTTONS = (120, 121, 122, 123, 124)
 BUTTON_ICONS = (130, 131, 132, 133, 134)
-# Two slots at the top right, filled from the right edge inwards.
-POWER_BUTTONS = (140, 142)
-POWER_ICONS = (141, 143)
-POWER_RIGHT = 898
-POWER_STEP = 68
+# The device row at the top right - power, and the input to switch to -
+# filled from the right edge inwards. Not the transport: these act on the
+# box, not on what it is playing.
+DEVICE_BUTTONS = (144, 142, 140)
+DEVICE_ICONS = (145, 143, 141)
+BUTTON_SOURCE = 144
+DEVICE_RIGHT = 898
+DEVICE_STEP = 68
 
 # The volume row: a slider where the player takes a level, two step buttons
 # where it does not, and muting either way.
@@ -76,7 +79,8 @@ ACTION_PLAYER_PLAYPAUSE = 229
 
 _ICONS = {"previous": "skip-previous", "pause": "pause", "play": "play",
           "stop": "stop", "next": "skip-next", "power": "power",
-          "power_on": "power-on", "power_off": "power-off"}
+          "power_on": "power-on", "power_off": "power-off",
+          "source": "login-variant"}
 
 # The remote's own transport keys, which a web page cannot have. The play
 # key takes whichever of the two the player is offering.
@@ -127,13 +131,15 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
 
     def onClick(self, control_id):
         service = self._slots.get(control_id)
-        if service:
+        if service and control_id != BUTTON_SOURCE:
             self._call(self._entity_id, service)
             return
         state = self._store.states.get(self._entity_id)
         if state is None:
             return
-        if control_id == BUTTON_MUTE:
+        if control_id == BUTTON_SOURCE:
+            self._choose_source(state)
+        elif control_id == BUTTON_MUTE:
             self._call(self._entity_id, "volume_mute",
                        ha_actions.service_data(_MUTE, state))
         elif control_id == BUTTON_DOWN:
@@ -181,7 +187,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         if share is not None:
             self._width(IMAGE_FILL, max(2, int(TRACK_WIDTH * share)))
 
-        rows = [self._power(state), self._buttons(state), self._volume(state)]
+        rows = [self._device(state), self._buttons(state), self._volume(state)]
         self._wire(rows)
         # The transport row first, else the volume row, else power.
         visible = [control for row in rows for control in row]
@@ -217,9 +223,11 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
 
         return [button for button, _ in zip(BUTTONS, drawn)]
 
-    def _power(self, state):
-        drawn = media.power(state)[:len(POWER_BUTTONS)]
-        for slot, (button, image) in enumerate(zip(POWER_BUTTONS, POWER_ICONS)):
+    def _device(self, state):
+        drawn = ([("source", "select_source")] if media.sources(state) else [])
+        drawn += media.power(state)
+        drawn = drawn[:len(DEVICE_BUTTONS)]
+        for slot, (button, image) in enumerate(zip(DEVICE_BUTTONS, DEVICE_ICONS)):
             filled = slot < len(drawn)
             self._show(button, filled)
             self._show(image, filled)
@@ -229,11 +237,11 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             self._slots[button] = service
             self._image(image, "icons/%s.png" % _ICONS[name])
             # Right-aligned, so a single button keeps the corner.
-            x = POWER_RIGHT - (len(drawn) - 1 - slot) * POWER_STEP
+            x = DEVICE_RIGHT - (len(drawn) - 1 - slot) * DEVICE_STEP
             self._place(button, x)
             self._place(image, x + ICON_INSET)
 
-        return [button for button, _ in zip(POWER_BUTTONS, drawn)]
+        return [button for button, _ in zip(DEVICE_BUTTONS, drawn)]
 
     def _picture(self, state):
         """Everything that decides what is on screen, to redraw only on change."""
@@ -327,6 +335,14 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             self.getControl(control_id).setVisible(visible)
         except RuntimeError:
             pass
+
+    def _choose_source(self, state):
+        names = media.sources(state)
+        if not names:
+            return
+        choice = xbmcgui.Dialog().select(kodi.tr("action_source"), names)
+        if choice >= 0:
+            self._call(self._entity_id, "select_source", {"source": names[choice]})
 
     def _wire(self, rows):
         """Give the visible controls their neighbours, top row first.
