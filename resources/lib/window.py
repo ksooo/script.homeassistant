@@ -615,13 +615,13 @@ class Dashboard(xbmcgui.WindowXML):
             call=self._call_service)
         self._media.show()
 
-    def _call_service(self, entity_id, service):
+    def _call_service(self, entity_id, service, data=None):
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
         try:
-            client.call_service("media_player", service,
+            client.call_service("media_player", service, data=data,
                                 target={"entity_id": entity_id})
         except ha_client.HomeAssistantError as error:
             kodi.notify(kodi.tr("error_service") % error, error=True)

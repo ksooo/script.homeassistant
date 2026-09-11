@@ -19,6 +19,9 @@ _STOP = 4096
 _PLAY = 16384
 _TURN_ON = 128
 _TURN_OFF = 256
+_VOLUME_SET = 4
+_VOLUME_MUTE = 8
+_VOLUME_STEP = 1024
 
 # Nothing to transport: for a player that is off, Home Assistant offers a
 # power button and nothing else, and that is not part of this row.
@@ -77,6 +80,32 @@ def power(state):
     if state.state == "off":
         return [("power", "turn_on")] if features & _TURN_ON else []
     return [("power", "turn_off")] if features & _TURN_OFF else []
+
+
+def volume(state):
+    """What the volume row offers: (mute, level, steps).
+
+    level is where the volume stands, for a player that takes one; steps
+    says it only takes up and down. Home Assistant shows a slider for the
+    first and two buttons for the second - the Shield's own remote takes
+    steps only, the television beside it takes a level.
+    """
+    features = state.attributes.get("supported_features") or 0
+    if state.state in ("unavailable", "unknown", "off"):
+        return (False, None, False)
+    takes_level = bool(features & _VOLUME_SET)
+    return (bool(features & _VOLUME_MUTE),
+            (state.attributes.get("volume_level") or 0.0) if takes_level else None,
+            bool(features & _VOLUME_STEP) and not takes_level)
+
+
+def muted(state):
+    """Whether the player says it is muted.
+
+    Unlike a water heater's away mode this one is a real boolean - the volume
+    row only needs to know which way round to draw its speaker.
+    """
+    return bool(state.attributes.get("is_volume_muted"))
 
 
 def clock(seconds):

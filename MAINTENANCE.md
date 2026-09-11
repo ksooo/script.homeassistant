@@ -105,6 +105,30 @@ are chosen by Material Design Icons category rather than harvested from a
 particular set of entities. Measured against 1121 visible entities, none was
 left without an icon.
 
+## What Kodi does not lend a script
+
+The volume slider in the media window behaves differently from every other
+slider in Kodi. The convention is that one takes left and right only after
+it has been clicked, and hands the move on to its neighbour before that;
+this one takes them straight away and is left with up or down.
+
+The convention lives in `CGUISettingsSliderControl`, the `sliderex` control
+type, whose `IsActive()` reports whether it has been clicked - where the
+plain `slider`'s returns true for good. And `sliderex` cannot be used:
+Kodi's Python control factory has no case for it, so `getControl()` on one
+raises "Unknown control type for python", and nothing about it could then be
+read, set, placed or navigated.
+
+Emulating the convention would mean putting the value back and moving the
+focus on by hand, after the control has already acted on the key, and with
+no way to show that the slider is armed - a slider's textures cannot be
+swapped from Python either. Left as it is on purpose.
+
+Kodi tells a script nothing about a slider being moved, for the same family
+of reasons: the control sends a click that the Python wrapper refuses,
+`ControlSlider` not overriding `canAcceptMessages`. The value is read back
+in `onAction` instead.
+
 ## Checking a real install
 
 `tools/unknown_features.py` compares the `supported_features` of every entity

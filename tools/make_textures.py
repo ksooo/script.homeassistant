@@ -92,6 +92,17 @@ def circle(size, colour):
     return render(size, size, shader)
 
 
+def horizontal_band(width, height, thickness, colour, opacity):
+    """A line of the given thickness, centred in a taller transparent strip."""
+    top = (height - thickness) / 2.0
+
+    def shader(x, y):
+        if y < top or y > top + thickness:
+            return None
+        return (colour[0], colour[1], colour[2], opacity)
+    return render(width, height, shader)
+
+
 def vertical_gradient(width, height, top, bottom):
     pixels = bytearray(width * height * 4)
     for y in range(height):
@@ -137,9 +148,22 @@ def main():
     # The media window's panel, and the one bar its progress is drawn with:
     # tinted faint for the track and accent for the part already played.
     made.append(write_png(os.path.join(MEDIA, "panel.png"), 64, 64,
-                          rounded_rect(64, 64, 16, (0x16, 0x1C, 0x26), 0.98)))
+                          rounded_rect(64, 64, 16, (0x16, 0x1C, 0x26), 1.0)))
     made.append(write_png(os.path.join(MEDIA, "bar.png"), 8, 2,
                           rounded_rect(8, 2, 0, (0xFF, 0xFF, 0xFF), 1.0)))
+
+    # The volume slider's track and thumb. Kodi sizes the thumb from the
+    # *track* texture's height - fScale = slider height / track texture height
+    # - and then gives it a box twice as wide as tall, which its KEEP aspect
+    # ratio leaves square. So the two textures scale together: at four times
+    # the drawn size fScale comes out a quarter, the thumb still lands on
+    # twenty pixels, and there are four times the pixels to draw it from. Kodi
+    # stretches the whole skin to the screen, and a twenty pixel circle went
+    # soft on the way.
+    made.append(write_png(os.path.join(MEDIA, "slider_track.png"), 32, 80,
+                          horizontal_band(32, 80, 24, (0xFF, 0xFF, 0xFF), 0.20)))
+    made.append(write_png(os.path.join(MEDIA, "slider_nib.png"), 80, 80,
+                          circle(80, (0xFF, 0xFF, 0xFF))))
 
     # One white circle, tinted per entity by the skin.
     made.append(write_png(os.path.join(MEDIA, "circle.png"), 64,

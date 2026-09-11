@@ -82,6 +82,39 @@ class Power(unittest.TestCase):
         self.assertEqual(self.services("unavailable", self.BOTH), [])
 
 
+class Volume(unittest.TestCase):
+    def test_a_player_taking_a_level_gets_a_slider(self):
+        # The television: volume_set, and it sits at zero.
+        self.assertEqual(media.volume(player("on", supported_features=4 | 8,
+                                             volume_level=0.0)),
+                         (True, 0.0, False))
+
+    def test_a_player_taking_only_steps_gets_buttons(self):
+        # The Shield's own remote: mute and steps, but no level.
+        self.assertEqual(media.volume(player("on", supported_features=8 | 1024)),
+                         (True, None, True))
+
+    def test_steps_give_way_to_a_level(self):
+        self.assertEqual(media.volume(player("on", supported_features=4 | 1024)),
+                         (False, 0.0, False))
+
+    def test_a_player_reporting_no_level_shows_the_slider_at_zero(self):
+        self.assertEqual(media.volume(player("idle", supported_features=4)),
+                         (False, 0.0, False))
+
+    def test_muting_needs_its_own_bit(self):
+        self.assertEqual(media.volume(player("on", supported_features=4))[0], False)
+
+    def test_a_player_says_whether_it_is_muted(self):
+        self.assertTrue(media.muted(player("on", is_volume_muted=True)))
+        self.assertFalse(media.muted(player("on", is_volume_muted=False)))
+        self.assertFalse(media.muted(player("on")))
+
+    def test_a_player_that_is_off_has_no_volume_row(self):
+        self.assertEqual(media.volume(player("off", supported_features=4 | 8)),
+                         (False, None, False))
+
+
 class Naming(unittest.TestCase):
     def test_the_subtitle_falls_through_to_what_is_there(self):
         self.assertEqual(
