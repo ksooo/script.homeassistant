@@ -454,9 +454,13 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             preselect=[index for index, choice in enumerate(choices) if choice[2]])
         if picked is None:
             return
-        current = [choice[0] for choice in choices if choice[2]]
-        added, removed = media.group_plan(current,
-                                          [choices[index][0] for index in picked])
+        # The player's own row is fixed - it is always in its own group - so it
+        # takes no part in the joining and the leaving.
+        current = [entity for entity, _, joined in choices
+                   if joined and entity != self._entity_id]
+        wanted = [choices[index][0] for index in picked
+                  if choices[index][0] != self._entity_id]
+        added, removed = media.group_plan(current, wanted)
         if added:
             self._call(self._entity_id, "join", {"group_members": added})
         for entity_id in removed:

@@ -175,22 +175,25 @@ def sound_modes(state):
 
 
 def group_choices(store, entity_id):
-    """The players this one could be grouped with, and who is in already.
+    """The players a group could hold, this one at the head.
 
-    Only the same integration is offered: a group forms inside one, and there
-    is no service to join across. The player itself is left out - it is always
-    in its own group. Returns (entity_id, name, joined), in name order.
+    Home Assistant lists the player itself first, ticked and not to be
+    unticked, and then the others of the same integration - a group forms
+    inside one, and there is no service to join across. The others come in
+    registry order, and their state does not matter: one that is unavailable
+    is listed too. Returns (entity_id, name, joined).
     """
     state = store.states.get(entity_id)
     if state is None or not can_group(state):
         return []
     platform = _platform(store, entity_id)
-    members = [str(member) for member in state.attributes.get("group_members") or []]
-    choices = [(other_id, store.display_name_of(other_id), other_id in members)
-               for other_id, other in store.states.items()
-               if other_id != entity_id and other.domain == "media_player"
-               and can_group(other) and _platform(store, other_id) == platform]
-    return sorted(choices, key=lambda choice: choice[1])
+    members = group_members(state)
+    others = [(other_id, store.display_name_of(other_id), other_id in members)
+              for other_id, entity in store.entities.items()
+              if other_id != entity_id and entity.domain == "media_player"
+              and entity.platform == platform and other_id in store.states
+              and _groups(store.states[other_id])]
+    return [(entity_id, store.display_name_of(entity_id), True)] + others
 
 
 def group_plan(current, wanted):
@@ -232,7 +235,12 @@ def can_group(state):
     Unavailable is the only state that takes it away - a player Home Assistant
     knows nothing about keeps it, and so does one with nobody to group with.
     """
-    return state.state != "unavailable" and bool(_features(state) & _GROUPING)
+    return state.state != "unavailable" and _groups(state)
+
+
+def _groups(state):
+    """Whether the player reports the grouping bit at all."""
+    return bool(_features(state) & _GROUPING)
 
 
 def can_select_source(state):
@@ -281,6 +289,11 @@ def clock(seconds):
     if hours:
         return "%d:%02d:%02d" % (hours, minutes, seconds)
     return "%d:%02d" % (minutes, seconds)
+
+
+def group_members(state):
+    """Who is playing along, as the player reports it."""
+    return [str(member) for member in state.attributes.get("group_members") or []]
 
 
 def subtitle(state):

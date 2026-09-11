@@ -175,6 +175,17 @@ class Browsing(unittest.TestCase):
             media.can_browse(player("unavailable", supported_features=186303)))
 
 
+class GroupMembers(unittest.TestCase):
+    def test_the_members_come_from_the_player(self):
+        state = player("playing", group_members=["media_player.main",
+                                                 "media_player.zone2"])
+        self.assertEqual(media.group_members(state),
+                         ["media_player.main", "media_player.zone2"])
+
+    def test_a_player_in_no_group_has_none(self):
+        self.assertEqual(media.group_members(player("playing")), [])
+
+
 class Seeking(unittest.TestCase):
     PLAYER = 186303                      # Kodi on the Shield, which seeks
     TELEVISION = 24381                   # the LG, which does not
@@ -287,30 +298,53 @@ class Grouping(unittest.TestCase):
             ("media_player.zone2", "Yamaha Zone 2", "yamaha_musiccast",
              self.RECEIVER, ["media_player.zone2"]))
 
-    def test_a_receiver_is_offered_the_other_zone(self):
+    def test_the_player_heads_the_list_and_the_other_zone_follows(self):
+        # Home Assistant puts the player itself first, ticked and fixed.
         self.assertEqual(media.group_choices(self.yamahas(), "media_player.main"),
-                         [("media_player.zone2", "Yamaha Zone 2", False)])
+                         [("media_player.main", "Yamaha", True),
+                          ("media_player.zone2", "Yamaha Zone 2", False)])
 
     def test_a_player_already_in_comes_back_ticked(self):
         store = self.yamahas(("media_player.main", "media_player.zone2"))
-        self.assertEqual(media.group_choices(store, "media_player.main"),
-                         [("media_player.zone2", "Yamaha Zone 2", True)])
+        self.assertEqual(media.group_choices(store, "media_player.main")[1],
+                         ("media_player.zone2", "Yamaha Zone 2", True))
 
     def test_another_integration_is_not_offered(self):
-        # A group forms inside one integration, whatever the bits say.
+        # A group forms inside one integration, whatever the bits say, so
+        # nothing follows the player's own row.
         store = self.store(
             ("media_player.main", "Yamaha", "yamaha_musiccast",
              self.RECEIVER, ["media_player.main"]),
             ("media_player.cast", "Chromecast", "cast",
              self.RECEIVER, ["media_player.cast"]))
-        self.assertEqual(media.group_choices(store, "media_player.main"), [])
+        self.assertEqual(media.group_choices(store, "media_player.main"),
+                         [("media_player.main", "Yamaha", True)])
+
+    def test_an_unavailable_zone_is_offered_all_the_same(self):
+        # Home Assistant filters the candidates by the bit, not by the state.
+        store = support.build(
+            entities=[support.entity("media_player.main", "Yamaha",
+                                     platform="yamaha_musiccast"),
+                      support.entity("media_player.zone2", "Yamaha Zone 2",
+                                     platform="yamaha_musiccast")],
+            states=[support.state("media_player.main", "playing",
+                                  friendly_name="Yamaha",
+                                  supported_features=self.RECEIVER,
+                                  group_members=["media_player.main"]),
+                    support.state("media_player.zone2", "unavailable",
+                                  friendly_name="Yamaha Zone 2",
+                                  supported_features=self.RECEIVER)])
+        self.assertEqual([entity for entity, _, _ in
+                          media.group_choices(store, "media_player.main")],
+                         ["media_player.main", "media_player.zone2"])
 
     def test_a_player_that_cannot_group_is_not_offered(self):
         store = self.store(
             ("media_player.main", "Yamaha", "yamaha_musiccast",
              self.RECEIVER, ["media_player.main"]),
             ("media_player.kodi", "Kodi", "yamaha_musiccast", self.KODI, []))
-        self.assertEqual(media.group_choices(store, "media_player.main"), [])
+        self.assertEqual(media.group_choices(store, "media_player.main"),
+                         [("media_player.main", "Yamaha", True)])
 
     def test_a_player_that_cannot_group_is_offered_nobody(self):
         store = self.store(
