@@ -56,27 +56,35 @@
             <texture border="1">separator.png</texture>
         </control>
 
-        <control type="list" id="51">
-            <left>30</left>
+        <control type="image">
+            <left>369</left>
             <top>92</top>
-            <width>330</width>
+            <width>2</width>
             <height>576</height>
-            <onright>61</onright>
-            <onleft>60</onleft>
+            <texture>separator.png</texture>
+        </control>
+
+        <control type="list" id="51">
+            <left>46</left>
+            <top>92</top>
+            <width>314</width>
+            <height>576</height>
+            <onright>50</onright>
+            <onleft>61</onleft>
             <pagecontrol>61</pagecontrol>
             <scrolltime>200</scrolltime>
-            <itemlayout height="64" width="330">
+            <itemlayout height="64" width="314">
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
-                    <width>326</width>
+                    <width>310</width>
                     <height>60</height>
                     <texture border="10">item.png</texture>
                 </control>
                 <control type="label">
                     <left>18</left>
                     <top>0</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>64</height>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -87,7 +95,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>8</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>28</height>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
@@ -97,18 +105,18 @@
                 <control type="label">
                     <left>18</left>
                     <top>32</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>24</height>
                     <font>font10</font>
                     <textcolor>FFA0A0A0</textcolor>
                     <label>$INFO[ListItem.Label2]</label>
                 </control>
             </itemlayout>
-            <focusedlayout height="64" width="330">
+            <focusedlayout height="64" width="314">
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
-                    <width>326</width>
+                    <width>310</width>
                     <height>60</height>
                     <texture border="10">item_focus.png</texture>
                     <visible>Control.HasFocus(51)</visible>
@@ -116,7 +124,7 @@
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
-                    <width>326</width>
+                    <width>310</width>
                     <height>60</height>
                     <texture border="10">item.png</texture>
                     <visible>!Control.HasFocus(51)</visible>
@@ -124,7 +132,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>0</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>64</height>
                     <aligny>center</aligny>
                     <scroll>true</scroll>
@@ -136,7 +144,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>0</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>64</height>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -147,7 +155,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>8</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>28</height>
                     <scroll>true</scroll>
                     <font>font13</font>
@@ -158,7 +166,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>8</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>28</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -168,7 +176,7 @@
                 <control type="label">
                     <left>18</left>
                     <top>32</top>
-                    <width>294</width>
+                    <width>278</width>
                     <height>24</height>
                     <font>font10</font>
                     <textcolor>FFE2EAF2</textcolor>
@@ -182,7 +190,7 @@
             <top>92</top>
             <width>854</width>
             <height>576</height>
-            <onleft>61</onleft>
+            <onleft>51</onleft>
             <onright>60</onright>
             <pagecontrol>60</pagecontrol>
             <scrolltime>200</scrolltime>
@@ -514,7 +522,7 @@
              Left and right walk a ring - list, its bar, the other list, its
              bar - and Kodi skips a bar that is not on screen. -->
         <control type="scrollbar" id="61">
-            <left>364</left>
+            <left>30</left>
             <top>92</top>
             <width>12</width>
             <height>576</height>
@@ -525,8 +533,8 @@
             <texturesliderbarfocus border="0,6,0,6" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
             <textureslidernib />
             <textureslidernibfocus />
-            <onleft>51</onleft>
-            <onright>50</onright>
+            <onleft>60</onleft>
+            <onright>51</onright>
         </control>
         <control type="scrollbar" id="60">
             <left>1238</left>
@@ -541,7 +549,7 @@
             <textureslidernib />
             <textureslidernibfocus />
             <onleft>50</onleft>
-            <onright>51</onright>
+            <onright>61</onright>
         </control>
     </controls>
 </window>
