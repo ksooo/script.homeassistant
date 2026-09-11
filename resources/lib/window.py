@@ -32,6 +32,7 @@ LABEL_EMPTY = 105
 
 ACTION_MOVE_UP = 3
 ACTION_PAGE_UP = 5
+ACTION_SHOW_INFO = 11
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
@@ -125,6 +126,14 @@ class Dashboard(xbmcgui.WindowXML):
             self.close()
         elif action_id == ACTION_CONTEXT_MENU:
             self._show_menu()
+        elif action_id == ACTION_SHOW_INFO:
+            # Only where a row is being stood on: the info action is about
+            # the thing in focus, and in the section list that is not an
+            # entity.
+            if self._focused_control() == ROW_LIST:
+                entity_id = self._focused_entity()
+                if entity_id:
+                    self._show_details(entity_id)
         else:
             if self._focused_control() == ROW_LIST:
                 self._step_over_headings(
