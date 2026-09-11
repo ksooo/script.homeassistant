@@ -60,24 +60,24 @@
             <left>30</left>
             <top>92</top>
             <width>330</width>
-            <height>560</height>
+            <height>576</height>
             <onright>61</onright>
             <onleft>60</onleft>
             <pagecontrol>61</pagecontrol>
             <scrolltime>200</scrolltime>
-            <itemlayout height="56" width="330">
+            <itemlayout height="64" width="330">
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
                     <width>326</width>
-                    <height>52</height>
+                    <height>60</height>
                     <texture border="10">item.png</texture>
                 </control>
                 <control type="label">
                     <left>18</left>
                     <top>0</top>
                     <width>294</width>
-                    <height>56</height>
+                    <height>64</height>
                     <aligny>center</aligny>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
@@ -86,7 +86,7 @@
                 </control>
                 <control type="label">
                     <left>18</left>
-                    <top>4</top>
+                    <top>8</top>
                     <width>294</width>
                     <height>28</height>
                     <font>font13</font>
@@ -96,7 +96,7 @@
                 </control>
                 <control type="label">
                     <left>18</left>
-                    <top>28</top>
+                    <top>32</top>
                     <width>294</width>
                     <height>24</height>
                     <font>font10</font>
@@ -104,12 +104,12 @@
                     <label>$INFO[ListItem.Label2]</label>
                 </control>
             </itemlayout>
-            <focusedlayout height="56" width="330">
+            <focusedlayout height="64" width="330">
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
                     <width>326</width>
-                    <height>52</height>
+                    <height>60</height>
                     <texture border="10">item_focus.png</texture>
                     <visible>Control.HasFocus(51)</visible>
                 </control>
@@ -117,7 +117,7 @@
                     <left>2</left>
                     <top>2</top>
                     <width>326</width>
-                    <height>52</height>
+                    <height>60</height>
                     <texture border="10">item.png</texture>
                     <visible>!Control.HasFocus(51)</visible>
                 </control>
@@ -125,7 +125,7 @@
                     <left>18</left>
                     <top>0</top>
                     <width>294</width>
-                    <height>56</height>
+                    <height>64</height>
                     <aligny>center</aligny>
                     <scroll>true</scroll>
                     <font>font13</font>
@@ -137,7 +137,7 @@
                     <left>18</left>
                     <top>0</top>
                     <width>294</width>
-                    <height>56</height>
+                    <height>64</height>
                     <aligny>center</aligny>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -146,7 +146,7 @@
                 </control>
                 <control type="label">
                     <left>18</left>
-                    <top>4</top>
+                    <top>8</top>
                     <width>294</width>
                     <height>28</height>
                     <scroll>true</scroll>
@@ -157,7 +157,7 @@
                 </control>
                 <control type="label">
                     <left>18</left>
-                    <top>4</top>
+                    <top>8</top>
                     <width>294</width>
                     <height>28</height>
                     <font>font13</font>
@@ -167,7 +167,7 @@
                 </control>
                 <control type="label">
                     <left>18</left>
-                    <top>28</top>
+                    <top>32</top>
                     <width>294</width>
                     <height>24</height>
                     <font>font10</font>
@@ -181,7 +181,7 @@
             <left>380</left>
             <top>92</top>
             <width>854</width>
-            <height>560</height>
+            <height>576</height>
             <onleft>61</onleft>
             <onright>60</onright>
             <pagecontrol>60</pagecontrol>
@@ -517,7 +517,7 @@
             <left>364</left>
             <top>92</top>
             <width>12</width>
-            <height>560</height>
+            <height>576</height>
             <orientation>vertical</orientation>
             <showonepage>false</showonepage>
             <texturesliderbackground border="0,6,0,6" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
@@ -532,7 +532,7 @@
             <left>1238</left>
             <top>92</top>
             <width>12</width>
-            <height>560</height>
+            <height>576</height>
             <orientation>vertical</orientation>
             <showonepage>false</showonepage>
             <texturesliderbackground border="0,6,0,6" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
