@@ -31,6 +31,7 @@ configuration needs no code change.
 | Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
 | `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
 | `media_player.join` and `unjoin` with `group_members` | `resources/lib/mediadialog.py` | connecting players reports an error |
+| The rest of the player's services and their fields: `media_seek` with `seek_position`, `shuffle_set` with `shuffle`, `repeat_set` with `repeat`, `select_source` with `source`, `select_sound_mode` with `sound_mode` | `resources/lib/mediadialog.py` | that one button or slider reports an error |
 
 ### Breaks quietly
 
@@ -45,6 +46,8 @@ This is the group that needs looking after.
 | How a row is named: `friendly_name` for rows, the registry name under a device heading, `name_by_user or name` for a device | `resources/lib/model.py` | rows are named differently from Home Assistant |
 | What OK does per domain, and which domains are read only | `resources/lib/actions.py` (`default_action`) | a new domain is treated as display only |
 | `frontend/get_translations` and the four key shapes an option value is looked up under | `resources/lib/formatting.py` (`option_text`) | option lists read as raw values again |
+| Kodi's own action ids, written as numbers: the context menu, info, back, and the five transport actions. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | an action does the wrong thing, or nothing |
+| What the media window draws: which buttons a state and a feature mask earn, which icon each of them carries, which attribute the description line is taken from, and how a reported title is tidied - `computeMediaControls`, `computeMediaDescription` and `cleanupMediaTitle`, all three in the frontend | `resources/lib/media.py` | the window offers buttons Home Assistant would not, or says the wrong thing about what is playing |
 
 ### Cosmetic
 
@@ -54,6 +57,7 @@ This is the group that needs looking after.
 | State colours, the active and unavailable state lists, the alarming device classes | `resources/lib/formatting.py` |
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
 | The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
+| The media window's button labels, and the hint each of them puts at the foot of the dialog | `resources/language/*/strings.po` |
 
 A new or renamed icon in Home Assistant ends as an empty square here, not as an
 error.
@@ -64,6 +68,12 @@ over `frontend/get_translations` - down to the device class of a binary sensor,
 so that a window reads as open rather than as on. Only two words are the
 addon's own, because Home Assistant has no state for them: a row it cannot
 reach, and one that is there to be run.
+
+The media window's buttons are named here as well, for a different reason.
+Those labels are `ui.card.media_player.*`, and the `ui` category of
+`frontend/get_translations` answers with nothing at all - the frontend keeps
+its own interface strings in its bundle, the same wall the summary titles run
+into further down.
 
 The price is a dependency. Before the first connection there is no wording, and
 in a language Home Assistant does not ship, a row falls back to the state as it
@@ -131,33 +141,48 @@ are chosen by Material Design Icons category rather than harvested from a
 particular set of entities. Measured against 1121 visible entities, none was
 left without an icon.
 
-## What the media browser leaves out
+## What the media window leaves out
+
+Every `MediaPlayerEntityFeature` bit earns something in the window except
+four, and those four are listed in `actions.IGNORED_FEATURES` so the feature
+check stays quiet about them: `CLEAR_PLAYLIST`, which Home Assistant's own
+dialog has no button for either, and `MEDIA_ENQUEUE`, `MEDIA_ANNOUNCE` and
+`SEARCH_MEDIA`, which are about how something is played rather than about
+playing it.
 
 Home Assistant browses in a grid of tiles with a search box; this browses in a
 list, one level per dialog. Left out on purpose: searching a level
-(`can_search`), queueing rather than playing (`MEDIA_ENQUEUE`), announcing over
-what is playing (`MEDIA_ANNOUNCE`), and the note Home Assistant adds when it
-hides children a player cannot play (`not_shown`, zero on every level of every
-player here).
+(`can_search`, the browser's half of `SEARCH_MEDIA`), and the note Home
+Assistant adds when it hides children a player cannot play (`not_shown`, zero
+on every level of every player here).
 
-Two things to know before changing it. A level's reply is not about that
-level.
-Browsing a Radio Browser directory answers with the integration's own root as
-the node, and only the children belong to where the walk actually is. The
-dialog therefore keeps its own way back rather than reading it out of the
-reply.
+Two things to know before changing the browser. A level's reply is not about
+that level: browsing a Radio Browser directory answers with the integration's
+own root as the node, and only the children belong to where the walk actually
+is. The dialog therefore keeps its own way back rather than reading it out of
+the reply.
 
 And a player's feature mask is not fixed. The Yamaha reports 888716 while it is
 off and 1019788 while it plays, gaining `BROWSE_MEDIA` on the way. The row is
 drawn from the live state on every redraw, so nothing needs to notice this -
 but a cache put in front of it would break the button.
 
+Connecting players is a plain multi-select where Home Assistant has a list of
+its own, and two things of that list are missing. Its "select all" was judged
+not to be worth the work for the number of players anyone has. And the second
+line under each player, naming what that player is playing, was dropped for
+want of a use: the dialog is opened to decide who plays along, not to read
+what they are at. Kodi's `multiselect` does take a details layout that could
+carry such a line, but whether Estuary draws a tick in that layout was never
+established, and a list of players whose ticks cannot be seen would be worse
+than one line each.
+
 ## What Kodi does not lend a script
 
-The volume slider in the media window behaves differently from every other
-slider in Kodi. The convention is that one takes left and right only after
-it has been clicked, and hands the move on to its neighbour before that;
-this one takes them straight away and is left with up or down.
+Both sliders in the media window - volume and position - behave differently
+from every other slider in Kodi. The convention is that one takes left and
+right only after it has been clicked, and hands the move on to its neighbour
+before that; these take them straight away and are left with up or down.
 
 The convention lives in `CGUISettingsSliderControl`, the `sliderex` control
 type, whose `IsActive()` reports whether it has been clicked - where the
@@ -171,10 +196,23 @@ focus on by hand, after the control has already acted on the key, and with
 no way to show that the slider is armed - a slider's textures cannot be
 swapped from Python either. Left as it is on purpose.
 
+A slider does say when it is out of use, at least: Kodi draws
+`texturesliderbardisabled` and `textureslidernibdisabled` for one that is not
+enabled, which is how a player that reports no `SEEK` gets a dimmed bar rather
+than no bar at all.
+
 Kodi tells a script nothing about a slider being moved, for the same family
 of reasons: the control sends a click that the Python wrapper refuses,
 `ControlSlider` not overriding `canAcceptMessages`. The value is read back
 in `onAction` instead.
+
+There is no release event either, so nothing can be sent when the key comes
+up. The position slider waits for half a second of standing still and seeks
+then, because seeking on every keypress would set the player going a dozen
+times across one drag; the volume slider sends what it was left at a few times
+a second instead, volume being cheap to set. The cost is that a long drag of
+the position slider lands in one jump at the end rather than following the
+thumb.
 
 ## Checking a real install
 

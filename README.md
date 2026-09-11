@@ -39,22 +39,51 @@ login; it walks whatever steps Home Assistant declares.
 
 ## Usage
 
-| Key | Action |
+| Action | What it does |
 |---|---|
-| Up / down on the left | Pick a section - the rows follow at once, no OK needed |
-| OK on a section | Move on to the rows |
-| Left / right | Switch between the section list and the rows |
-| OK on a row | Act on the entity, or offer the commands it understands |
-| Up / down on the right | Device headings are stepped over, they hold no selection |
-| C | Context menu: all other actions, entity details, refresh |
+| Up / down in the section list | Pick a section - the rows follow at once, nothing to confirm |
+| Up / down in the rows | Device headings are stepped over, they hold no selection |
+| Left / right | Walk between the two lists and the scrollbar each of them has |
+| Select on a section | Move on to the rows |
+| Select on a row | Act on the entity, offer the commands it understands, or open its window |
+| Info on a row | The entity's state and every attribute it reports |
+| Context menu | All other actions, entity details, refresh |
 | Back | Close |
 
-OK does what the entity's domain suggests - toggling a light, opening a cover,
-running a scene. Where the state does not say what is wanted it asks instead,
-offering the commands the entity reports: a vacuum, a media player, a lock, a
-thermostat, an alarm panel and a water heater all do that. Anything that could
-surprise is in the context menu only: installing an update, triggering an
-automation.
+Select does what the entity's domain suggests - toggling a light, opening a
+cover, running a scene. Where the state does not say what is wanted it asks
+instead, offering the commands the entity reports: a vacuum, a lock, a
+thermostat, an alarm panel and a water heater all do that. A media player gets
+a window of its own instead, see below. Anything that could surprise is in the
+context menu only: installing an update, triggering an automation.
+
+## The media window
+
+Select on a media player opens a window rather than a list of commands. It is
+Home Assistant's own dialog for a player, built from the same rules: what is
+on screen follows the player's state and its `supported_features`, so a player
+that is off offers nothing but its power button, and one that is playing
+offers everything it reports.
+
+| Part | Shows |
+|---|---|
+| Cover | the artwork, or a music note where there is none |
+| Title and description | the title tidied the way Home Assistant tidies it, with artist, album, show or channel below it, chosen by media type |
+| Progress | elapsed and total time, and a slider to seek with where the player can seek |
+| Transport | previous, play, pause, stop, next, and shuffle and repeat - the transport icons name the press, shuffle and repeat show the setting they are in, as Home Assistant draws them |
+| Volume | mute, a slider and two step buttons, whichever of them the player reports |
+| Bottom row | browse media, connect, input, sound mode, on and off |
+| Foot | what the control in focus does |
+
+A player that cannot be reached says so and offers nothing else. One joined to
+others carries their number on the connect button, and the connect dialog
+lists the players Home Assistant lists for it, the player itself at the head.
+
+Browsing walks one level per dialog, a list rather than Home Assistant's grid
+of tiles. Picking something playable plays it.
+
+The transport actions work in the window as well - play/pause, stop, next and
+previous - wherever the focus happens to be.
 
 ## How the dashboard is reconstructed
 
@@ -101,7 +130,7 @@ Kodi build carries, not something an addon can reach into.
 * **Icons are shipped, not fetched.** Kodi renders no SVG, so the icons are
   rasterised to PNG at build time: every Material Design icon tagged Home
   Automation, Weather, Battery or Lock, plus everything the addon's rules and
-  the integrations name - 1259 in all and 838 KB together. An entity whose
+  the integrations name - 1272 in all and 844 KB together. An entity whose
   icon is outside that set shows the plain circle; running
   `tools/make_icons.py` after adding the name to `tools/icons.txt` fixes that.
 * **Only the last icon rule lives in the addon.** An explicit `icon`
