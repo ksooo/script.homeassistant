@@ -20,6 +20,7 @@ LABEL_NAME = 101
 IMAGE_ART = 102
 IMAGE_ICON = 103
 IMAGE_COVER = 110
+LABEL_BLANK = 112
 LABEL_TITLE = 104
 LABEL_SUBTITLE = 105
 LABEL_ELAPSED = 108
@@ -185,6 +186,12 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         area_id = self._store.area_of(self._entity_id)
         self._set(LABEL_ROOM, (self._store.areas.get(area_id) or {}).get("name", ""))
         self._set(LABEL_NAME, self._store.display_name_of(self._entity_id))
+        if state.state == "unavailable":
+            self._blank()
+            self._drawn = self._picture(state)
+            return
+
+        self._show(LABEL_BLANK, False)
         self._set(LABEL_TITLE, media.title(state)
                   or formatting.state_text(self._store, self._entity_id, kodi.tr))
         self._set(LABEL_SUBTITLE, media.subtitle(state))
@@ -279,6 +286,28 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         target = media.seek_target(state, share) if state is not None else None
         if target is not None:
             self._call(self._entity_id, "media_seek", {"seek_position": target})
+
+    def _blank(self):
+        """What Home Assistant shows for a player it cannot reach.
+
+        Its dialog stops at the cover box with the state written in it, so
+        everything else goes - including the two buttons that ask only for a
+        feature bit and would otherwise sit there on a player that is gone.
+        """
+        for control_id in (IMAGE_ART, IMAGE_ICON, LABEL_TITLE, LABEL_SUBTITLE,
+                           SLIDER_SEEK, LABEL_ELAPSED, LABEL_DURATION,
+                           IMAGE_BADGE, LABEL_BADGE, SLIDER_VOLUME, BUTTON_MUTE,
+                           IMAGE_MUTE, BUTTON_DOWN, IMAGE_DOWN, BUTTON_UP,
+                           IMAGE_UP, BUTTON_REPEAT, IMAGE_REPEAT, BUTTON_SHUFFLE,
+                           IMAGE_SHUFFLE):
+            self._show(control_id, False)
+        for control_id in BUTTONS + BUTTON_ICONS + DEVICE_BUTTONS + DEVICE_ICONS:
+            self._show(control_id, False)
+        self._slots = {}
+        self._show(IMAGE_COVER, True)
+        self._show(LABEL_BLANK, True)
+        self._set(LABEL_BLANK,
+                  formatting.state_text(self._store, self._entity_id, kodi.tr))
 
     def _badge(self, state):
         """The number on the group button once players have joined it.

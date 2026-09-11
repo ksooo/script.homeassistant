@@ -30,6 +30,14 @@
             <left>536</left><top>120</top><width>208</width><height>208</height>
             <texture border="10">item.png</texture>
         </control>
+        <!-- What Home Assistant writes into that box for a player it cannot
+             reach: the state, and nothing else in the whole dialog. -->
+        <control type="label" id="112">
+            <left>536</left><top>120</top><width>208</width><height>208</height>
+            <align>center</align><aligny>center</aligny>
+            <wrapmultiline>true</wrapmultiline>
+            <font>font13</font><textcolor>FFB8C2CC</textcolor><label></label>
+        </control>
         <control type="image" id="103">
             <left>628</left><top>212</top><width>24</width><height>24</height>
             <colordiffuse>FFB8C2CC</colordiffuse>
