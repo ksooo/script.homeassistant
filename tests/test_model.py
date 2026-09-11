@@ -123,5 +123,48 @@ class Names(unittest.TestCase):
         self.assertEqual(store.icon_translation("light.unknown", "on"), "")
 
 
+class LoadingWhileEventsArrive(unittest.TestCase):
+    """A refresh runs with the subscriptions live, so events land mid-fetch."""
+
+    def test_a_state_that_changes_during_a_load_is_not_lost(self):
+        store = model.Store()
+
+        class Client:
+            """Answers commands, and fires an event during get_states."""
+
+            def command(self, type_, **payload):
+                if type_ == "get_states":
+                    store._on_state_changed(
+                        {"data": {"entity_id": "light.a",
+                                  "new_state": {"entity_id": "light.a",
+                                                "state": "on",
+                                                "attributes": {}}}})
+                    return [{"entity_id": "light.a", "state": "off",
+                             "attributes": {}}]
+                if type_.endswith("_registry/list"):
+                    return []
+                return {}
+
+        store.load(Client())
+        self.assertEqual(store.states["light.a"].state, "on")
+
+    def test_an_entity_removed_during_a_load_stays_gone(self):
+        store = model.Store()
+
+        class Client:
+            def command(self, type_, **payload):
+                if type_ == "get_states":
+                    store._on_state_changed(
+                        {"data": {"entity_id": "light.a", "new_state": None}})
+                    return [{"entity_id": "light.a", "state": "off",
+                             "attributes": {}}]
+                if type_.endswith("_registry/list"):
+                    return []
+                return {}
+
+        store.load(Client())
+        self.assertNotIn("light.a", store.states)
+
+
 if __name__ == "__main__":
     unittest.main()

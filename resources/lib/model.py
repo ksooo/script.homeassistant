@@ -72,6 +72,10 @@ class Store:
         self._log = log or (lambda message, level=0: None)
         self._lock = threading.RLock()
         self._reload_timer = None
+        # Entities that changed while a fetch was in flight, so the events that
+        # arrived meanwhile are not thrown away with the old snapshot. None
+        # while nothing is being fetched.
+        self._settling = None
 
         self.entities = {}
         self.devices = {}
@@ -89,45 +93,51 @@ class Store:
     # -- loading ---------------------------------------------------------
 
     def load(self, client):
+        """Fetch the whole picture, then swap it in under the lock.
+
+        Nothing is fetched while the lock is held, and that is the point. The
+        reader thread takes this lock to file a state change, and a command
+        waits for the reader thread to hand it its answer - so a command issued
+        under the lock waits on a thread that is waiting for the lock, and both
+        stand there until the command times out thirty seconds later.
+        """
         with self._lock:
-            self.config = client.command("get_config") or {}
-            self._load_registries(client)
-            self.states = {
-                payload["entity_id"]: State(payload)
-                for payload in client.command("get_states")
-            }
+            self._settling = set()
+        try:
+            config = client.command("get_config") or {}
+            registries = _registries(client)
+            states = {payload["entity_id"]: State(payload)
+                      for payload in client.command("get_states")}
             try:
-                self.energy = client.command("energy/get_prefs") or {}
+                energy = client.command("energy/get_prefs") or {}
             except Exception as error:
                 self._log("energy preferences unavailable: %s" % error, 2)
-                self.energy = {}
+                energy = {}
 
             # Integrations ship their own entity icons; without these a Reolink
             # floodlight would get the generic lamp instead of its spotlight.
             try:
-                self.icon_translations = (client.command(
+                icons = (client.command(
                     "frontend/get_icons", category="entity") or {}).get("resources", {})
             except Exception as error:
                 self._log("icon translations unavailable: %s" % error, 2)
-                self.icon_translations = {}
+                icons = {}
+        except Exception:
+            with self._lock:
+                self._settling = None
+            raise
 
-    def _load_registries(self, client):
-        self.entities = {
-            entry["entity_id"]: Entity(entry)
-            for entry in client.command("config/entity_registry/list")
-        }
-        self.devices = {
-            entry["id"]: entry
-            for entry in client.command("config/device_registry/list")
-        }
-        self.areas = {
-            entry["area_id"]: entry
-            for entry in client.command("config/area_registry/list")
-        }
-        self.floors = {
-            entry["floor_id"]: entry
-            for entry in client.command("config/floor_registry/list")
-        }
+        with self._lock:
+            self.config = config
+            self._apply_registries(registries)
+            self.states = _settled(states, self.states, self._settling)
+            self.energy = energy
+            self.icon_translations = icons
+            self._settling = None
+
+    def _apply_registries(self, registries):
+        """Install fetched registries. Under the lock, like every other write."""
+        self.entities, self.devices, self.areas, self.floors = registries
 
     def subscribe(self, client):
         """Attach all subscriptions that keep the cache current."""
@@ -152,6 +162,8 @@ class Store:
                 self.states.pop(entity_id, None)
             else:
                 self.states[entity_id] = State(new_state)
+            if self._settling is not None:
+                self._settling.add(entity_id)
         if self.on_states_changed:
             self.on_states_changed([entity_id])
 
@@ -175,11 +187,12 @@ class Store:
 
     def _reload(self, client):
         try:
-            with self._lock:
-                self._load_registries(client)
+            registries = _registries(client)
         except Exception as error:
             self._log("registry reload failed: %s" % error, 3)
             return
+        with self._lock:
+            self._apply_registries(registries)
         self._notify_structure()
 
     def _notify_structure(self):
@@ -297,3 +310,33 @@ class Store:
 
     def areas_without_floor(self):
         return [area for area in self.areas.values() if not area.get("floor_id")]
+
+
+def _registries(client):
+    """The four registries, fetched but not yet installed."""
+    return (
+        {entry["entity_id"]: Entity(entry)
+         for entry in client.command("config/entity_registry/list")},
+        {entry["id"]: entry
+         for entry in client.command("config/device_registry/list")},
+        {entry["area_id"]: entry
+         for entry in client.command("config/area_registry/list")},
+        {entry["floor_id"]: entry
+         for entry in client.command("config/floor_registry/list")},
+    )
+
+
+def _settled(snapshot, live, touched):
+    """The snapshot, with whatever changed while it was in flight kept.
+
+    A state that arrived as an event during the fetch is newer than the
+    snapshot, and would otherwise go out with the old dictionary. The old code
+    could not lose one: it held the lock, so the events queued up behind it.
+    This one lets them through and puts them back afterwards.
+    """
+    for entity_id in touched or ():
+        if entity_id in live:
+            snapshot[entity_id] = live[entity_id]
+        else:
+            snapshot.pop(entity_id, None)
+    return snapshot
