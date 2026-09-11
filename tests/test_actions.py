@@ -28,6 +28,35 @@ def menu(entity_id, value="idle", **attributes):
 MAPPED = {"vacuum": {"area_mapping": {"kueche": ["1_18"], "flur_ug": ["2_19"]}}}
 
 
+class Switching(unittest.TestCase):
+    """Only the half of the switch the entity has not reached."""
+
+    def power(self, entity_id, value):
+        return [label for label in menu(entity_id, value)
+                if label.startswith("action_turn")]
+
+    def test_what_is_on_is_only_offered_switching_off(self):
+        for entity_id in ("light.a", "switch.a", "fan.a", "input_boolean.a",
+                          "siren.a", "humidifier.a", "remote.a",
+                          "automation.a"):
+            self.assertEqual(self.power(entity_id, "on"),
+                             ["action_turn_off"], entity_id)
+
+    def test_what_is_off_is_only_offered_switching_on(self):
+        for entity_id in ("light.a", "switch.a", "automation.a"):
+            self.assertEqual(self.power(entity_id, "off"),
+                             ["action_turn_on"], entity_id)
+
+    def test_a_valve_counts_closed_as_off(self):
+        self.assertEqual(self.power("valve.a", "closed"), ["action_turn_on"])
+        self.assertEqual(self.power("valve.a", "open"), ["action_turn_off"])
+
+    def test_a_state_that_says_nothing_leaves_both(self):
+        for value in ("unavailable", "unknown"):
+            self.assertEqual(self.power("light.a", value),
+                             ["action_turn_on", "action_turn_off"], value)
+
+
 class Asking(unittest.TestCase):
     def test_ok_asks_where_the_state_does_not_say_what_is_wanted(self):
         for entity_id in ("vacuum.a", "lock.a", "climate.a"):
@@ -93,7 +122,15 @@ class Climate(unittest.TestCase):
             labels("climate.a", supported_features=self.THERMOSTAT,
                    hvac_modes=["off", "heat"], preset_modes=["eco", "comfort"]),
             ["action_set_hvac", "action_set_temperature", "action_preset",
-             "action_turn_on", "action_turn_off"])
+             "action_turn_off"])
+
+    def test_a_thermostat_that_is_off_is_only_offered_switching_on(self):
+        self.assertEqual(
+            [label for label in labels("climate.a", "off",
+                                       supported_features=self.THERMOSTAT,
+                                       hvac_modes=["off", "heat"])
+             if label.startswith("action_turn")],
+            ["action_turn_on"])
 
     def test_what_the_thermostat_cannot_do_is_not_offered(self):
         self.assertEqual(labels("climate.a", supported_features=0,
@@ -195,7 +232,7 @@ class WaterHeater(unittest.TestCase):
             labels("water_heater.a", "eco", supported_features=self.BOILER,
                    operation_list=["eco", "performance"]),
             ["action_operation_mode", "action_set_temperature",
-             "action_away_mode", "action_turn_on", "action_turn_off"])
+             "action_away_mode", "action_turn_off"])
 
     def test_away_mode_says_what_to_flip(self):
         store = one("water_heater.a", "eco", supported_features=4)

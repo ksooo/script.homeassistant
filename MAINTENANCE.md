@@ -103,10 +103,20 @@ verified against an English Home Assistant - the frontend keeps those strings
 in its own bundle, out of reach of both the WebSocket API and
 `frontend/get_translations`.
 
-The one deliberate departure is the energy summary. Home Assistant's title
+Two departures are deliberate. One is the energy summary. Home Assistant's title
 names the day, which its own version earns: it can show a day's statistics.
 This one only lists the entities the energy dashboard is built from, with no
 notion of a day, so it is titled just "Energy".
+
+The other is the context menu of anything that switches. Home Assistant's
+dialog shows a toggle with both halves, and the on half can be pressed while
+the entity is already on; the menu here names only the half the entity has not
+reached. Home Assistant has no context menu to be faithful to, and a context
+menu is by definition about what makes sense where it is opened - so the rule
+that Home Assistant decides does not reach this far. `_power_actions` in
+`resources/lib/actions.py` is where it is decided, from `stateActive`'s rule
+that everything but off counts as on, plus the valve's closed. A state that
+says nothing - out of reach, not yet known - still gets both.
 
 Some choices are calibrated against that one installation as well, and are
 merely useless rather than wrong elsewhere: the TLS handshake ladder comes from

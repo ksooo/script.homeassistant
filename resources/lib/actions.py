@@ -93,8 +93,7 @@ def menu_actions(store, entity_id):
     actions = list(commands_for(store, state))
 
     if domain in _TOGGLE_DOMAINS or domain in ("light", "switch"):
-        actions.append(Action("action_turn_on", SERVICE, "homeassistant", "turn_on"))
-        actions.append(Action("action_turn_off", SERVICE, "homeassistant", "turn_off"))
+        actions.extend(_power_actions(state, "homeassistant"))
 
     if domain == "automation":
         actions.append(Action("action_trigger", SERVICE, "automation", "trigger"))
@@ -134,6 +133,37 @@ def menu_actions(store, entity_id):
 
 def features_of(state):
     return state.attributes.get("supported_features") or 0
+
+
+# stateActive() in Home Assistant's frontend: every state but off counts as
+# on, and a valve says closed where everything else says off.
+_OFF_STATE = {"valve": "closed"}
+
+_UNTOLD_STATES = ("unavailable", "unknown", "none", "")
+
+
+def _switched_on(state):
+    """True on, False off, None where the state does not say."""
+    if state.state in _UNTOLD_STATES:
+        return None
+    return state.state != _OFF_STATE.get(state.domain, "off")
+
+
+def _power_actions(state, domain, on=True, off=True):
+    """Turning on and turning off, less whichever the entity already is.
+
+    A lit lamp has nothing to gain from being switched on again, and a context
+    menu is meant to carry what a press would change. Where the state does not
+    say - a device out of reach - both are offered, because either might be
+    the one that is wanted.
+    """
+    switched = _switched_on(state)
+    actions = []
+    if on and switched is not True:
+        actions.append(Action("action_turn_on", SERVICE, domain, "turn_on"))
+    if off and switched is not False:
+        actions.append(Action("action_turn_off", SERVICE, domain, "turn_off"))
+    return actions
 
 
 def service_data(action, state=None):
@@ -255,10 +285,9 @@ def _climate_commands(store, state):
         commands.append(Action("action_fan_mode", PICK, "climate",
                                "set_fan_mode",
                                {"from": "fan_modes", "as": "fan_mode"}))
-    if features & _CLIMATE_TURN_ON:
-        commands.append(Action("action_turn_on", SERVICE, "climate", "turn_on"))
-    if features & _CLIMATE_TURN_OFF:
-        commands.append(Action("action_turn_off", SERVICE, "climate", "turn_off"))
+    commands.extend(_power_actions(state, "climate",
+                                   on=bool(features & _CLIMATE_TURN_ON),
+                                   off=bool(features & _CLIMATE_TURN_OFF)))
     return commands
 
 
@@ -345,10 +374,7 @@ def _water_heater_commands(store, state):
         commands.append(Action("action_away_mode", SERVICE, "water_heater",
                                "set_away_mode", {"flip": "away_mode"}))
     if features & _WATER_ON_OFF:
-        commands.append(Action("action_turn_on", SERVICE, "water_heater",
-                               "turn_on"))
-        commands.append(Action("action_turn_off", SERVICE, "water_heater",
-                               "turn_off"))
+        commands.extend(_power_actions(state, "water_heater"))
     return commands
 
 
