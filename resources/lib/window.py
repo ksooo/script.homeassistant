@@ -481,7 +481,13 @@ class Dashboard(xbmcgui.WindowXML):
     def _focused_entity(self):
         try:
             rows = self.getControl(ROW_LIST)
-            item = rows.getListItem(rows.getSelectedPosition())
+            position = rows.getSelectedPosition()
+            # An empty list answers -1, and asking it for that item throws.
+            # Kodi logs the throw as an error of its own before it reaches
+            # the except below, so the list has to be asked first.
+            if position < 0:
+                return ""
+            item = rows.getListItem(position)
         except (RuntimeError, ValueError):
             return ""
         return item.getProperty("entity_id")
