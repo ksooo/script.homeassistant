@@ -516,15 +516,5 @@
             <textcolor>FFA0A0A0</textcolor>
             <label></label>
         </control>
-
-        <control type="label" id="103">
-            <left>40</left>
-            <top>666</top>
-            <width>1200</width>
-            <height>30</height>
-            <font>font12</font>
-            <textcolor>FFA0A0A0</textcolor>
-            <label></label>
-        </control>
     </controls>
 </window>

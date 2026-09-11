@@ -172,10 +172,6 @@ msgctxt "#30306"
 msgid "Nothing here"
 msgstr "Nichts vorhanden"
 
-msgctxt "#30307"
-msgid "OK: switch    C: more    R: refresh"
-msgstr "OK: Schalten    C: Menü"
-
 msgctxt "#30308"
 msgid "Actions"
 msgstr "Aktionen"

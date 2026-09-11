@@ -172,10 +172,6 @@ msgctxt "#30306"
 msgid "Nothing here"
 msgstr ""
 
-msgctxt "#30307"
-msgid "OK: switch    C: more    R: refresh"
-msgstr ""
-
 msgctxt "#30308"
 msgid "Actions"
 msgstr ""

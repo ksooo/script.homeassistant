@@ -36,7 +36,6 @@ IDS = {
     "reconnecting": 30304,
     "loading": 30305,
     "empty_section": 30306,
-    "hint_footer": 30307,
     "context_title": 30308,
     "action_toggle": 30309,
     "action_turn_on": 30310,

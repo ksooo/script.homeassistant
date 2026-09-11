@@ -30,7 +30,6 @@ LABEL_STATUS = 101
 LABEL_SECTION = 102
 LABEL_STATUS_MESSAGE = 104
 LABEL_EMPTY = 105
-LABEL_FOOTER = 103
 
 ACTION_MOVE_UP = 3
 ACTION_PAGE_UP = 5
@@ -99,7 +98,6 @@ class Dashboard(xbmcgui.WindowXML):
         # Set here rather than in the XML: $LOCALIZE in an addon window looks
         # up Kodi's own strings, not the addon's, and comes back empty.
         self._set_label(LABEL_TITLE, kodi.tr("dashboard_title"))
-        self._set_label(LABEL_FOOTER, kodi.tr("hint_footer"))
         self._set_label(LABEL_STATUS, kodi.tr("connecting"))
         self._set_label(LABEL_STATUS_MESSAGE, kodi.tr("loading"))
         self._session.start()
