@@ -161,6 +161,12 @@ https://thesvg.org/icon/home-assistant, kept as `tools/icon.svg` with a margin
 so Kodi cannot clip it. No script turns it into `resources/icon.png` - that was
 done once by hand.
 
+The fanart is a photograph by Jarosław Ceborski, taken from Wikimedia Commons
+under CC0, cropped to sixteen to nine and dimmed so that it sits behind a dark
+skin: https://commons.wikimedia.org/wiki/File:Living_room_(Unsplash).jpg. CC0
+asks for nothing, but the addon should be able to say where its pictures came
+from.
+
 The modules under `resources/lib` that build the dashboard - `model`, `sections`,
 `formatting`, `actions` and everything under `ha` - do not import Kodi and can
 be exercised outside it.

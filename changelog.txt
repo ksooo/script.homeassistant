@@ -1,3 +1,12 @@
+v1.3.0
+- Media players open a window of their own: cover, what is playing, seeking, volume, shuffle and repeat, browsing, inputs, sound modes and joining players
+- States and option lists now read the way Home Assistant words them, in your language
+- A row's value has more room, and scrolls when the row is selected
+- Context menus offer only what a press would change: switching on or off, never both
+- The lists keep their place when the dashboard refreshes in the background
+- Fixed: playing a video while the dashboard was open made the sound drop out every few seconds
+- Fixed: the dashboard could freeze for half a minute while Home Assistant was answering
+
 v1.2.0
 - The section tiles no longer count their entities, which leaves the names more room
 - The energy summary is called "Energy" now: it lists what the energy dashboard is built from, it does not add up a day
