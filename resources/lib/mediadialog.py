@@ -19,6 +19,7 @@ LABEL_ROOM = 100
 LABEL_NAME = 101
 IMAGE_ART = 102
 IMAGE_ICON = 103
+IMAGE_COVER = 110
 LABEL_TITLE = 104
 LABEL_SUBTITLE = 105
 IMAGE_TRACK = 106
@@ -101,7 +102,6 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         super().__init__()
         self._store = kwargs["store"]
         self._entity_id = kwargs["entity_id"]
-        self._icon = kwargs["icon"]
         self._art_url = kwargs["art_url"]
         self._call = kwargs["call"]
         self._fetch = kwargs["browse"]
@@ -114,8 +114,6 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
     # -- Kodi callbacks --------------------------------------------------
 
     def onInit(self):
-        if self._icon:
-            self._image(IMAGE_ICON, self._icon)
         self._draw()
 
     def onAction(self, action):
@@ -187,7 +185,10 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             # with every medium, and Kodi caches by URL.
             self._image(IMAGE_ART, self._art_url(picture), cache=False)
         self._show(IMAGE_ART, bool(picture))
-        self._show(IMAGE_ICON, not picture and bool(self._icon))
+        # Home Assistant fills an empty cover with its own box and a note,
+        # rather than with the player's icon.
+        self._show(IMAGE_COVER, not picture)
+        self._show(IMAGE_ICON, not picture)
 
         share = media.fraction(state)
         # Elapsed on its own says nothing: without a duration there is

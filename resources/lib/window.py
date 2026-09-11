@@ -617,11 +617,9 @@ class Dashboard(xbmcgui.WindowXML):
                 if area_id in mapped]
 
     def _open_media(self, entity_id):
-        icon = icons.icon_for(self._store, entity_id)
         self._media = mediadialog.MediaDialog(
             MEDIA_XML, kodi.ADDON_PATH, "Default", "720p",
             store=self._store, entity_id=entity_id,
-            icon="icons/%s.png" % icon if icon in self._icons else "",
             art_url=lambda picture: kodi.image_url(
                 self._settings.url, picture, self._image_token),
             call=self._call_service,

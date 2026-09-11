@@ -23,11 +23,17 @@
             <aspectratio>keep</aspectratio>
             <texture background="true"></texture>
         </control>
+        <!-- What Home Assistant puts where there is no artwork: the cover's
+             own box with a music note in it, at the size of any other icon
+             rather than the player's own symbol blown up. -->
+        <control type="image" id="110">
+            <left>536</left><top>120</top><width>208</width><height>208</height>
+            <texture border="10">item.png</texture>
+        </control>
         <control type="image" id="103">
-            <left>592</left><top>176</top><width>96</width><height>96</height>
-            <aspectratio>keep</aspectratio>
+            <left>628</left><top>212</top><width>24</width><height>24</height>
             <colordiffuse>FFB8C2CC</colordiffuse>
-            <texture></texture>
+            <texture>icons/music-note.png</texture>
         </control>
 
         <control type="label" id="104">
