@@ -109,6 +109,9 @@ _BUTTON_HINTS = {"previous": "action_previous", "play": "action_play",
                  "shuffle": "action_shuffle", "repeat": "action_repeat"}
 _SERVICE_HINTS = {"turn_on": "action_turn_on", "turn_off": "action_turn_off"}
 
+# Where the eye goes first: the button that starts or stops what is playing.
+_CENTRE = ("play_pause", "pause", "play", "stop")
+
 _KEYS = {ACTION_PLAYER_PLAYPAUSE: ("pause", "play"),
          ACTION_PAUSE: ("pause", "play"),
          ACTION_STOP: ("stop",),
@@ -227,15 +230,24 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         self._slots = {}
         seek = self._progress(state)
         repeat, shuffle = self._extras(state)
-        transport = repeat + self._buttons(state) + shuffle
+        buttons = self._buttons(state)
+        transport = repeat + buttons + shuffle
         volume, device = self._volume(state), self._device(state)
         self._badge(state)
         rows = [seek, transport, volume, device]
         self._wire(rows)
-        # The transport first, then volume, then the device row, then seeking.
         visible = [control for row in rows for control in row]
-        wanted = transport or volume or device or seek
-        if wanted and self._focused() not in visible:
+        centre = next((control for control in buttons
+                       if self._slots.get(control, ("", None))[0] in _CENTRE), None)
+        # Where the eye goes: the button that starts or stops what is playing,
+        # else the rest of the transport, else muting - which is where a
+        # receiver without a transport lands - then the device row, then the two
+        # settings at the ends of the line, and seeking last.
+        wanted = (([centre] if centre else [])
+                  or buttons or volume or device or repeat or shuffle or seek)
+        # On the first draw the focus is wherever the skin's defaultcontrol put
+        # it, which is the first slot rather than the one that matters.
+        if wanted and (self._drawn is None or self._focused() not in visible):
             self._focus(wanted[0])
         self._hint(self._focused())
 
