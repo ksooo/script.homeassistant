@@ -295,6 +295,15 @@ class Session:
         if self._thread is not None:
             self._thread.join(timeout=5)
 
+    def forget(self):
+        """Let go of the callbacks. Only ever after stop().
+
+        They are usually bound methods of whatever is being told about the
+        connection, so a session that outlives its owner keeps the owner
+        alive with it.
+        """
+        self._on_ready = self._on_lost = None
+
     def _run(self):
         attempt = 0
         while not self._stopped:
@@ -306,14 +315,16 @@ class Session:
                 self.last_error = ""
                 attempt = 0
                 phase = "load"
-                if self._on_ready:
-                    self._on_ready(client)
+                on_ready = self._on_ready
+                if on_ready:
+                    on_ready(client)
                 phase = "run"
                 self._keepalive(client)
             except ha_auth.AbortedError:
                 self.last_error = "cancelled"
-                if self._on_lost:
-                    self._on_lost(self.last_error)
+                on_lost = self._on_lost
+                if on_lost:
+                    on_lost(self.last_error)
                 return
             except Exception as error:
                 self.last_error = str(error)
@@ -325,8 +336,9 @@ class Session:
                     client.close()
 
             self._client = None
-            if self._on_lost and not self._stopped:
-                self._on_lost(self.last_error)
+            on_lost = self._on_lost
+            if on_lost and not self._stopped:
+                on_lost(self.last_error)
             if self._stopped:
                 return
 

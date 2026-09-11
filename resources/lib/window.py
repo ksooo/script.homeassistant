@@ -170,6 +170,13 @@ class Dashboard(xbmcgui.WindowXML):
         self._store.cancel_pending_reload()
         self._session.stop()
         self._snapshots.clean_up()
+        # Both of these were handed a bound method of this window, which is
+        # to say they hold the window - and they outlive it, so it would be
+        # left behind at the end of the script. Nothing is going to call
+        # back now that the session thread is gone.
+        self._store.on_states_changed = None
+        self._store.on_structure_changed = None
+        self._session.forget()
 
     # -- the one place that changes controls -----------------------------
 
