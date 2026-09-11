@@ -225,5 +225,17 @@
             <left>828</left><top>640</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
+
+        <!-- The count Home Assistant puts on the group button once players
+             have joined. Python moves it onto whichever slot that button got. -->
+        <control type="image" id="172">
+            <left>412</left><top>626</top><width>18</width><height>18</height>
+            <colordiffuse>FF41BDF5</colordiffuse><texture>circle.png</texture>
+        </control>
+        <control type="label" id="173">
+            <left>412</left><top>626</top><width>18</width><height>18</height>
+            <align>center</align><aligny>center</aligny>
+            <font>font10</font><textcolor>FF101418</textcolor><label></label>
+        </control>
     </controls>
 </window>

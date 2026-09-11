@@ -39,6 +39,8 @@ IMAGE_SHUFFLE = 136
 # the box, not on what it is playing.
 DEVICE_BUTTONS = (160, 162, 164, 166, 168, 170)
 DEVICE_ICONS = (161, 163, 165, 167, 169, 171)
+IMAGE_BADGE = 172
+LABEL_BADGE = 173
 
 # The volume row: a slider where the player takes a level, two step buttons
 # where it does not, and muting either way.
@@ -203,6 +205,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         repeat, shuffle = self._extras(state)
         transport = repeat + self._buttons(state) + shuffle
         volume, device = self._volume(state), self._device(state)
+        self._badge(state)
         rows = [seek, transport, volume, device]
         self._wire(rows)
         # The transport first, then volume, then the device row, then seeking.
@@ -277,6 +280,28 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         if target is not None:
             self._call(self._entity_id, "media_seek", {"seek_position": target})
 
+    def _badge(self, state):
+        """The number on the group button once players have joined it.
+
+        The button lands in whichever slot the row had left over, so the badge
+        is moved onto it rather than given a place of its own.
+        """
+        button = next((control for control, (name, _) in self._slots.items()
+                       if name == "group"), None)
+        count = len(media.group_members(state))
+        shown = button is not None and count > 1
+        self._show(IMAGE_BADGE, shown)
+        self._show(LABEL_BADGE, shown)
+        if not shown:
+            return
+        try:
+            left = self.getControl(button).getX()
+        except RuntimeError:
+            return
+        self._place(IMAGE_BADGE, left + 36)
+        self._place(LABEL_BADGE, left + 36)
+        self._set(LABEL_BADGE, str(count))
+
     def _extras(self, state):
         """The two playback settings, at the ends of the transport line."""
         return (self._extra(BUTTON_REPEAT, IMAGE_REPEAT, "repeat",
@@ -329,7 +354,8 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
                 media.clock(media.elapsed(state)), media.duration(state),
                 round(level * 100) if level is not None else None,
                 state.attributes.get("is_volume_muted"),
-                state.attributes.get("shuffle"), state.attributes.get("repeat"))
+                state.attributes.get("shuffle"), state.attributes.get("repeat"),
+                len(state.attributes.get("group_members") or []))
 
     def _flush_volume(self):
         """Send what the slider was left at, a few times a second at most."""
