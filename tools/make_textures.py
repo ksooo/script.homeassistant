@@ -103,15 +103,29 @@ def horizontal_band(width, height, thickness, colour, opacity):
     return render(width, height, shader)
 
 
-def vertical_gradient(width, height, top, bottom):
+def ground(width, height, top, bottom, glow, reach, strength):
+    """The window's ground: a vertical fade with a light in one corner.
+
+    Reach and the distance are in fractions of the long edge, so the light
+    keeps its shape whatever size this is drawn at. Written out pixel by
+    pixel rather than through render(): a fade has no edge to antialias, and
+    supersampling a whole screen in python would take minutes.
+    """
     pixels = bytearray(width * height * 4)
+    scale = float(max(width, height))
     for y in range(height):
         ratio = y / float(height - 1)
-        red = int(top[0] + (bottom[0] - top[0]) * ratio)
-        green = int(top[1] + (bottom[1] - top[1]) * ratio)
-        blue = int(top[2] + (bottom[2] - top[2]) * ratio)
-        row = bytes((red, green, blue, 255)) * width
-        pixels[y * width * 4:(y + 1) * width * 4] = row
+        base = [top[i] + (bottom[i] - top[i]) * ratio for i in range(3)]
+        fy = y / scale
+        for x in range(width):
+            fx = x / scale
+            fade = 1.0 - ((fx * fx + fy * fy) ** 0.5) / reach
+            lift = strength * fade * fade if fade > 0 else 0.0
+            index = (y * width + x) * 4
+            for channel in range(3):
+                value = base[channel] + glow[channel] * lift
+                pixels[index + channel] = 255 if value > 255 else int(value)
+            pixels[index + 3] = 255
     return pixels
 
 
@@ -129,8 +143,8 @@ def main():
     made = []
 
     made.append(write_png(os.path.join(MEDIA, "background.png"), 1280, 720,
-                          vertical_gradient(1280, 720, (0x14, 0x1A, 0x24),
-                                            (0x0B, 0x0E, 0x14))))
+                          ground(1280, 720, (0x14, 0x1A, 0x24),
+                                 (0x0B, 0x0E, 0x14), ACCENT, 0.86, 0.18)))
     made.append(write_png(os.path.join(MEDIA, "tile.png"), 64, 64,
                           rounded_rect(64, 64, 14, (0xFF, 0xFF, 0xFF), 0.07)))
     made.append(write_png(os.path.join(MEDIA, "tile_focus.png"), 64, 64,
