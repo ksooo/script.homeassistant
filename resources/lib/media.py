@@ -26,11 +26,17 @@ _SELECT_SOURCE = 2048
 _BROWSE = 131072
 _SOUND_MODE = 65536
 _GROUPING = 524288
+_SHUFFLE = 32768
+_REPEAT = 262144
 
 # Where the outer transport buttons and the playback settings apply, which is
 # Home Assistant's rule rather than a guess at it: computeMediaControls in its
 # frontend asks for a player that is playing, paused or taken on trust.
 _TRANSPORTING = ("playing", "paused")
+
+# What repeat steps through, and the icon that says where it stands.
+_REPEAT_ORDER = ("off", "all", "one")
+_REPEAT_ICONS = {"off": "repeat-off", "all": "repeat", "one": "repeat-once"}
 
 
 def _features(state):
@@ -45,6 +51,12 @@ def _assumed(state):
 def _active(state):
     """stateActive() for a media player: off, unknown and unavailable are not."""
     return state.state not in ("off", "unknown", "unavailable")
+
+
+def _playback(state):
+    """Whether playback settings apply: playing, paused, or taken on trust."""
+    return (state.state != "unavailable"
+            and (state.state in _TRANSPORTING or _assumed(state)))
 
 
 def elapsed(state, now=None):
@@ -199,15 +211,6 @@ def can_group(state):
     knows nothing about keeps it, and so does one with nobody to group with.
     """
     return state.state != "unavailable" and bool(_features(state) & _GROUPING)
-
-
-def can_select_source(state):
-    """Whether the input button shows.
-
-    The feature bit alone decides, as in Home Assistant, so a player that
-    lists no inputs shows it and opens on an empty choice.
-    """
-    return bool(_features(state) & _SELECT_SOURCE)
 
 
 def can_select_source(state):

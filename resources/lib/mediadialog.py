@@ -28,6 +28,12 @@ LABEL_DURATION = 109
 # Five slots, filled left to right with whatever the player offers.
 BUTTONS = (120, 121, 122, 123, 124)
 BUTTON_ICONS = (130, 131, 132, 133, 134)
+# Repeat and shuffle sit at the ends of the transport line, where Home
+# Assistant's own row puts them: [repeat, previous] ... [next, shuffle].
+BUTTON_REPEAT = 125
+IMAGE_REPEAT = 135
+BUTTON_SHUFFLE = 126
+IMAGE_SHUFFLE = 136
 # The device row under the transport, where Home Assistant keeps it too: the
 # media tree, the input to switch to, power. Not the transport - these act on
 # the box, not on what it is playing.
@@ -142,6 +148,8 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             self._choose_source(state)
         elif name == "sound":
             self._choose_sound_mode(state)
+        elif name in ("shuffle", "repeat"):
+            self._set_playback(name, state)
         elif service:
             self._call(self._entity_id, service)
         elif control_id == BUTTON_MUTE:
@@ -195,7 +203,9 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         # Cleared here rather than in a row: each row adds to it, and the one
         # that cleared it used to throw away what the row before had filled in.
         self._slots = {}
-        rows = [self._buttons(state), self._volume(state), self._device(state)]
+        repeat, shuffle = self._extras(state)
+        rows = [repeat + self._buttons(state) + shuffle,
+                self._volume(state), self._device(state)]
         self._wire(rows)
         # The transport row first, else the volume row, else the device row.
         visible = [control for row in rows for control in row]
@@ -233,6 +243,33 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         return self._row(BUTTONS, BUTTON_ICONS,
                          media.controls(state)[:len(BUTTONS)])
 
+    def _extras(self, state):
+        """The two playback settings, at the ends of the transport line."""
+        return (self._extra(BUTTON_REPEAT, IMAGE_REPEAT, "repeat",
+                            media.repeat(state)),
+                self._extra(BUTTON_SHUFFLE, IMAGE_SHUFFLE, "shuffle",
+                            media.shuffle(state)))
+
+    def _extra(self, button, image, name, setting):
+        """Draw one setting where the skin put it, or hide it.
+
+        Its icon comes from the setting rather than from the icon table: it
+        says how the player stands, so it changes with the player.
+        """
+        self._show(button, setting is not None)
+        self._show(image, setting is not None)
+        if setting is None:
+            return []
+        self._image(image, "icons/%s.png" % setting[0])
+        self._slots[button] = (name, None)
+        return [button]
+
+    def _set_playback(self, name, state):
+        """Move a playback setting on: shuffle over, repeat round."""
+        setting = media.shuffle(state) if name == "shuffle" else media.repeat(state)
+        if setting is not None:
+            self._call(self._entity_id, "%s_set" % name, {name: setting[1]})
+
     def _device(self, state):
         """The box itself: its media tree, its group, its input, its sound
         field, its power - Home Assistant's order for that row.
@@ -257,7 +294,8 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         return (state.state, state.attributes.get("media_title"),
                 media.clock(media.elapsed(state)), media.duration(state),
                 round(level * 100) if level is not None else None,
-                state.attributes.get("is_volume_muted"))
+                state.attributes.get("is_volume_muted"),
+                state.attributes.get("shuffle"), state.attributes.get("repeat"))
 
     def _flush_volume(self):
         """Send what the slider was left at, a few times a second at most."""

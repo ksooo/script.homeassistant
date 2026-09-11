@@ -109,6 +109,26 @@
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
 
+        <!-- The two playback settings, at the ends of the transport line. -->
+        <control type="button" id="125">
+            <left>360</left><top>492</top><width>56</width><height>56</height>
+            <texturefocus border="10">item_focus.png</texturefocus>
+            <texturenofocus border="10">item.png</texturenofocus><label></label>
+        </control>
+        <control type="image" id="135">
+            <left>376</left><top>508</top><width>24</width><height>24</height>
+            <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
+        </control>
+        <control type="button" id="126">
+            <left>864</left><top>492</top><width>56</width><height>56</height>
+            <texturefocus border="10">item_focus.png</texturefocus>
+            <texturenofocus border="10">item.png</texturenofocus><label></label>
+        </control>
+        <control type="image" id="136">
+            <left>880</left><top>508</top><width>24</width><height>24</height>
+            <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
+        </control>
+
         <control type="slider" id="150">
             <left>518</left><top>576</top><width>300</width><height>20</height>
             <texturesliderbar>slider_track.png</texturesliderbar>

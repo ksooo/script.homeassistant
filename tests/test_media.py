@@ -175,6 +175,48 @@ class Browsing(unittest.TestCase):
             media.can_browse(player("unavailable", supported_features=186303)))
 
 
+class Settings(unittest.TestCase):
+    """Shuffle and repeat, which report a state rather than a command."""
+
+    RECEIVER = 1019788                   # the Yamaha: both bits
+    KODI = 186303                        # shuffle, but no repeat
+
+    def test_a_receiver_playing_offers_both(self):
+        state = player("playing", supported_features=self.RECEIVER,
+                       shuffle=False, repeat="off")
+        self.assertEqual(media.shuffle(state), ("shuffle-disabled", True))
+        self.assertEqual(media.repeat(state), ("repeat-off", "all"))
+
+    def test_the_icon_says_how_it_stands(self):
+        state = player("playing", supported_features=self.RECEIVER,
+                       shuffle=True, repeat="one")
+        self.assertEqual(media.shuffle(state)[0], "shuffle")
+        self.assertEqual(media.repeat(state)[0], "repeat-once")
+
+    def test_repeat_goes_round(self):
+        def following(value):
+            return media.repeat(player("playing", supported_features=self.RECEIVER,
+                                       repeat=value))[1]
+        self.assertEqual([following("off"), following("all"), following("one")],
+                         ["all", "one", "off"])
+
+    def test_a_player_with_one_bit_offers_one_button(self):
+        state = player("playing", supported_features=self.KODI)
+        self.assertIsNotNone(media.shuffle(state))
+        self.assertIsNone(media.repeat(state))
+
+    def test_neither_applies_unless_something_is_going(self):
+        for value in ("on", "idle", "off", "unavailable"):
+            state = player(value, supported_features=self.RECEIVER)
+            self.assertIsNone(media.shuffle(state), value)
+            self.assertIsNone(media.repeat(state), value)
+
+    def test_a_player_taken_on_trust_offers_them(self):
+        state = player("on", supported_features=self.RECEIVER, assumed_state=True)
+        self.assertIsNotNone(media.shuffle(state))
+        self.assertIsNotNone(media.repeat(state))
+
+
 class SoundModes(unittest.TestCase):
     RECEIVER = 1019788                   # the Yamaha while it plays
 

@@ -929,6 +929,9 @@ reload
 remote
 remote-desktop
 remote-off
+repeat
+repeat-off
+repeat-once
 restart-alert
 robot
 robot-mower
@@ -975,6 +978,8 @@ shield-sun
 shield-sun-outline
 shower
 shower-head
+shuffle
+shuffle-disabled
 signal
 signal-distance-variant
 sine-wave
