@@ -62,6 +62,7 @@ class Dashboard(xbmcgui.WindowXML):
             hide_empty_areas=self._settings.hide_empty_areas)
 
         self._sections = []
+        self._category_labels = []
         self._section_index = 0
         self._section_key = ""
         self._row_positions = {}
@@ -303,24 +304,30 @@ class Dashboard(xbmcgui.WindowXML):
         except RuntimeError:
             return
 
-        categories.reset()
-        items = []
-        for section in self._sections:
-            item = xbmcgui.ListItem(label=section.title, label2=section.subtitle,
-                                    offscreen=True)
-            items.append(item)
-        if items:
-            categories.addItems(items)
-
         index = 0
         for position, section in enumerate(self._sections):
             if section.key == self._section_key:
                 index = position
                 break
 
+        # Refilling a container drops it back to the top, so the list jumps
+        # even though the selection is restored right after. Leave it alone
+        # while the tiles themselves are unchanged.
+        labels = [(section.key, section.title, section.subtitle)
+                  for section in self._sections]
+        if labels != self._category_labels:
+            self._category_labels = labels
+            categories.reset()
+            items = [xbmcgui.ListItem(label=section.title,
+                                      label2=section.subtitle, offscreen=True)
+                     for section in self._sections]
+            if items:
+                categories.addItems(items)
+                self._select(categories, index)
+
         self._show_section(index)
-        self._select(categories, index)
-        if items and self._focused_control() not in (CATEGORY_LIST, ROW_LIST):
+        if (self._sections and self._media is None
+                and self._focused_control() not in (CATEGORY_LIST, ROW_LIST)):
             self._set_focus(CATEGORY_LIST)
 
     def _follow_section(self):
@@ -358,6 +365,10 @@ class Dashboard(xbmcgui.WindowXML):
         except RuntimeError:
             return
 
+        # Where the user was standing. A rebuild in the background - a registry
+        # change, a reload - would otherwise drop them at the top of the list,
+        # and a dialog they had open would outlive its own row.
+        standing = self._focused_entity()
         rows.reset()
         self._row_positions = {}
         items = []
@@ -374,7 +385,7 @@ class Dashboard(xbmcgui.WindowXML):
             # leave the first row off screen. Land on the first entity rather
             # than row zero, which in an area section is a device heading.
             first = min(self._row_positions.values()) if self._row_positions else 0
-            self._select(rows, first)
+            self._select(rows, self._row_positions.get(standing, first))
         self._set_label(LABEL_EMPTY, "" if items else kodi.tr("empty_section"))
 
     def _make_header(self, title):
