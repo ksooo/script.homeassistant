@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
-    <defaultcontrol>51</defaultcontrol>
+    <!-- No defaultcontrol: both lists stand empty until Home Assistant has
+         answered, an empty container refuses focus, and Kodi logs an error
+         for a default it cannot give focus to. The focus is set from the
+         code once there are rows to stand on. -->
     <controls>
         <!-- Kodi drives the video layer from RenderEx(), which the window
              manager sends to the active window only. A script window is that
