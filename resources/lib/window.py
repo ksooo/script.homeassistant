@@ -74,6 +74,7 @@ class Dashboard(xbmcgui.WindowXML):
         self._camera_worker = None
         self._camera_due = 0.0
         self._media = None
+        self._window_id = 0
         self._started = False
 
         # Notes left by the session thread, taken by pump().
@@ -89,6 +90,9 @@ class Dashboard(xbmcgui.WindowXML):
     # -- window callbacks ------------------------------------------------
 
     def onInit(self):
+        # A script window learns its own id only at runtime, and by the time
+        # this arrives the window manager has put it on the history.
+        self._window_id = xbmcgui.getCurrentWindowId()
         if self._started:
             return
         self._started = True
@@ -204,8 +208,25 @@ class Dashboard(xbmcgui.WindowXML):
             return
         if self._media.closed:
             self._media = None
+        elif not self._in_front():
+            # Playing on Kodi itself brings up the fullscreen video, which
+            # displaces this window - but not a dialog of ours, which would
+            # be left sitting over a picture it has nothing to do with.
+            self._media.close()
+            self._media = None
         else:
             self._media.tick()
+
+    def _in_front(self):
+        """Whether this window is still the one Kodi has up.
+
+        Kodi does not count a dialog as the active window, so the media
+        dialog being open does not make this false. Playback taking the
+        screen does.
+        """
+        if not self._window_id:
+            return True
+        return xbmcgui.getCurrentWindowId() == self._window_id
 
     # -- session callbacks, background thread ----------------------------
 
