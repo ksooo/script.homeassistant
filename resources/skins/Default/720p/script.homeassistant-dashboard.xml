@@ -25,6 +25,11 @@
             <width>1280</width>
             <height>720</height>
             <texture>background.png</texture>
+            <!-- Estuary's own figure: the ground goes back to 79 while
+                 something is playing, and the picture shows through the
+                 rest. -->
+            <animation effect="fade" start="100" end="79" time="0"
+                       condition="Player.HasVideo">Conditional</animation>
         </control>
 
         <control type="label" id="100">
