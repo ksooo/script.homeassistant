@@ -45,14 +45,14 @@
         </control>
 
         <control type="label" id="104">
-            <left>340</left><top>342</top><width>600</width><height>56</height>
+            <left>360</left><top>342</top><width>560</width><height>56</height>
             <align>center</align><aligny>center</aligny>
-            <wrapmultiline>true</wrapmultiline><font>font13</font>
+            <scroll>true</scroll><font>font13</font>
             <textcolor>FFFFFFFF</textcolor><label></label>
         </control>
         <control type="label" id="105">
-            <left>340</left><top>402</top><width>600</width><height>24</height>
-            <align>center</align><font>font10</font>
+            <left>360</left><top>402</top><width>560</width><height>24</height>
+            <align>center</align><scroll>true</scroll><font>font10</font>
             <textcolor>FFA0A0A0</textcolor><label></label>
         </control>
 
