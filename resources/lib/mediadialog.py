@@ -183,7 +183,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         area_id = self._store.area_of(self._entity_id)
         self._set(LABEL_ROOM, (self._store.areas.get(area_id) or {}).get("name", ""))
         self._set(LABEL_NAME, self._store.display_name_of(self._entity_id))
-        self._set(LABEL_TITLE, state.attributes.get("media_title")
+        self._set(LABEL_TITLE, media.title(state)
                   or formatting.state_text(self._store, self._entity_id, kodi.tr))
         self._set(LABEL_SUBTITLE, media.subtitle(state))
 

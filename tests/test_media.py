@@ -175,6 +175,28 @@ class Browsing(unittest.TestCase):
             media.can_browse(player("unavailable", supported_features=186303)))
 
 
+class Titles(unittest.TestCase):
+    """What Home Assistant's cleanupMediaTitle does to a reported title."""
+
+    def test_a_plain_title_is_left_alone(self):
+        self.assertEqual(media.title(player(media_title="(T)Raumschiff Surprise")),
+                         "(T)Raumschiff Surprise")
+
+    def test_a_signature_is_cut_off(self):
+        self.assertEqual(
+            media.title(player(media_title="Tagesschau?authSig=abc123")),
+            "Tagesschau")
+
+    def test_a_url_is_reduced_to_its_last_part_and_decoded(self):
+        self.assertEqual(
+            media.title(player(
+                media_title="https://stream.example/live/Das%20Erste%20HD.m3u8")),
+            "Das Erste HD.m3u8")
+
+    def test_a_player_naming_nothing_has_no_title(self):
+        self.assertEqual(media.title(player()), "")
+
+
 class GroupMembers(unittest.TestCase):
     def test_the_members_come_from_the_player(self):
         state = player("playing", group_members=["media_player.main",

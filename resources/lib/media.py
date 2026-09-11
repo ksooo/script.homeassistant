@@ -8,6 +8,7 @@ Assistant's own frontend does too.
 
 import datetime
 import time
+import urllib.parse
 
 PLAYING = "playing"
 
@@ -289,6 +290,22 @@ def clock(seconds):
     if hours:
         return "%d:%02d:%02d" % (hours, minutes, seconds)
     return "%d:%02d" % (minutes, seconds)
+
+
+def title(state):
+    """The title, tidied as Home Assistant tidies it.
+
+    Its cleanupMediaTitle cuts a signature off the end and reduces a URL to
+    its last path segment, decoded: what a player reports for a stream is
+    otherwise the whole address, signature and all.
+    """
+    text = str(state.attributes.get("media_title") or "")
+    signature = text.find("?authSig=")
+    if signature > 0:
+        text = text[:signature]
+    if text.startswith("http"):
+        text = urllib.parse.unquote(text.rsplit("/", 1)[-1])
+    return text
 
 
 def group_members(state):
