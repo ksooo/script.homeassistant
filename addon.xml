@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.3.0"
+       version="1.4.0"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -17,7 +17,10 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.3.0
+    <news>v1.4.0
+- A video playing behind the dashboard shows through it
+
+v1.3.0
 - Media players open a window of their own: cover, what is playing, seeking, volume, shuffle and repeat, browsing, inputs, sound modes and joining players
 - States and option lists now read the way Home Assistant words them, in your language
 - A row's value has more room, and scrolls when the row is selected

@@ -1,3 +1,6 @@
+v1.4.0
+- A video playing behind the dashboard shows through it
+
 v1.3.0
 - Media players open a window of their own: cover, what is playing, seeking, volume, shuffle and repeat, browsing, inputs, sound modes and joining players
 - States and option lists now read the way Home Assistant words them, in your language
