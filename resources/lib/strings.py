@@ -100,6 +100,7 @@ IDS = {
     "action_browse": 30378,
     "browse_empty": 30379,
     "action_group": 30380,
+    "action_play_pause": 30381,
     "action_speed": 30370,
     "action_oscillate": 30371,
     "action_direction": 30372,

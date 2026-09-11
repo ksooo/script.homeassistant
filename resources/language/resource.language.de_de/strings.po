@@ -468,6 +468,10 @@ msgctxt "#30380"
 msgid "Join"
 msgstr "Verbinden"
 
+msgctxt "#30381"
+msgid "Play/Pause"
+msgstr "Wiedergabe/Pause"
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr "Keine Adresse von Home Assistant eingetragen"

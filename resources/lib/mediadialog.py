@@ -21,6 +21,7 @@ IMAGE_ART = 102
 IMAGE_ICON = 103
 IMAGE_COVER = 110
 LABEL_BLANK = 112
+LABEL_HINT = 113
 LABEL_TITLE = 104
 LABEL_SUBTITLE = 105
 LABEL_ELAPSED = 108
@@ -95,6 +96,19 @@ _ICONS = {"previous": "skip-previous", "pause": "pause", "play": "play",
 
 # The remote's own transport keys, which a web page cannot have. The play
 # key takes whichever of the two the player is offering.
+# What each control is called at the foot of the dialog. The power buttons are
+# named by the service they carry, because one icon serves both directions.
+_HINTS = {SLIDER_SEEK: "action_position", SLIDER_VOLUME: "action_volume",
+          BUTTON_MUTE: "action_mute", BUTTON_DOWN: "action_volume_down",
+          BUTTON_UP: "action_volume_up"}
+_BUTTON_HINTS = {"previous": "action_previous", "play": "action_play",
+                 "pause": "action_pause", "stop": "action_stop",
+                 "next": "action_next", "play_pause": "action_play_pause",
+                 "browse": "action_browse", "group": "action_group",
+                 "source": "action_source", "sound": "action_sound_mode",
+                 "shuffle": "action_shuffle", "repeat": "action_repeat"}
+_SERVICE_HINTS = {"turn_on": "action_turn_on", "turn_off": "action_turn_off"}
+
 _KEYS = {ACTION_PLAYER_PLAYPAUSE: ("pause", "play"),
          ACTION_PAUSE: ("pause", "play"),
          ACTION_STOP: ("stop",),
@@ -142,6 +156,9 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         for name in _KEYS.get(code, ()):
             if self._command(name):
                 return
+
+    def onFocus(self, control_id):
+        self._hint(control_id)
 
     def onClick(self, control_id):
         state = self._store.states.get(self._entity_id)
@@ -220,6 +237,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         wanted = transport or volume or device or seek
         if wanted and self._focused() not in visible:
             self._focus(wanted[0])
+        self._hint(self._focused())
 
         self._drawn = self._picture(state)
 
@@ -250,6 +268,17 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         """The transport: what the player says it can do with the medium."""
         return self._row(BUTTONS, BUTTON_ICONS,
                          media.controls(state)[:len(BUTTONS)])
+
+    def _hint(self, control_id):
+        """Name the focused control at the foot of the dialog.
+
+        Kodi names the setting under the cursor in its own dialogs, and this
+        window is a wall of icons that say nothing on their own.
+        """
+        name, service = self._slots.get(control_id, ("", None))
+        key = (_SERVICE_HINTS.get(service) or _BUTTON_HINTS.get(name)
+               or _HINTS.get(control_id, ""))
+        self._set(LABEL_HINT, kodi.tr(key) if key else "")
 
     def _progress(self, state):
         """The position slider and the two times beside it.
@@ -299,7 +328,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
                            IMAGE_BADGE, LABEL_BADGE, SLIDER_VOLUME, BUTTON_MUTE,
                            IMAGE_MUTE, BUTTON_DOWN, IMAGE_DOWN, BUTTON_UP,
                            IMAGE_UP, BUTTON_REPEAT, IMAGE_REPEAT, BUTTON_SHUFFLE,
-                           IMAGE_SHUFFLE):
+                           IMAGE_SHUFFLE, LABEL_HINT):
             self._show(control_id, False)
         for control_id in BUTTONS + BUTTON_ICONS + DEVICE_BUTTONS + DEVICE_ICONS:
             self._show(control_id, False)

@@ -45,13 +45,13 @@
         </control>
 
         <control type="label" id="104">
-            <left>360</left><top>342</top><width>560</width><height>56</height>
+            <left>360</left><top>342</top><width>560</width><height>32</height>
             <align>center</align><aligny>center</aligny>
             <scroll>true</scroll><font>font13</font>
             <textcolor>FFFFFFFF</textcolor><label></label>
         </control>
         <control type="label" id="105">
-            <left>360</left><top>402</top><width>560</width><height>24</height>
+            <left>360</left><top>378</top><width>560</width><height>24</height>
             <align>center</align><scroll>true</scroll><font>font10</font>
             <textcolor>FFA0A0A0</textcolor><label></label>
         </control>
@@ -59,7 +59,7 @@
         <!-- The position, which doubles as the seek control where the player
              takes one - Home Assistant shows the same slider either way. -->
         <control type="slider" id="111">
-            <left>360</left><top>436</top><width>560</width><height>20</height>
+            <left>360</left><top>412</top><width>560</width><height>20</height>
             <texturesliderbar>slider_track.png</texturesliderbar>
             <texturesliderbardisabled colordiffuse="66FFFFFF">slider_track.png</texturesliderbardisabled>
             <textureslidernib colordiffuse="FFB8C2CC">slider_nib.png</textureslidernib>
@@ -67,183 +67,191 @@
             <textureslidernibfocus colordiffuse="FF41BDF5">slider_nib.png</textureslidernibfocus>
         </control>
         <control type="label" id="108">
-            <left>360</left><top>454</top><width>200</width><height>22</height>
+            <left>360</left><top>430</top><width>200</width><height>22</height>
             <font>font10</font><textcolor>FFA0A0A0</textcolor><label></label>
         </control>
         <control type="label" id="109">
-            <left>720</left><top>454</top><width>200</width><height>22</height>
+            <left>720</left><top>430</top><width>200</width><height>22</height>
             <align>right</align><font>font10</font>
             <textcolor>FFA0A0A0</textcolor><label></label>
         </control>
 
         <!-- Five slots; Python fills, places and hides them per player. -->
         <control type="button" id="120">
-            <left>452</left><top>492</top><width>56</width><height>56</height>
+            <left>452</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="130">
-            <left>468</left><top>508</top><width>24</width><height>24</height>
+            <left>468</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="121">
-            <left>532</left><top>492</top><width>56</width><height>56</height>
+            <left>532</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="131">
-            <left>548</left><top>508</top><width>24</width><height>24</height>
+            <left>548</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="122">
-            <left>612</left><top>492</top><width>56</width><height>56</height>
+            <left>612</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="132">
-            <left>628</left><top>508</top><width>24</width><height>24</height>
+            <left>628</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="123">
-            <left>692</left><top>492</top><width>56</width><height>56</height>
+            <left>692</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="133">
-            <left>708</left><top>508</top><width>24</width><height>24</height>
+            <left>708</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="124">
-            <left>772</left><top>492</top><width>56</width><height>56</height>
+            <left>772</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="134">
-            <left>788</left><top>508</top><width>24</width><height>24</height>
+            <left>788</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
 
         <!-- The two playback settings, at the ends of the transport line. -->
         <control type="button" id="125">
-            <left>360</left><top>492</top><width>56</width><height>56</height>
+            <left>360</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="135">
-            <left>376</left><top>508</top><width>24</width><height>24</height>
+            <left>376</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="126">
-            <left>864</left><top>492</top><width>56</width><height>56</height>
+            <left>864</left><top>468</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="136">
-            <left>880</left><top>508</top><width>24</width><height>24</height>
+            <left>880</left><top>484</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
 
         <control type="slider" id="150">
-            <left>518</left><top>576</top><width>300</width><height>20</height>
+            <left>518</left><top>552</top><width>300</width><height>20</height>
             <texturesliderbar>slider_track.png</texturesliderbar>
             <textureslidernib colordiffuse="FFB8C2CC">slider_nib.png</textureslidernib>
             <textureslidernibfocus colordiffuse="FF41BDF5">slider_nib.png</textureslidernibfocus>
         </control>
         <control type="button" id="151">
-            <left>462</left><top>564</top><width>44</width><height>44</height>
+            <left>462</left><top>540</top><width>44</width><height>44</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="152">
-            <left>472</left><top>574</top><width>24</width><height>24</height>
+            <left>472</left><top>550</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="153">
-            <left>562</left><top>564</top><width>44</width><height>44</height>
+            <left>562</left><top>540</top><width>44</width><height>44</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="154">
-            <left>572</left><top>574</top><width>24</width><height>24</height>
+            <left>572</left><top>550</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="155">
-            <left>618</left><top>564</top><width>44</width><height>44</height>
+            <left>618</left><top>540</top><width>44</width><height>44</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="156">
-            <left>628</left><top>574</top><width>24</width><height>24</height>
+            <left>628</left><top>550</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
 
         <!-- Six slots for what acts on the box rather than on the playback,
              centred by Python like the transport row above. -->
         <control type="button" id="160">
-            <left>412</left><top>624</top><width>56</width><height>56</height>
+            <left>412</left><top>600</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="161">
-            <left>428</left><top>640</top><width>24</width><height>24</height>
+            <left>428</left><top>616</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="162">
-            <left>492</left><top>624</top><width>56</width><height>56</height>
+            <left>492</left><top>600</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="163">
-            <left>508</left><top>640</top><width>24</width><height>24</height>
+            <left>508</left><top>616</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="164">
-            <left>572</left><top>624</top><width>56</width><height>56</height>
+            <left>572</left><top>600</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="165">
-            <left>588</left><top>640</top><width>24</width><height>24</height>
+            <left>588</left><top>616</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="166">
-            <left>652</left><top>624</top><width>56</width><height>56</height>
+            <left>652</left><top>600</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="167">
-            <left>668</left><top>640</top><width>24</width><height>24</height>
+            <left>668</left><top>616</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="168">
-            <left>732</left><top>624</top><width>56</width><height>56</height>
+            <left>732</left><top>600</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="169">
-            <left>748</left><top>640</top><width>24</width><height>24</height>
+            <left>748</left><top>616</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
         <control type="button" id="170">
-            <left>812</left><top>624</top><width>56</width><height>56</height>
+            <left>812</left><top>600</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
         <control type="image" id="171">
-            <left>828</left><top>640</top><width>24</width><height>24</height>
+            <left>828</left><top>616</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
 
         <!-- The count Home Assistant puts on the group button once players
              have joined. Python moves it onto whichever slot that button got. -->
         <control type="image" id="172">
-            <left>412</left><top>626</top><width>18</width><height>18</height>
+            <left>412</left><top>602</top><width>18</width><height>18</height>
             <colordiffuse>FF41BDF5</colordiffuse><texture>circle.png</texture>
         </control>
         <control type="label" id="173">
-            <left>412</left><top>626</top><width>18</width><height>18</height>
+            <left>412</left><top>602</top><width>18</width><height>18</height>
             <align>center</align><aligny>center</aligny>
             <font>font10</font><textcolor>FF101418</textcolor><label></label>
+        </control>
+
+        <!-- What the focused control does, the way Kodi's own dialogs name
+             the setting under the cursor. -->
+        <control type="label" id="113">
+            <left>360</left><top>664</top><width>560</width><height>24</height>
+            <align>center</align><aligny>center</aligny>
+            <font>font10</font><textcolor>FFA0A0A0</textcolor><label></label>
         </control>
     </controls>
 </window>
