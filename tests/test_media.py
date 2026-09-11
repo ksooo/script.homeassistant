@@ -175,6 +175,35 @@ class Browsing(unittest.TestCase):
             media.can_browse(player("unavailable", supported_features=186303)))
 
 
+class Seeking(unittest.TestCase):
+    PLAYER = 186303                      # Kodi on the Shield, which seeks
+    TELEVISION = 24381                   # the LG, which does not
+
+    def test_a_player_reporting_the_bit_can_seek(self):
+        self.assertTrue(media.can_seek(player("playing",
+                                              supported_features=self.PLAYER)))
+
+    def test_a_player_without_the_bit_cannot(self):
+        self.assertFalse(media.can_seek(player("playing",
+                                               supported_features=self.TELEVISION)))
+
+    def test_a_sleeping_player_cannot_seek(self):
+        for value in ("off", "unknown", "unavailable"):
+            self.assertFalse(
+                media.can_seek(player(value, supported_features=self.PLAYER)), value)
+
+    def test_the_target_is_that_share_of_the_length(self):
+        state = player("playing", supported_features=self.PLAYER,
+                       media_duration=2818)
+        self.assertEqual(media.seek_target(state, 0.5), 1409)
+        self.assertEqual(media.seek_target(state, 0.0), 0)
+        self.assertEqual(media.seek_target(state, 1.0), 2818)
+
+    def test_a_medium_without_a_length_has_nowhere_to_seek(self):
+        # Live television reports zero, and zero is no scale to seek in.
+        self.assertIsNone(media.seek_target(player("playing", media_duration=0), 0.5))
+
+
 class Settings(unittest.TestCase):
     """Shuffle and repeat, which report a state rather than a command."""
 

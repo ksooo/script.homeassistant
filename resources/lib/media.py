@@ -13,6 +13,7 @@ PLAYING = "playing"
 
 # MediaPlayerEntityFeature, the transport half.
 _PAUSE = 1
+_SEEK = 2
 _PREVIOUS = 16
 _NEXT = 32
 _STOP = 4096
@@ -202,6 +203,27 @@ def group_plan(current, wanted):
     added = [entity_id for entity_id in wanted if entity_id not in current]
     removed = [entity_id for entity_id in current if entity_id not in wanted]
     return added, removed
+
+
+def can_seek(state):
+    """Whether the position slider can be moved.
+
+    Home Assistant shows the slider wherever the medium has a length, but lets
+    it be moved only for a player that is awake and reports the bit.
+    """
+    return _active(state) and bool(_features(state) & _SEEK)
+
+
+def seek_target(state, share):
+    """Where a slider left at that share lands, in seconds, or None.
+
+    Home Assistant seeks in seconds from the start, so the share the slider
+    reports has to be turned back into the medium's own scale.
+    """
+    total = duration(state)
+    if not total:
+        return None
+    return max(0.0, min(total, total * share))
 
 
 def can_group(state):

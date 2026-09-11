@@ -22,10 +22,9 @@ IMAGE_ICON = 103
 IMAGE_COVER = 110
 LABEL_TITLE = 104
 LABEL_SUBTITLE = 105
-IMAGE_TRACK = 106
-IMAGE_FILL = 107
 LABEL_ELAPSED = 108
 LABEL_DURATION = 109
+SLIDER_SEEK = 111
 # Five slots, filled left to right with whatever the player offers.
 BUTTONS = (120, 121, 122, 123, 124)
 BUTTON_ICONS = (130, 131, 132, 133, 134)
@@ -67,7 +66,10 @@ _VOLUME_BUTTONS = ((BUTTON_MUTE, IMAGE_MUTE, "volume-high"),
 # What Home Assistant draws on the speaker once the player is muted.
 _MUTED_ICON = "volume-off"
 
-TRACK_WIDTH = 560
+# Kodi reports no release, so a slider counts as settled once it has stood
+# still this long. Seeking on every keypress would set the player going a
+# dozen times across one drag.
+_SEEK_SETTLE = 0.5
 BUTTON_SIZE = 56
 BUTTON_GAP = 24
 ICON_SIZE = 24
@@ -109,6 +111,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         self._drawn = None
         self._slots = {}
         self._pending_volume = None
+        self._pending_seek = None
         self._volume_due = 0.0
 
     # -- Kodi callbacks --------------------------------------------------
@@ -126,8 +129,12 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         # Kodi never tells a script that a slider moved: it sends a click
         # that the Python wrapper refuses. So the value is read back here,
         # after Kodi has already acted on the key.
-        if self._focused() == SLIDER_VOLUME:
-            self._pending_volume = self._level()
+        focused = self._focused()
+        if focused == SLIDER_VOLUME:
+            self._pending_volume = self._level(SLIDER_VOLUME)
+            return
+        if focused == SLIDER_SEEK:
+            self._pending_seek = (self._level(SLIDER_SEEK), time.time())
             return
         for name in _KEYS.get(code, ()):
             if self._command(name):
@@ -162,6 +169,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
 
     def tick(self):
         self._flush_volume()
+        self._flush_seek()
         state = self._store.states.get(self._entity_id)
         if state is not None and self._picture(state) != self._drawn:
             self._draw(state)
@@ -190,27 +198,16 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         self._show(IMAGE_COVER, not picture)
         self._show(IMAGE_ICON, not picture)
 
-        share = media.fraction(state)
-        # Elapsed on its own says nothing: without a duration there is
-        # nothing for it to be elapsed against, and Home Assistant shows no
-        # progress at all for a live stream.
-        for control_id in (IMAGE_TRACK, IMAGE_FILL, LABEL_ELAPSED, LABEL_DURATION):
-            self._show(control_id, share is not None)
-        self._set(LABEL_ELAPSED, media.clock(media.elapsed(state)))
-        self._set(LABEL_DURATION, media.clock(media.duration(state)))
-        if share is not None:
-            self._width(IMAGE_FILL, max(2, int(TRACK_WIDTH * share)))
-
-        # Cleared here rather than in a row: each row adds to it, and the one
-        # that cleared it used to throw away what the row before had filled in.
         self._slots = {}
+        seek = self._progress(state)
         repeat, shuffle = self._extras(state)
-        rows = [repeat + self._buttons(state) + shuffle,
-                self._volume(state), self._device(state)]
+        transport = repeat + self._buttons(state) + shuffle
+        volume, device = self._volume(state), self._device(state)
+        rows = [seek, transport, volume, device]
         self._wire(rows)
-        # The transport row first, else the volume row, else the device row.
+        # The transport first, then volume, then the device row, then seeking.
         visible = [control for row in rows for control in row]
-        wanted = rows[0] or rows[1] or rows[2]
+        wanted = transport or volume or device or seek
         if wanted and self._focused() not in visible:
             self._focus(wanted[0])
 
@@ -243,6 +240,42 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         """The transport: what the player says it can do with the medium."""
         return self._row(BUTTONS, BUTTON_ICONS,
                          media.controls(state)[:len(BUTTONS)])
+
+    def _progress(self, state):
+        """The position slider and the two times beside it.
+
+        Shown wherever the medium has a length - a live stream has none and
+        gets nothing - and movable only where the player can seek. One that
+        cannot still shows how far along it is, as Home Assistant's disabled
+        slider does.
+        """
+        total = media.duration(state)
+        for control_id in (SLIDER_SEEK, LABEL_ELAPSED, LABEL_DURATION):
+            self._show(control_id, bool(total))
+        if not total:
+            return []
+        self._set(LABEL_ELAPSED, media.clock(media.elapsed(state)))
+        self._set(LABEL_DURATION, media.clock(total))
+        seekable = media.can_seek(state)
+        self._enable(SLIDER_SEEK, seekable)
+        # Not while it has the focus: setting it under a moving thumb would
+        # fight whoever is moving it.
+        if self._focused() != SLIDER_SEEK:
+            self._percent(SLIDER_SEEK, (media.fraction(state) or 0.0) * 100)
+        return [SLIDER_SEEK] if seekable else []
+
+    def _flush_seek(self):
+        """Send where the position slider was left, once it has settled."""
+        if self._pending_seek is None:
+            return
+        share, when = self._pending_seek
+        if time.time() - when < _SEEK_SETTLE:
+            return
+        self._pending_seek = None
+        state = self._store.states.get(self._entity_id)
+        target = media.seek_target(state, share) if state is not None else None
+        if target is not None:
+            self._call(self._entity_id, "media_seek", {"seek_position": target})
 
     def _extras(self, state):
         """The two playback settings, at the ends of the transport line."""
@@ -341,9 +374,9 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             self._percent(SLIDER_VOLUME, level * 100)
         return shown + [SLIDER_VOLUME]
 
-    def _level(self):
+    def _level(self, control_id):
         try:
-            percent = self.getControl(SLIDER_VOLUME).getPercent()
+            percent = self.getControl(control_id).getPercent()
         except RuntimeError:
             return None
         return max(0.0, min(1.0, percent / 100.0))
@@ -526,9 +559,9 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         except RuntimeError:
             pass
 
-    def _width(self, control_id, width):
+    def _enable(self, control_id, enabled):
         try:
-            self.getControl(control_id).setWidth(width)
+            self.getControl(control_id).setEnabled(enabled)
         except RuntimeError:
             pass
 

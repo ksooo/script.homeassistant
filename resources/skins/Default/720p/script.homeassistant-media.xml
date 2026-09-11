@@ -48,15 +48,15 @@
             <textcolor>FFA0A0A0</textcolor><label></label>
         </control>
 
-        <control type="image" id="106">
-            <left>360</left><top>442</top><width>560</width><height>6</height>
-            <colordiffuse>33FFFFFF</colordiffuse>
-            <texture border="1">bar.png</texture>
-        </control>
-        <control type="image" id="107">
-            <left>360</left><top>442</top><width>560</width><height>6</height>
-            <colordiffuse>FF41BDF5</colordiffuse>
-            <texture border="1">bar.png</texture>
+        <!-- The position, which doubles as the seek control where the player
+             takes one - Home Assistant shows the same slider either way. -->
+        <control type="slider" id="111">
+            <left>360</left><top>436</top><width>560</width><height>20</height>
+            <texturesliderbar>slider_track.png</texturesliderbar>
+            <texturesliderbardisabled colordiffuse="66FFFFFF">slider_track.png</texturesliderbardisabled>
+            <textureslidernib colordiffuse="FFB8C2CC">slider_nib.png</textureslidernib>
+            <textureslidernibdisabled colordiffuse="66B8C2CC">slider_nib.png</textureslidernibdisabled>
+            <textureslidernibfocus colordiffuse="FF41BDF5">slider_nib.png</textureslidernibfocus>
         </control>
         <control type="label" id="108">
             <left>360</left><top>454</top><width>200</width><height>22</height>
