@@ -61,8 +61,9 @@
             <top>92</top>
             <width>330</width>
             <height>560</height>
-            <onright>50</onright>
-            <onleft>50</onleft>
+            <onright>61</onright>
+            <onleft>60</onleft>
+            <pagecontrol>61</pagecontrol>
             <scrolltime>200</scrolltime>
             <itemlayout height="56" width="330">
                 <control type="image">
@@ -179,12 +180,13 @@
         <control type="list" id="50">
             <left>380</left>
             <top>92</top>
-            <width>876</width>
+            <width>854</width>
             <height>560</height>
-            <onleft>51</onleft>
-            <onright>51</onright>
+            <onleft>61</onleft>
+            <onright>60</onright>
+            <pagecontrol>60</pagecontrol>
             <scrolltime>200</scrolltime>
-            <itemlayout height="64" width="876">
+            <itemlayout height="64" width="854">
                 <control type="label">
                     <left>14</left>
                     <top>18</top>
@@ -198,7 +200,7 @@
                 <control type="image">
                     <left>14</left>
                     <top>48</top>
-                    <width>848</width>
+                    <width>826</width>
                     <height>2</height>
                     <texture border="1">separator.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
@@ -206,7 +208,7 @@
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
-                    <width>872</width>
+                    <width>850</width>
                     <height>60</height>
                     <texture border="14">tile.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + String.IsEqual(ListItem.Property(action),yes)</visible>
@@ -231,7 +233,7 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="image">
-                    <left>812</left>
+                    <left>790</left>
                     <top>10</top>
                     <width>44</width>
                     <height>44</height>
@@ -240,7 +242,7 @@
                     <visible>!String.IsEmpty(ListItem.Art(thumb)) + !String.IsEqual(ListItem.Property(camera),yes)</visible>
                 </control>
                 <control type="image">
-                    <left>752</left>
+                    <left>730</left>
                     <top>8</top>
                     <width>104</width>
                     <height>48</height>
@@ -282,7 +284,7 @@
                 <control type="label">
                     <left>522</left>
                     <top>0</top>
-                    <width>334</width>
+                    <width>312</width>
                     <height>64</height>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -295,7 +297,7 @@
                 <control type="label">
                     <left>522</left>
                     <top>0</top>
-                    <width>278</width>
+                    <width>256</width>
                     <height>64</height>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -305,7 +307,7 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEqual(ListItem.Property(camera),yes) + !String.IsEmpty(ListItem.Art(thumb))</visible>
                 </control>
             </itemlayout>
-            <focusedlayout height="64" width="876">
+            <focusedlayout height="64" width="854">
                 <control type="label">
                     <left>14</left>
                     <top>18</top>
@@ -319,7 +321,7 @@
                 <control type="image">
                     <left>14</left>
                     <top>48</top>
-                    <width>848</width>
+                    <width>826</width>
                     <height>2</height>
                     <texture border="1">separator.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
@@ -327,7 +329,7 @@
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
-                    <width>872</width>
+                    <width>850</width>
                     <height>60</height>
                     <texture border="14">tile_focus.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + Control.HasFocus(50)</visible>
@@ -335,7 +337,7 @@
                 <control type="image">
                     <left>2</left>
                     <top>2</top>
-                    <width>872</width>
+                    <width>850</width>
                     <height>60</height>
                     <texture border="14">tile.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !Control.HasFocus(50) + String.IsEqual(ListItem.Property(action),yes)</visible>
@@ -360,7 +362,7 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="image">
-                    <left>812</left>
+                    <left>790</left>
                     <top>10</top>
                     <width>44</width>
                     <height>44</height>
@@ -369,7 +371,7 @@
                     <visible>!String.IsEmpty(ListItem.Art(thumb)) + !String.IsEqual(ListItem.Property(camera),yes)</visible>
                 </control>
                 <control type="image">
-                    <left>752</left>
+                    <left>730</left>
                     <top>8</top>
                     <width>104</width>
                     <height>48</height>
@@ -434,7 +436,7 @@
                 <control type="label">
                     <left>522</left>
                     <top>0</top>
-                    <width>334</width>
+                    <width>312</width>
                     <height>64</height>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -447,7 +449,7 @@
                 <control type="label">
                     <left>522</left>
                     <top>0</top>
-                    <width>334</width>
+                    <width>312</width>
                     <height>64</height>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -460,7 +462,7 @@
                 <control type="label">
                     <left>522</left>
                     <top>0</top>
-                    <width>278</width>
+                    <width>256</width>
                     <height>64</height>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -473,7 +475,7 @@
                 <control type="label">
                     <left>522</left>
                     <top>0</top>
-                    <width>278</width>
+                    <width>256</width>
                     <height>64</height>
                     <align>right</align>
                     <aligny>center</aligny>
@@ -499,12 +501,47 @@
         <control type="label" id="105">
             <left>380</left>
             <top>370</top>
-            <width>876</width>
+            <width>854</width>
             <height>40</height>
             <align>center</align>
             <font>font13</font>
             <textcolor>FFA0A0A0</textcolor>
             <label></label>
+        </control>
+
+        <!-- Estuary's recipe: a plain white bar tinted three ways, no nib,
+             and showonepage so it is simply not there when everything fits.
+             Left and right walk a ring - list, its bar, the other list, its
+             bar - and Kodi skips a bar that is not on screen. -->
+        <control type="scrollbar" id="61">
+            <left>364</left>
+            <top>92</top>
+            <width>12</width>
+            <height>560</height>
+            <orientation>vertical</orientation>
+            <showonepage>false</showonepage>
+            <texturesliderbackground border="0,6,0,6" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
+            <texturesliderbar border="0,6,0,6" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
+            <texturesliderbarfocus border="0,6,0,6" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
+            <textureslidernib />
+            <textureslidernibfocus />
+            <onleft>51</onleft>
+            <onright>50</onright>
+        </control>
+        <control type="scrollbar" id="60">
+            <left>1238</left>
+            <top>92</top>
+            <width>12</width>
+            <height>560</height>
+            <orientation>vertical</orientation>
+            <showonepage>false</showonepage>
+            <texturesliderbackground border="0,6,0,6" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
+            <texturesliderbar border="0,6,0,6" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
+            <texturesliderbarfocus border="0,6,0,6" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
+            <textureslidernib />
+            <textureslidernibfocus />
+            <onleft>50</onleft>
+            <onright>51</onright>
         </control>
     </controls>
 </window>

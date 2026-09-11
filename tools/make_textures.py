@@ -152,6 +152,12 @@ def main():
     made.append(write_png(os.path.join(MEDIA, "bar.png"), 8, 2,
                           rounded_rect(8, 2, 0, (0xFF, 0xFF, 0xFF), 1.0)))
 
+    # The scrollbars, drawn 12 wide: a stadium whose ends stay put while the
+    # middle stretches. Kodi draws a border one to one, so the radius is the
+    # border value, the way the tiles and the rows are done.
+    made.append(write_png(os.path.join(MEDIA, "scroll.png"), 12, 16,
+                          rounded_rect(12, 16, 6, (0xFF, 0xFF, 0xFF), 1.0)))
+
     # The volume slider's track and thumb. Kodi sizes the thumb from the
     # *track* texture's height - fScale = slider height / track texture height
     # - and then gives it a box twice as wide as tall, which its KEEP aspect
