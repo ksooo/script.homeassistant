@@ -20,6 +20,11 @@ def labels(entity_id, value="idle", options=None, **attributes):
             for a in actions.commands_for(store, store.states[entity_id])]
 
 
+def menu(entity_id, value="idle", **attributes):
+    store = one(entity_id, value, None, **attributes)
+    return [a.label_key for a in actions.menu_actions(store, entity_id)]
+
+
 MAPPED = {"vacuum": {"area_mapping": {"kueche": ["1_18"], "flur_ug": ["2_19"]}}}
 
 
@@ -61,43 +66,13 @@ class Vacuum(unittest.TestCase):
 
 
 class MediaPlayer(unittest.TestCase):
-    KODI = 186303      # everything but source and sound mode
-    TELEVISION = 24381  # includes source selection
+    def test_a_player_keeps_no_commands_in_the_menu(self):
+        # Everything it used to offer is in the window that OK opens.
+        self.assertEqual(labels("media_player.a", supported_features=186303), [])
 
-    def test_transport_and_volume_come_from_the_features(self):
-        self.assertEqual(
-            labels("media_player.a", supported_features=self.KODI),
-            ["action_play", "action_pause", "action_stop", "action_previous",
-             "action_next", "action_shuffle", "action_volume",
-             "action_volume_up", "action_volume_down", "action_mute",
-             "action_turn_on", "action_turn_off"])
-
-    def test_a_television_adds_its_sources(self):
-        self.assertIn("action_source",
-                      labels("media_player.a", supported_features=self.TELEVISION,
-                             source_list=["HDMI 1", "HDMI 2"]))
-
-    def test_shuffle_says_what_to_flip(self):
-        store = one("media_player.a", supported_features=32768)
-        action = actions.commands_for(store, store.states["media_player.a"])[0]
-        self.assertEqual(action.data, {"flip": "shuffle"})
-
-    def test_repeat_names_the_three_modes_home_assistant_takes(self):
-        store = one("media_player.a", supported_features=262144)
-        action = actions.commands_for(store, store.states["media_player.a"])[0]
-        self.assertEqual((action.service, action.data["as"]),
-                         ("repeat_set", "repeat"))
-        self.assertEqual([value for _, value in action.data["choices"]],
-                         ["off", "all", "one"])
-
-    def test_stepping_the_volume_is_two_commands(self):
-        self.assertEqual(labels("media_player.a", supported_features=1024),
-                         ["action_volume_up", "action_volume_down"])
-
-    def test_muting_says_what_to_flip(self):
-        store = one("media_player.a", supported_features=8)
-        mute = actions.commands_for(store, store.states["media_player.a"])[0]
-        self.assertEqual(mute.data, {"flip": "is_volume_muted"})
+    def test_the_menu_names_the_window_itself(self):
+        self.assertEqual(menu("media_player.a", supported_features=186303),
+                         ["action_media", "action_details"])
 
 
 class Lock(unittest.TestCase):

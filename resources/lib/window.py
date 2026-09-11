@@ -575,14 +575,6 @@ class Dashboard(xbmcgui.WindowXML):
         if action.kind == ha_actions.ALARM:
             return self._alarm_code(action, attributes, dialog)
 
-        if action.kind == ha_actions.VOLUME:
-            # Home Assistant takes a fraction, people think in percent.
-            current = round((attributes.get("volume_level") or 0) * 100)
-            value = dialog.numeric(0, kodi.tr("action_volume"), str(current))
-            if value in (None, ""):
-                return None
-            return {"volume_level": max(0.0, min(1.0, float(value) / 100.0))}
-
         return {}
 
 

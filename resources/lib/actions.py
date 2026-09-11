@@ -8,7 +8,6 @@ triggering an automation - is menu only and never bound to OK.
 SERVICE = "service"
 NUMBER = "number"
 TEMPERATURE = "temperature"
-VOLUME = "volume"
 # One list to choose from, named by the entity: data carries which attribute
 # holds the choices and under which key the answer goes back.
 PICK = "pick"
@@ -99,6 +98,12 @@ def menu_actions(store, entity_id):
 
     if domain == "automation":
         actions.append(Action("action_trigger", SERVICE, "automation", "trigger"))
+
+    if domain == "media_player":
+        # The window is what a player has instead of commands, so the menu
+        # names it too - otherwise a player is left there with nothing but its
+        # own details.
+        actions.append(Action("action_media", MEDIA))
 
     if domain == "cover":
         features = features_of(state)
@@ -203,71 +208,14 @@ def _vacuum_commands(store, state):
     return commands
 
 
-# MediaPlayerEntityFeature
-_MEDIA = ((16384, "action_play", "media_play"),
-          (1, "action_pause", "media_pause"),
-          (4096, "action_stop", "media_stop"),
-          (16, "action_previous", "media_previous_track"),
-          (32, "action_next", "media_next_track"))
-_MEDIA_VOLUME_SET = 4
-_MEDIA_VOLUME_MUTE = 8
-_MEDIA_SELECT_SOURCE = 2048
-_MEDIA_SELECT_SOUND_MODE = 65536
-_MEDIA_TURN_ON = 128
-_MEDIA_TURN_OFF = 256
-_MEDIA_VOLUME_STEP = 1024
-_MEDIA_SHUFFLE = 32768
-_MEDIA_REPEAT = 262144
-_MEDIA_PLAY_MEDIA = 512
-_MEDIA_BROWSE = 131072
-_MEDIA_GROUPING = 524288
-
-# Home Assistant names these three itself rather than listing them on the
-# entity, so they are spelled out here and translated when the list is shown.
-_REPEAT_MODES = (("repeat_off", "off"), ("repeat_all", "all"),
-                 ("repeat_one", "one"))
-
-
-def _media_commands(store, state):
-    features = features_of(state)
-    commands = [Action(label, SERVICE, "media_player", service)
-                for bit, label, service in _MEDIA if features & bit]
-
-    if features & _MEDIA_SHUFFLE:
-        commands.append(Action("action_shuffle", SERVICE, "media_player",
-                               "shuffle_set", {"flip": "shuffle"}))
-    if features & _MEDIA_REPEAT:
-        commands.append(Action("action_repeat", PICK, "media_player",
-                               "repeat_set",
-                               {"as": "repeat", "choices": list(_REPEAT_MODES),
-                                "translate": True}))
-    if features & _MEDIA_VOLUME_SET:
-        commands.append(Action("action_volume", VOLUME, "media_player",
-                               "volume_set"))
-    if features & _MEDIA_VOLUME_STEP:
-        commands.append(Action("action_volume_up", SERVICE, "media_player",
-                               "volume_up"))
-        commands.append(Action("action_volume_down", SERVICE, "media_player",
-                               "volume_down"))
-    if features & _MEDIA_VOLUME_MUTE:
-        commands.append(Action("action_mute", SERVICE, "media_player",
-                               "volume_mute", {"flip": "is_volume_muted"}))
-    if features & _MEDIA_SELECT_SOURCE and state.attributes.get("source_list"):
-        commands.append(Action("action_source", PICK, "media_player",
-                               "select_source",
-                               {"from": "source_list", "as": "source"}))
-    if (features & _MEDIA_SELECT_SOUND_MODE
-            and state.attributes.get("sound_mode_list")):
-        commands.append(Action("action_sound_mode", PICK, "media_player",
-                               "select_sound_mode",
-                               {"from": "sound_mode_list", "as": "sound_mode"}))
-    if features & _MEDIA_TURN_ON:
-        commands.append(Action("action_turn_on", SERVICE, "media_player",
-                               "turn_on"))
-    if features & _MEDIA_TURN_OFF:
-        commands.append(Action("action_turn_off", SERVICE, "media_player",
-                               "turn_off"))
-    return commands
+# MediaPlayerEntityFeature. Every one of these is acted on by the media window
+# rather than by a command here, so the bits are only listed: PAUSE, SEEK,
+# VOLUME_SET, VOLUME_MUTE, PREVIOUS, NEXT, TURN_ON, TURN_OFF, PLAY_MEDIA,
+# VOLUME_STEP, SELECT_SOURCE, STOP, PLAY, SHUFFLE_SET, SELECT_SOUND_MODE,
+# BROWSE_MEDIA, REPEAT_SET, GROUPING. What is left of them here is telling
+# tools/unknown_features.py that they are known.
+_MEDIA_WINDOW = (1 | 2 | 4 | 8 | 16 | 32 | 128 | 256 | 512 | 1024 | 2048
+                 | 4096 | 16384 | 32768 | 65536 | 131072 | 262144 | 524288)
 
 
 _LOCK_OPEN = 1  # LockEntityFeature.OPEN: draws the latch, not just the bolt
@@ -469,7 +417,6 @@ def _valve_commands(store, state):
 
 _COMMANDS = {
     "vacuum": _vacuum_commands,
-    "media_player": _media_commands,
     "lock": _lock_commands,
     "climate": _climate_commands,
     "light": _light_commands,
@@ -481,8 +428,9 @@ _COMMANDS = {
 }
 
 # Light, fan, humidifier and valve are not among them: switching is what OK is
-# for, and for most of them it is all there is. Nor is media_player, which has
-# a window of its own. All of them keep their commands in the context menu.
+# for, and for most of them it is all there is. All of them keep their commands
+# in the context menu. media_player keeps none: its window offers everything the
+# menu used to, and offers it better.
 _ASK_DOMAINS = ("vacuum", "lock", "climate",
                 "alarm_control_panel", "water_heater")
 
@@ -529,11 +477,7 @@ def _mask(table):
 # supported command belongs in both its table and here.
 KNOWN_FEATURES = {
     "vacuum": _mask(_VACUUM) | _VACUUM_FAN_SPEED | _VACUUM_CLEAN_AREA,
-    "media_player": (_mask(_MEDIA) | _MEDIA_VOLUME_SET | _MEDIA_VOLUME_MUTE
-                     | _MEDIA_SELECT_SOURCE | _MEDIA_SELECT_SOUND_MODE
-                     | _MEDIA_TURN_ON | _MEDIA_TURN_OFF | _MEDIA_VOLUME_STEP
-                     | _MEDIA_SHUFFLE | _MEDIA_REPEAT | _MEDIA_PLAY_MEDIA
-                     | _MEDIA_BROWSE | _MEDIA_GROUPING),
+    "media_player": _MEDIA_WINDOW,
     "lock": _LOCK_OPEN,
     "climate": (_CLIMATE_TARGET_TEMPERATURE | _CLIMATE_FAN_MODE
                 | _CLIMATE_PRESET_MODE | _CLIMATE_TURN_ON | _CLIMATE_TURN_OFF),
@@ -557,7 +501,7 @@ KNOWN_FEATURES = {
 # on a timeline, a queue, a search.
 IGNORED_FEATURES = {
     "vacuum": 256 | 4096,                       # SEND_COMMAND, STATE
-    "media_player": (2                          # SEEK
+    "media_player": (8192                       # CLEAR_PLAYLIST
                      | 1048576 | 2097152 | 4194304),  # ANNOUNCE, ENQUEUE, SEARCH
     "light": 8 | 32,                            # FLASH, TRANSITION: call parameters
     "alarm_control_panel": _ALARM_TRIGGER,      # see _alarm_commands

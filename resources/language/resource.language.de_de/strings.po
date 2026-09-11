@@ -396,18 +396,6 @@ msgctxt "#30362"
 msgid "Repeat"
 msgstr "Wiederholung"
 
-msgctxt "#30363"
-msgid "Off"
-msgstr "Aus"
-
-msgctxt "#30364"
-msgid "All"
-msgstr "Alle"
-
-msgctxt "#30365"
-msgid "This one"
-msgstr "Titel"
-
 msgctxt "#30366"
 msgid "Open the tilt"
 msgstr "Kippstellung öffnen"
