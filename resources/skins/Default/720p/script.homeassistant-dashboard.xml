@@ -2,6 +2,20 @@
 <window>
     <defaultcontrol>51</defaultcontrol>
     <controls>
+        <!-- Kodi drives the video layer from RenderEx(), which the window
+             manager sends to the active window only. A script window is that
+             window, so without a control that renders video nothing releases
+             the decoder's frames: on Android the MediaCodec buffers run out
+             and playback stalls. Estuary carries this control in the
+             background of every one of its windows. -->
+        <control type="videowindow">
+            <left>0</left>
+            <top>0</top>
+            <width>1280</width>
+            <height>720</height>
+            <visible>Player.HasVideo</visible>
+        </control>
+
         <control type="image">
             <left>0</left>
             <top>0</top>
