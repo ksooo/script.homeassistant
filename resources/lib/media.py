@@ -262,12 +262,39 @@ def clock(seconds):
 
 
 def subtitle(state):
-    """The line under the title: whatever names the medium next best."""
-    for key in ("media_series_title", "app_name", "source"):
-        value = state.attributes.get(key)
-        if value:
-            return str(value)
-    return ""
+    """The line under the title, chosen as Home Assistant chooses it.
+
+    Its computeMediaDescription picks by what is playing rather than by what
+    happens to be filled in: the artist for music, the series with its season
+    and episode for a programme, the channel for television, and the name of
+    the app for everything else. What this addon read before - the series
+    title, then the app, then the input - could name the input where Home
+    Assistant names nothing at all.
+    """
+    attributes = state.attributes
+    kind = attributes.get("media_content_type")
+
+    if kind in ("music", "image"):
+        return _attribute(attributes, "media_artist")
+    if kind == "playlist":
+        return (_attribute(attributes, "media_playlist")
+                or _attribute(attributes, "media_artist"))
+    if kind == "tvshow":
+        series = _attribute(attributes, "media_series_title")
+        season = attributes.get("media_season")
+        if not season:
+            return series
+        episode = attributes.get("media_episode")
+        numbering = "S%s" % season + ("E%s" % episode if episode else "")
+        return ("%s %s" % (series, numbering)).strip()
+    if kind == "channel":
+        return _attribute(attributes, "media_channel")
+    return _attribute(attributes, "app_name")
+
+
+def _attribute(attributes, key):
+    value = attributes.get(key)
+    return str(value) if value else ""
 
 
 def controls(state):

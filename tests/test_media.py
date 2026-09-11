@@ -306,15 +306,41 @@ class GroupPlan(unittest.TestCase):
 
 
 class Naming(unittest.TestCase):
-    def test_the_subtitle_falls_through_to_what_is_there(self):
+    """The description line, which Home Assistant picks by content type."""
+
+    def subtitle(self, kind=None, **attributes):
+        return media.subtitle(player(media_content_type=kind, **attributes))
+
+    def test_music_is_named_by_its_artist(self):
+        self.assertEqual(self.subtitle("music", media_artist="Fleetwood Mac",
+                                       app_name="Kodi"), "Fleetwood Mac")
+
+    def test_a_playlist_falls_back_from_its_name_to_the_artist(self):
+        self.assertEqual(self.subtitle("playlist", media_playlist="Abendmusik"),
+                         "Abendmusik")
+        self.assertEqual(self.subtitle("playlist", media_artist="Fleetwood Mac"),
+                         "Fleetwood Mac")
+
+    def test_a_programme_carries_its_season_and_episode(self):
         self.assertEqual(
-            media.subtitle(player(media_series_title="In aller Freundschaft",
-                                  app_name="Kodi")),
+            self.subtitle("tvshow", media_series_title="In aller Freundschaft",
+                          media_season=27, media_episode=14),
+            "In aller Freundschaft S27E14")
+        self.assertEqual(
+            self.subtitle("tvshow", media_series_title="In aller Freundschaft"),
             "In aller Freundschaft")
-        self.assertEqual(media.subtitle(player(app_name="Kodi", source="SHIELD")),
+
+    def test_television_is_named_by_its_channel(self):
+        self.assertEqual(self.subtitle("channel", media_channel="Das Erste HD",
+                                       app_name="Kodi"), "Das Erste HD")
+
+    def test_anything_else_is_named_by_its_app(self):
+        self.assertEqual(self.subtitle(None, app_name="Kodi", source="SHIELD"),
                          "Kodi")
-        self.assertEqual(media.subtitle(player(source="SHIELD")), "SHIELD")
-        self.assertEqual(media.subtitle(player()), "")
+
+    def test_the_input_is_not_a_description(self):
+        # Home Assistant never puts the source here; this addon used to.
+        self.assertEqual(self.subtitle(None, source="SHIELD"), "")
 
 
 class Controls(unittest.TestCase):
