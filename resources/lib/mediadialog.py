@@ -31,8 +31,8 @@ BUTTON_ICONS = (130, 131, 132, 133, 134)
 # The device row under the transport, where Home Assistant keeps it too: the
 # media tree, the input to switch to, power. Not the transport - these act on
 # the box, not on what it is playing.
-DEVICE_BUTTONS = (140, 142, 144, 146)
-DEVICE_ICONS = (141, 143, 145, 147)
+DEVICE_BUTTONS = (160, 162, 164, 166, 168, 170)
+DEVICE_ICONS = (161, 163, 165, 167, 169, 171)
 
 # The volume row: a slider where the player takes a level, two step buttons
 # where it does not, and muting either way.
@@ -77,7 +77,8 @@ ACTION_PLAYER_PLAYPAUSE = 229
 _ICONS = {"previous": "skip-previous", "pause": "pause", "play": "play",
           "stop": "stop", "next": "skip-next", "power": "power",
           "power_on": "power-on", "power_off": "power-off",
-          "source": "login-variant", "browse": "play-box-multiple"}
+          "source": "login-variant", "browse": "play-box-multiple",
+          "group": "speaker-multiple", "sound": "music-note"}
 
 # The remote's own transport keys, which a web page cannot have. The play
 # key takes whichever of the two the player is offering.
@@ -134,8 +135,12 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         name, service = self._slots.get(control_id, ("", None))
         if name == "browse":
             self._browse()
+        elif name == "group":
+            self._choose_group()
         elif name == "source":
             self._choose_source(state)
+        elif name == "sound":
+            self._choose_sound_mode(state)
         elif service:
             self._call(self._entity_id, service)
         elif control_id == BUTTON_MUTE:
@@ -228,10 +233,19 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
                          media.controls(state)[:len(BUTTONS)])
 
     def _device(self, state):
-        """The box itself: its media tree, its input, its power."""
+        """The box itself: its media tree, its group, its input, its sound
+        field, its power - Home Assistant's order for that row.
+
+        The group button is the one departure: it is left out where there is
+        nothing to group with, rather than opening on an empty list.
+        """
         drawn = [("browse", None)] if media.can_browse(state) else []
+        if media.group_choices(self._store, self._entity_id):
+            drawn.append(("group", None))
         if media.sources(state):
-            drawn.append(("source", "select_source"))
+            drawn.append(("source", None))
+        if media.sound_modes(state):
+            drawn.append(("sound", None))
         drawn += media.power(state)
         return self._row(DEVICE_BUTTONS, DEVICE_ICONS,
                          drawn[:len(DEVICE_BUTTONS)])
@@ -336,6 +350,42 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         choice = xbmcgui.Dialog().select(kodi.tr("action_source"), names)
         if choice >= 0:
             self._call(self._entity_id, "select_source", {"source": names[choice]})
+
+    def _choose_sound_mode(self, state):
+        """Which sound field to put the player into, the current one marked."""
+        names = media.sound_modes(state)
+        if not names:
+            return
+        current = str(state.attributes.get("sound_mode") or "")
+        choice = xbmcgui.Dialog().select(
+            kodi.tr("action_sound_mode"), names,
+            preselect=names.index(current) if current in names else -1)
+        if choice >= 0:
+            self._call(self._entity_id, "select_sound_mode",
+                       {"sound_mode": names[choice]})
+
+    def _choose_group(self):
+        """Who plays along with this player, ticked as it stands.
+
+        What comes back is a membership, and Home Assistant takes changes
+        rather than memberships, so group_plan works out the calls: the joiners
+        arrive together, each leaver leaves on its own.
+        """
+        choices = media.group_choices(self._store, self._entity_id)
+        if not choices:
+            return
+        picked = xbmcgui.Dialog().multiselect(
+            kodi.tr("action_group"), [name for _, name, _ in choices],
+            preselect=[index for index, choice in enumerate(choices) if choice[2]])
+        if picked is None:
+            return
+        current = [choice[0] for choice in choices if choice[2]]
+        added, removed = media.group_plan(current,
+                                          [choices[index][0] for index in picked])
+        if added:
+            self._call(self._entity_id, "join", {"group_members": added})
+        for entity_id in removed:
+            self._call(entity_id, "unjoin")
 
     def _browse(self):
         """Walk the player's media tree, one select dialog per level.

@@ -30,6 +30,7 @@ configuration needs no code change.
 | `/api/camera_proxy/<entity>` | `resources/lib/cameras.py` | camera rows stay blank |
 | Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
 | `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
+| `media_player.join` and `unjoin` with `group_members` | `resources/lib/mediadialog.py` | connecting players reports an error |
 
 ### Breaks quietly
 
@@ -115,11 +116,17 @@ what is playing (`MEDIA_ANNOUNCE`), and the note Home Assistant adds when it
 hides children a player cannot play (`not_shown`, zero on every level of every
 player here).
 
-One thing to know before changing it: a level's reply is not about that level.
+Two things to know before changing it. A level's reply is not about that
+level.
 Browsing a Radio Browser directory answers with the integration's own root as
 the node, and only the children belong to where the walk actually is. The
 dialog therefore keeps its own way back rather than reading it out of the
 reply.
+
+And a player's feature mask is not fixed. The Yamaha reports 888716 while it is
+off and 1019788 while it plays, gaining `BROWSE_MEDIA` on the way. The row is
+drawn from the live state on every redraw, so nothing needs to notice this -
+but a cache put in front of it would break the button.
 
 ## What Kodi does not lend a script
 

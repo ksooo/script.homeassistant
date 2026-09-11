@@ -150,6 +150,94 @@ class Browsing(unittest.TestCase):
             media.can_browse(player("unavailable", supported_features=186303)))
 
 
+class SoundModes(unittest.TestCase):
+    RECEIVER = 1019788                   # the Yamaha while it plays
+
+    def test_a_receiver_offers_its_sound_fields(self):
+        state = player("playing", supported_features=self.RECEIVER,
+                       sound_mode="standard",
+                       sound_mode_list=["munich", "standard"])
+        self.assertEqual(media.sound_modes(state), ["munich", "standard"])
+
+    def test_a_player_without_the_bit_offers_none(self):
+        state = player("playing", supported_features=186303,
+                       sound_mode_list=["munich"])
+        self.assertEqual(media.sound_modes(state), [])
+
+    def test_a_receiver_listing_none_offers_none(self):
+        self.assertEqual(
+            media.sound_modes(player("playing",
+                                     supported_features=self.RECEIVER)), [])
+
+
+class Grouping(unittest.TestCase):
+    RECEIVER = 1019788
+    KODI = 186303                        # browses and plays, but cannot group
+
+    def store(self, *rows):
+        """One store from (entity_id, name, platform, features, members)."""
+        return support.build(
+            entities=[support.entity(entity_id, name, platform=platform)
+                      for entity_id, name, platform, _, _ in rows],
+            states=[support.state(entity_id, "playing", friendly_name=name,
+                                  supported_features=features,
+                                  group_members=members)
+                    for entity_id, name, platform, features, members in rows])
+
+    def yamahas(self, members=("media_player.main",)):
+        return self.store(
+            ("media_player.main", "Yamaha", "yamaha_musiccast",
+             self.RECEIVER, list(members)),
+            ("media_player.zone2", "Yamaha Zone 2", "yamaha_musiccast",
+             self.RECEIVER, ["media_player.zone2"]))
+
+    def test_a_receiver_is_offered_the_other_zone(self):
+        self.assertEqual(media.group_choices(self.yamahas(), "media_player.main"),
+                         [("media_player.zone2", "Yamaha Zone 2", False)])
+
+    def test_a_player_already_in_comes_back_ticked(self):
+        store = self.yamahas(("media_player.main", "media_player.zone2"))
+        self.assertEqual(media.group_choices(store, "media_player.main"),
+                         [("media_player.zone2", "Yamaha Zone 2", True)])
+
+    def test_another_integration_is_not_offered(self):
+        # A group forms inside one integration, whatever the bits say.
+        store = self.store(
+            ("media_player.main", "Yamaha", "yamaha_musiccast",
+             self.RECEIVER, ["media_player.main"]),
+            ("media_player.cast", "Chromecast", "cast",
+             self.RECEIVER, ["media_player.cast"]))
+        self.assertEqual(media.group_choices(store, "media_player.main"), [])
+
+    def test_a_player_that_cannot_group_is_not_offered(self):
+        store = self.store(
+            ("media_player.main", "Yamaha", "yamaha_musiccast",
+             self.RECEIVER, ["media_player.main"]),
+            ("media_player.kodi", "Kodi", "yamaha_musiccast", self.KODI, []))
+        self.assertEqual(media.group_choices(store, "media_player.main"), [])
+
+    def test_a_player_that_cannot_group_is_offered_nobody(self):
+        store = self.store(
+            ("media_player.kodi", "Kodi", "kodi", self.KODI, []),
+            ("media_player.main", "Yamaha", "kodi",
+             self.RECEIVER, ["media_player.main"]))
+        self.assertEqual(media.group_choices(store, "media_player.kodi"), [])
+
+
+class GroupPlan(unittest.TestCase):
+    def test_a_player_added_is_joined(self):
+        self.assertEqual(media.group_plan(["a"], ["a", "b"]), (["b"], []))
+
+    def test_a_player_dropped_leaves_on_its_own(self):
+        self.assertEqual(media.group_plan(["a", "b"], ["a"]), ([], ["b"]))
+
+    def test_a_swap_needs_both_calls(self):
+        self.assertEqual(media.group_plan(["b"], ["c"]), (["c"], ["b"]))
+
+    def test_a_membership_unchanged_needs_no_call(self):
+        self.assertEqual(media.group_plan(["a"], ["a"]), ([], []))
+
+
 class Naming(unittest.TestCase):
     def test_the_subtitle_falls_through_to_what_is_there(self):
         self.assertEqual(

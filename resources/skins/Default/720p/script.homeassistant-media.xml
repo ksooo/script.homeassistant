@@ -143,42 +143,60 @@
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
 
-        <!-- Four slots for what acts on the box rather than on the playback,
+        <!-- Six slots for what acts on the box rather than on the playback,
              centred by Python like the transport row above. -->
-        <control type="button" id="140">
+        <control type="button" id="160">
+            <left>412</left><top>624</top><width>56</width><height>56</height>
+            <texturefocus border="10">item_focus.png</texturefocus>
+            <texturenofocus border="10">item.png</texturenofocus><label></label>
+        </control>
+        <control type="image" id="161">
+            <left>428</left><top>640</top><width>24</width><height>24</height>
+            <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
+        </control>
+        <control type="button" id="162">
             <left>492</left><top>624</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
-        <control type="image" id="141">
+        <control type="image" id="163">
             <left>508</left><top>640</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
-        <control type="button" id="142">
+        <control type="button" id="164">
             <left>572</left><top>624</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
-        <control type="image" id="143">
+        <control type="image" id="165">
             <left>588</left><top>640</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
-        <control type="button" id="144">
+        <control type="button" id="166">
             <left>652</left><top>624</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
-        <control type="image" id="145">
+        <control type="image" id="167">
             <left>668</left><top>640</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
-        <control type="button" id="146">
+        <control type="button" id="168">
             <left>732</left><top>624</top><width>56</width><height>56</height>
             <texturefocus border="10">item_focus.png</texturefocus>
             <texturenofocus border="10">item.png</texturenofocus><label></label>
         </control>
-        <control type="image" id="147">
+        <control type="image" id="169">
             <left>748</left><top>640</top><width>24</width><height>24</height>
+            <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
+        </control>
+        <control type="button" id="170">
+            <left>812</left><top>624</top><width>56</width><height>56</height>
+            <texturefocus border="10">item_focus.png</texturefocus>
+            <texturenofocus border="10">item.png</texturenofocus><label></label>
+        </control>
+        <control type="image" id="171">
+            <left>828</left><top>640</top><width>24</width><height>24</height>
             <colordiffuse>FFF0F0F0</colordiffuse><texture></texture>
         </control>
     </controls>

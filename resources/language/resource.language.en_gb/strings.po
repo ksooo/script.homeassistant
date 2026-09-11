@@ -564,6 +564,10 @@ msgctxt "#30379"
 msgid "Nothing here"
 msgstr ""
 
+msgctxt "#30380"
+msgid "Join"
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr ""

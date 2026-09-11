@@ -1011,6 +1011,7 @@ sort-variant-lock
 sort-variant-lock-open
 soundbar
 speaker
+speaker-multiple
 speaker-message
 speaker-off
 speaker-wireless

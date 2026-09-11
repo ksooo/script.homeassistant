@@ -24,6 +24,8 @@ _VOLUME_MUTE = 8
 _VOLUME_STEP = 1024
 _SELECT_SOURCE = 2048
 _BROWSE = 131072
+_SOUND_MODE = 65536
+_GROUPING = 524288
 
 # Nothing to transport: for a player that is off, Home Assistant offers a
 # power button and nothing else, and that is not part of this row.
@@ -133,6 +135,61 @@ def can_browse(state):
     if state.state in ("unavailable", "unknown"):
         return False
     return bool(features & _BROWSE)
+
+
+def sound_modes(state):
+    """The sound fields the player can be put into, if it offers them.
+
+    The Yamaha names them as it stores them - "munich", "cellar_club" - and
+    Home Assistant passes them through, so this does too.
+    """
+    features = state.attributes.get("supported_features") or 0
+    if state.state in ("unavailable", "unknown") or not features & _SOUND_MODE:
+        return []
+    return [str(name) for name in state.attributes.get("sound_mode_list") or []]
+
+
+def group_choices(store, entity_id):
+    """The players this one could be grouped with, and who is in already.
+
+    Only the same integration is offered: a group forms inside one, and there
+    is no service to join across. The player itself is left out - it is always
+    in its own group. Returns (entity_id, name, joined), in name order.
+    """
+    state = store.states.get(entity_id)
+    if state is None or not _can_group(state):
+        return []
+    platform = _platform(store, entity_id)
+    members = [str(member) for member in state.attributes.get("group_members") or []]
+    choices = [(other_id, store.display_name_of(other_id), other_id in members)
+               for other_id, other in store.states.items()
+               if other_id != entity_id and other.domain == "media_player"
+               and _can_group(other) and _platform(store, other_id) == platform]
+    return sorted(choices, key=lambda choice: choice[1])
+
+
+def group_plan(current, wanted):
+    """The calls that make a group hold exactly the wanted players.
+
+    Home Assistant has no service that sets a group: join adds to the target's
+    group, unjoin takes a single player out of its own. So a change is one join
+    for what came in, and one unjoin per player that left.
+    """
+    added = [entity_id for entity_id in wanted if entity_id not in current]
+    removed = [entity_id for entity_id in current if entity_id not in wanted]
+    return added, removed
+
+
+def _can_group(state):
+    features = state.attributes.get("supported_features") or 0
+    if state.state in ("unavailable", "unknown"):
+        return False
+    return bool(features & _GROUPING)
+
+
+def _platform(store, entity_id):
+    entity = store.entities.get(entity_id)
+    return entity.platform if entity is not None else ""
 
 
 def clock(seconds):
