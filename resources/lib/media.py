@@ -27,11 +27,24 @@ _BROWSE = 131072
 _SOUND_MODE = 65536
 _GROUPING = 524288
 
-# Nothing to transport: for a player that is off, Home Assistant offers a
-# power button and nothing else, and that is not part of this row.
-_SILENT = ("off", "unavailable", "unknown")
-_ASLEEP = ("idle", "standby")
-_PAUSED = ("paused", "buffering")
+# Where the outer transport buttons and the playback settings apply, which is
+# Home Assistant's rule rather than a guess at it: computeMediaControls in its
+# frontend asks for a player that is playing, paused or taken on trust.
+_TRANSPORTING = ("playing", "paused")
+
+
+def _features(state):
+    return state.attributes.get("supported_features") or 0
+
+
+def _assumed(state):
+    """Whether the player's state is taken on trust rather than reported."""
+    return state.attributes.get("assumed_state") is True
+
+
+def _active(state):
+    """stateActive() for a media player: off, unknown and unavailable are not."""
+    return state.state not in ("off", "unknown", "unavailable")
 
 
 def elapsed(state, now=None):
@@ -63,39 +76,41 @@ def fraction(state, now=None):
 
 
 def power(state):
-    """The power buttons, in Home Assistant's order.
+    """The power buttons, as Home Assistant computes them.
 
-    A player whose state is assumed gets both directions side by side, for
-    the same reason its transport does: nothing says which way it would go.
-    One whose state is known gets the single button that applies. Either way
-    each direction needs its own feature bit, and none of this belongs in
-    the transport row - it is the device, not the playback.
+    A player that is off, unknown or asleep offers only the way on - not the
+    way off, whatever bit it reports. One that is awake offers the way off,
+    and one taken on trust offers both, its icons saying which is which where
+    a known player's icon only says standby.
     """
-    features = state.attributes.get("supported_features") or 0
-    if state.state in ("unavailable", "unknown"):
+    features = _features(state)
+    assumed = _assumed(state)
+    if state.state == "unavailable":
         return []
-    if state.attributes.get("assumed_state"):
-        buttons = []
-        if features & _TURN_ON:
-            buttons.append(("power_on", "turn_on"))
-        if features & _TURN_OFF:
-            buttons.append(("power_off", "turn_off"))
-        return buttons
-    if state.state == "off":
-        return [("power", "turn_on")] if features & _TURN_ON else []
-    return [("power", "turn_off")] if features & _TURN_OFF else []
+    if not _active(state) and not assumed:
+        return [("power_standby", "turn_on")] if features & _TURN_ON else []
+
+    buttons = []
+    if assumed and features & _TURN_ON:
+        buttons.append(("power_on", "turn_on"))
+    if features & _TURN_OFF:
+        buttons.append(("power_off" if assumed else "power_standby", "turn_off"))
+    return buttons
 
 
 def volume(state):
     """What the volume row offers: (mute, level, steps).
 
-    level is where the volume stands, for a player that takes one; steps
-    says it only takes up and down. Home Assistant shows a slider for the
-    first and two buttons for the second - the Shield's own remote takes
-    steps only, the television beside it takes a level.
+    level is where the volume stands, for a player that takes one; steps says
+    it only takes up and down. Home Assistant shows a slider for the first and
+    two buttons for the second - the Shield's own remote takes steps only, the
+    television beside it takes a level - and draws the row at all only for a
+    player that takes one of the two, while it is awake or taken on trust.
     """
-    features = state.attributes.get("supported_features") or 0
-    if state.state in ("unavailable", "unknown", "off"):
+    features = _features(state)
+    if not features & (_VOLUME_SET | _VOLUME_STEP):
+        return (False, None, False)
+    if not _active(state) and not _assumed(state):
         return (False, None, False)
     takes_level = bool(features & _VOLUME_SET)
     return (bool(features & _VOLUME_MUTE),
@@ -115,12 +130,11 @@ def muted(state):
 def sources(state):
     """The inputs the player can be switched to, if it offers that.
 
-    Not gated on the player being off: Home Assistant keeps this row of
-    buttons alive there too, and an amplifier woken by its input choice is a
-    reasonable thing to want.
+    Not gated on the player's state: Home Assistant asks the feature bit
+    alone, and an amplifier woken by its input choice is a reasonable thing to
+    want.
     """
-    features = state.attributes.get("supported_features") or 0
-    if state.state in ("unavailable", "unknown") or not features & _SELECT_SOURCE:
+    if not _features(state) & _SELECT_SOURCE:
         return []
     return [str(name) for name in state.attributes.get("source_list") or []]
 
@@ -128,23 +142,21 @@ def sources(state):
 def can_browse(state):
     """Whether the player offers a media tree to walk.
 
-    Not gated on the player being off either: Home Assistant keeps the button
-    alive there, and picking something is a fair way to wake a box.
+    Home Assistant compares against unavailable only, so a player whose state
+    it cannot read still offers its tree, and picking something there is a
+    fair way to wake a box.
     """
-    features = state.attributes.get("supported_features") or 0
-    if state.state in ("unavailable", "unknown"):
-        return False
-    return bool(features & _BROWSE)
+    return state.state != "unavailable" and bool(_features(state) & _BROWSE)
 
 
 def sound_modes(state):
     """The sound fields the player can be put into, if it offers them.
 
     The Yamaha names them as it stores them - "munich", "cellar_club" - and
-    Home Assistant passes them through, so this does too.
+    Home Assistant passes them through, so this does too. The button follows
+    the list rather than the state: what a player has, it shows.
     """
-    features = state.attributes.get("supported_features") or 0
-    if state.state in ("unavailable", "unknown") or not features & _SOUND_MODE:
+    if not _features(state) & _SOUND_MODE:
         return []
     return [str(name) for name in state.attributes.get("sound_mode_list") or []]
 
@@ -157,14 +169,14 @@ def group_choices(store, entity_id):
     in its own group. Returns (entity_id, name, joined), in name order.
     """
     state = store.states.get(entity_id)
-    if state is None or not _can_group(state):
+    if state is None or not can_group(state):
         return []
     platform = _platform(store, entity_id)
     members = [str(member) for member in state.attributes.get("group_members") or []]
     choices = [(other_id, store.display_name_of(other_id), other_id in members)
                for other_id, other in store.states.items()
                if other_id != entity_id and other.domain == "media_player"
-               and _can_group(other) and _platform(store, other_id) == platform]
+               and can_group(other) and _platform(store, other_id) == platform]
     return sorted(choices, key=lambda choice: choice[1])
 
 
@@ -180,11 +192,54 @@ def group_plan(current, wanted):
     return added, removed
 
 
-def _can_group(state):
-    features = state.attributes.get("supported_features") or 0
-    if state.state in ("unavailable", "unknown"):
-        return False
-    return bool(features & _GROUPING)
+def can_group(state):
+    """Whether the group button shows.
+
+    Unavailable is the only state that takes it away - a player Home Assistant
+    knows nothing about keeps it, and so does one with nobody to group with.
+    """
+    return state.state != "unavailable" and bool(_features(state) & _GROUPING)
+
+
+def can_select_source(state):
+    """Whether the input button shows.
+
+    The feature bit alone decides, as in Home Assistant, so a player that
+    lists no inputs shows it and opens on an empty choice.
+    """
+    return bool(_features(state) & _SELECT_SOURCE)
+
+
+def can_select_source(state):
+    """Whether the input button shows.
+
+    The feature bit alone decides, as in Home Assistant, so a player that
+    lists no inputs shows it and opens on an empty choice.
+    """
+    return bool(_features(state) & _SELECT_SOURCE)
+
+
+def shuffle(state):
+    """The shuffle button: (icon, what a press would set), or None.
+
+    The icon says how the player stands, which is Home Assistant's way here
+    even though the transport beside it shows the press instead.
+    """
+    if not _playback(state) or not _features(state) & _SHUFFLE:
+        return None
+    on = state.attributes.get("shuffle") is True
+    return ("shuffle" if on else "shuffle-disabled", not on)
+
+
+def repeat(state):
+    """The repeat button: (icon, the next setting round), or None."""
+    if not _playback(state) or not _features(state) & _REPEAT:
+        return None
+    current = str(state.attributes.get("repeat") or "off")
+    if current not in _REPEAT_ORDER:
+        current = "off"
+    following = _REPEAT_ORDER[(_REPEAT_ORDER.index(current) + 1) % len(_REPEAT_ORDER)]
+    return (_REPEAT_ICONS[current], following)
 
 
 def _platform(store, entity_id):
@@ -213,40 +268,40 @@ def subtitle(state):
 
 
 def controls(state):
-    """The transport buttons Home Assistant would draw, in its order.
+    """The transport buttons, as Home Assistant's frontend computes them.
 
-    Its rule lives in the frontend, so this is reconstructed from what that
-    dialog shows, checked against five players. One that is off offers
-    nothing; one merely dozing offers play. One whose state is taken on
-    trust - assumed_state, as a television bound over its own protocol is -
-    offers pause, play and stop side by side, because nothing says which of
-    them applies. One whose state is known gets the single button that state
-    calls for, and stop only where it cannot pause.
+    Its computeMediaControls decides this and the rules are its own: skipping
+    a track needs a player that is playing, paused or taken on trust; the
+    middle button is the one the state calls for; a player taken on trust gets
+    play, pause and stop side by side, because nothing says which applies; and
+    one that is merely "on" gets the single play-pause button.
     """
-    features = state.attributes.get("supported_features") or 0
-    if state.state in _SILENT:
+    features = _features(state)
+    assumed = _assumed(state)
+    if state.state == "unavailable" or (not _active(state) and not assumed):
         return []
-    if state.state in _ASLEEP:
-        return [("play", "media_play")] if features & _PLAY else []
 
+    moving = state.state in _TRANSPORTING or assumed
     buttons = []
-    if features & _PREVIOUS:
+    if moving and features & _PREVIOUS:
         buttons.append(("previous", "media_previous_track"))
-    if state.attributes.get("assumed_state"):
-        if features & _PAUSE:
-            buttons.append(("pause", "media_pause"))
+
+    if assumed:
         if features & _PLAY:
             buttons.append(("play", "media_play"))
-        if features & _STOP:
-            buttons.append(("stop", "media_stop"))
-    elif state.state == PLAYING:
         if features & _PAUSE:
             buttons.append(("pause", "media_pause"))
-        elif features & _STOP:
+        if features & _STOP:
             buttons.append(("stop", "media_stop"))
-    elif state.state in _PAUSED and features & _PLAY:
+    elif state.state == PLAYING and features & (_PAUSE | _STOP):
+        buttons.append(("pause", "media_pause") if features & _PAUSE
+                       else ("stop", "media_stop"))
+    elif state.state in ("paused", "idle") and features & _PLAY:
         buttons.append(("play", "media_play"))
-    if features & _NEXT:
+    elif state.state == "on" and features & (_PLAY | _PAUSE):
+        buttons.append(("play_pause", "media_play"))
+
+    if moving and features & _NEXT:
         buttons.append(("next", "media_next_track"))
     return buttons
 

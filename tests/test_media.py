@@ -64,6 +64,19 @@ class Power(unittest.TestCase):
         for value in ("playing", "paused", "idle", "on"):
             self.assertEqual(self.services(value, self.BOTH), ["turn_off"], value)
 
+    def test_a_player_of_unknown_state_is_offered_the_way_on(self):
+        # Home Assistant treats unknown as asleep rather than as missing.
+        self.assertEqual(self.services("unknown", self.BOTH), ["turn_on"])
+
+    def test_the_icon_says_standby_unless_the_state_is_assumed(self):
+        icons = lambda value, features, assumed: [
+            icon for icon, _ in media.power(player(
+                value, supported_features=features,
+                **({"assumed_state": True} if assumed else {})))]
+        self.assertEqual(icons("off", self.BOTH, False), ["power_standby"])
+        self.assertEqual(icons("playing", self.BOTH, False), ["power_standby"])
+        self.assertEqual(icons("on", self.BOTH, True), ["power_on", "power_off"])
+
     def test_an_assumed_player_gets_both(self):
         # What Home Assistant shows for the Shield remote: separate on and
         # off, because its state does not say which applies.
@@ -114,6 +127,16 @@ class Volume(unittest.TestCase):
         self.assertEqual(media.volume(player("off", supported_features=4 | 8)),
                          (False, None, False))
 
+    def test_a_player_that_can_only_mute_has_no_volume_row(self):
+        # Home Assistant asks for a level or steps before it draws the row.
+        self.assertEqual(media.volume(player("on", supported_features=8)),
+                         (False, None, False))
+
+    def test_an_assumed_player_that_is_off_keeps_its_volume_row(self):
+        state = player("off", supported_features=4 | 8, assumed_state=True,
+                       volume_level=0.4)
+        self.assertEqual(media.volume(state), (True, 0.4, False))
+
 
 class Sources(unittest.TestCase):
     def test_the_inputs_come_from_the_player(self):
@@ -130,10 +153,12 @@ class Sources(unittest.TestCase):
     def test_a_player_naming_no_inputs_offers_none(self):
         self.assertEqual(media.sources(player("on", supported_features=2048)), [])
 
-    def test_an_unavailable_player_offers_none(self):
+    def test_the_state_does_not_take_the_inputs_away(self):
+        # Home Assistant asks the feature bit alone, whatever the state.
         self.assertEqual(media.sources(player("unavailable",
                                               supported_features=2048,
-                                              source_list=["HDMI 1"])), [])
+                                              source_list=["HDMI 1"])),
+                         ["HDMI 1"])
 
 
 class Browsing(unittest.TestCase):
@@ -271,10 +296,13 @@ class Controls(unittest.TestCase):
         self.assertEqual(self.names("playing", 16 | 32 | 4096),
                          ["previous", "stop", "next"])
 
-    def test_a_sleeping_player_is_offered_only_play(self):
+    def test_an_idle_player_is_offered_play(self):
         # What Home Assistant shows for the Kodi player sitting idle.
-        for value in ("idle", "standby"):
-            self.assertEqual(self.names(value, self.PLAYER), ["play"], value)
+        self.assertEqual(self.names("idle", self.PLAYER), ["play"])
+
+    def test_a_player_on_standby_is_offered_nothing(self):
+        # Home Assistant names idle and paused, and standby is neither.
+        self.assertEqual(self.names("standby", self.PLAYER), [])
 
     def test_a_player_that_is_off_is_offered_nothing(self):
         # What Home Assistant shows for the Chromecast: a power button only,
@@ -288,14 +316,23 @@ class Controls(unittest.TestCase):
         self.assertEqual(self.names("unavailable", self.PLAYER), [])
 
     def test_a_television_whose_state_is_assumed_gets_all_three(self):
-        # What Home Assistant shows for the LG: nothing says which applies.
+        # What Home Assistant shows for the LG: nothing says which applies,
+        # and it lists them play, pause, stop.
         state = player("on", supported_features=self.TELEVISION,
                        assumed_state=True)
         self.assertEqual([name for name, _ in media.controls(state)],
-                         ["previous", "pause", "play", "stop", "next"])
+                         ["previous", "play", "pause", "stop", "next"])
 
-    def test_a_known_player_merely_on_gets_no_middle_button(self):
-        self.assertEqual(self.names("on", self.PLAYER), ["previous", "next"])
+    def test_a_known_player_merely_on_gets_the_double_button(self):
+        # Home Assistant offers one button that does both, and no skipping:
+        # a player that is not going has no track to skip.
+        self.assertEqual(self.names("on", self.PLAYER), ["play_pause"])
+
+    def test_skipping_needs_a_player_that_is_going(self):
+        for value in ("playing", "paused"):
+            self.assertIn("previous", self.names(value, self.PLAYER), value)
+        for value in ("on", "idle"):
+            self.assertNotIn("previous", self.names(value, self.PLAYER), value)
 
 
 if __name__ == "__main__":

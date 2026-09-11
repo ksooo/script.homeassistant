@@ -75,10 +75,11 @@ ACTION_PREV_ITEM = 15
 ACTION_PLAYER_PLAYPAUSE = 229
 
 _ICONS = {"previous": "skip-previous", "pause": "pause", "play": "play",
-          "stop": "stop", "next": "skip-next", "power": "power",
+          "stop": "stop", "next": "skip-next", "play_pause": "play-pause",
+          "power_standby": "power-standby",
           "power_on": "power-on", "power_off": "power-off",
           "source": "login-variant", "browse": "play-box-multiple",
-          "group": "speaker-multiple", "sound": "music-note"}
+          "group": "speaker-multiple", "sound": "music-note-eighth"}
 
 # The remote's own transport keys, which a web page cannot have. The play
 # key takes whichever of the two the player is offering.
@@ -240,9 +241,9 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         nothing to group with, rather than opening on an empty list.
         """
         drawn = [("browse", None)] if media.can_browse(state) else []
-        if media.group_choices(self._store, self._entity_id):
+        if media.can_group(state):
             drawn.append(("group", None))
-        if media.sources(state):
+        if media.can_select_source(state):
             drawn.append(("source", None))
         if media.sound_modes(state):
             drawn.append(("sound", None))

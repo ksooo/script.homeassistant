@@ -817,6 +817,7 @@ mower-bag
 mower-bag-on
 mower-on
 music-note
+music-note-eighth
 music-note-off
 nfc-variant
 nfc-variant-off
@@ -894,6 +895,7 @@ power-socket-fr
 power-socket-jp
 power-socket-uk
 power-socket-us
+power-standby
 printer
 printer-3d
 printer-alert
@@ -1011,8 +1013,8 @@ sort-variant-lock
 sort-variant-lock-open
 soundbar
 speaker
-speaker-multiple
 speaker-message
+speaker-multiple
 speaker-off
 speaker-wireless
 speedometer
