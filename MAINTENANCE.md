@@ -29,6 +29,7 @@ configuration needs no code change.
 | IndieAuth `client_id`/`redirect_uri`, `/auth/login_flow`, `/auth/token` with `authorization_code` and `refresh_token` | `resources/lib/ha/auth.py` | user name and password stop working; a long-lived token still does |
 | `/api/camera_proxy/<entity>` | `resources/lib/cameras.py` | camera rows stay blank |
 | Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
+| `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
 
 ### Breaks quietly
 
@@ -104,6 +105,21 @@ an installation - no entity id, no area id, no address - and the shipped icons
 are chosen by Material Design Icons category rather than harvested from a
 particular set of entities. Measured against 1121 visible entities, none was
 left without an icon.
+
+## What the media browser leaves out
+
+Home Assistant browses in a grid of tiles with a search box; this browses in a
+list, one level per dialog. Left out on purpose: searching a level
+(`can_search`), queueing rather than playing (`MEDIA_ENQUEUE`), announcing over
+what is playing (`MEDIA_ANNOUNCE`), and the note Home Assistant adds when it
+hides children a player cannot play (`not_shown`, zero on every level of every
+player here).
+
+One thing to know before changing it: a level's reply is not about that level.
+Browsing a Radio Browser directory answers with the integration's own root as
+the node, and only the children belong to where the walk actually is. The
+dialog therefore keeps its own way back rather than reading it out of the
+reply.
 
 ## What Kodi does not lend a script
 

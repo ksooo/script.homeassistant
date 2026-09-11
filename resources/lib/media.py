@@ -23,6 +23,7 @@ _VOLUME_SET = 4
 _VOLUME_MUTE = 8
 _VOLUME_STEP = 1024
 _SELECT_SOURCE = 2048
+_BROWSE = 131072
 
 # Nothing to transport: for a player that is off, Home Assistant offers a
 # power button and nothing else, and that is not part of this row.
@@ -120,6 +121,18 @@ def sources(state):
     if state.state in ("unavailable", "unknown") or not features & _SELECT_SOURCE:
         return []
     return [str(name) for name in state.attributes.get("source_list") or []]
+
+
+def can_browse(state):
+    """Whether the player offers a media tree to walk.
+
+    Not gated on the player being off either: Home Assistant keeps the button
+    alive there, and picking something is a fair way to wake a box.
+    """
+    features = state.attributes.get("supported_features") or 0
+    if state.state in ("unavailable", "unknown"):
+        return False
+    return bool(features & _BROWSE)
 
 
 def clock(seconds):

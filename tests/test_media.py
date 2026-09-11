@@ -136,6 +136,20 @@ class Sources(unittest.TestCase):
                                               source_list=["HDMI 1"])), [])
 
 
+class Browsing(unittest.TestCase):
+    def test_a_player_with_the_browse_bit_offers_the_tree(self):
+        # 186303: Kodi on the Shield, and off, which changes nothing here.
+        self.assertTrue(media.can_browse(player("off", supported_features=186303)))
+
+    def test_a_receiver_without_the_bit_does_not(self):
+        # 888716: the Yamaha, which takes a source but browses nothing.
+        self.assertFalse(media.can_browse(player("on", supported_features=888716)))
+
+    def test_an_unavailable_player_offers_nothing(self):
+        self.assertFalse(
+            media.can_browse(player("unavailable", supported_features=186303)))
+
+
 class Naming(unittest.TestCase):
     def test_the_subtitle_falls_through_to_what_is_there(self):
         self.assertEqual(

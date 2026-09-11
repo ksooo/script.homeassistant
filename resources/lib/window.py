@@ -612,7 +612,8 @@ class Dashboard(xbmcgui.WindowXML):
             icon="icons/%s.png" % icon if icon in self._icons else "",
             art_url=lambda picture: kodi.image_url(
                 self._settings.url, picture, self._image_token),
-            call=self._call_service)
+            call=self._call_service,
+            browse=self._browse_media)
         self._media.show()
 
     def _call_service(self, entity_id, service, data=None):
@@ -625,6 +626,26 @@ class Dashboard(xbmcgui.WindowXML):
                                 target={"entity_id": entity_id})
         except ha_client.HomeAssistantError as error:
             kodi.notify(kodi.tr("error_service") % error, error=True)
+
+    def _browse_media(self, entity_id, content_type=None, content_id=None):
+        """One level of a player's media tree, or None if it cannot be had.
+
+        The root is asked for by leaving both out, as Home Assistant's own
+        frontend does.
+        """
+        client = self._session.client
+        if client is None:
+            kodi.notify(kodi.tr("disconnected"), error=True)
+            return None
+        payload = {"entity_id": entity_id}
+        if content_id is not None:
+            payload["media_content_type"] = content_type
+            payload["media_content_id"] = content_id
+        try:
+            return client.command("media_player/browse_media", **payload)
+        except ha_client.HomeAssistantError as error:
+            kodi.notify(kodi.tr("error_service") % error, error=True)
+            return None
 
     def _show_details(self, entity_id):
         state = self._store.states.get(entity_id)
@@ -705,10 +726,9 @@ def _is_entity_row(rows, position):
 
 def _shipped_icons():
     """Icon names available as PNG; anything else falls back to the circle."""
-    directory = os.path.join(kodi.ADDON_PATH, "resources", "skins", "Default",
-                             "media", "icons")
     try:
-        return {name[:-4] for name in os.listdir(directory) if name.endswith(".png")}
+        return {name[:-4] for name in os.listdir(kodi.ICON_DIR)
+                if name.endswith(".png")}
     except OSError:
         return set()
 

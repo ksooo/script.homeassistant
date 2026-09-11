@@ -7,12 +7,13 @@ WindowXMLDialog reports itself as modal, and the window manager offers an
 action to the topmost modal dialog before the active window sees it.
 """
 
+import os
 import time
 
 import xbmcgui
 
 from . import actions as ha_actions
-from . import formatting, kodi, media
+from . import browse, formatting, kodi, media
 
 LABEL_ROOM = 100
 LABEL_NAME = 101
@@ -27,14 +28,11 @@ LABEL_DURATION = 109
 # Five slots, filled left to right with whatever the player offers.
 BUTTONS = (120, 121, 122, 123, 124)
 BUTTON_ICONS = (130, 131, 132, 133, 134)
-# The device row at the top right - power, and the input to switch to -
-# filled from the right edge inwards. Not the transport: these act on the
-# box, not on what it is playing.
-DEVICE_BUTTONS = (144, 142, 140)
-DEVICE_ICONS = (145, 143, 141)
-BUTTON_SOURCE = 144
-DEVICE_RIGHT = 898
-DEVICE_STEP = 68
+# The device row under the transport, where Home Assistant keeps it too: the
+# media tree, the input to switch to, power. Not the transport - these act on
+# the box, not on what it is playing.
+DEVICE_BUTTONS = (140, 142, 144, 146)
+DEVICE_ICONS = (141, 143, 145, 147)
 
 # The volume row: a slider where the player takes a level, two step buttons
 # where it does not, and muting either way.
@@ -47,7 +45,6 @@ BUTTON_UP = 155
 IMAGE_UP = 156
 VOLUME_SIZE = 44
 VOLUME_GAP = 12
-VOLUME_INSET = 10
 SLIDER_WIDTH = 300
 
 # Home Assistant is told at most this often while the slider moves.
@@ -66,7 +63,7 @@ _MUTED_ICON = "volume-off"
 TRACK_WIDTH = 560
 BUTTON_SIZE = 56
 BUTTON_GAP = 24
-ICON_INSET = 16
+ICON_SIZE = 24
 CENTRE = 640
 
 ACTION_PREVIOUS_MENU = 10
@@ -80,7 +77,7 @@ ACTION_PLAYER_PLAYPAUSE = 229
 _ICONS = {"previous": "skip-previous", "pause": "pause", "play": "play",
           "stop": "stop", "next": "skip-next", "power": "power",
           "power_on": "power-on", "power_off": "power-off",
-          "source": "login-variant"}
+          "source": "login-variant", "browse": "play-box-multiple"}
 
 # The remote's own transport keys, which a web page cannot have. The play
 # key takes whichever of the two the player is offering.
@@ -99,6 +96,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         self._icon = kwargs["icon"]
         self._art_url = kwargs["art_url"]
         self._call = kwargs["call"]
+        self._fetch = kwargs["browse"]
         self.closed = False
         self._drawn = None
         self._slots = {}
@@ -130,15 +128,16 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
                 return
 
     def onClick(self, control_id):
-        service = self._slots.get(control_id)
-        if service and control_id != BUTTON_SOURCE:
-            self._call(self._entity_id, service)
-            return
         state = self._store.states.get(self._entity_id)
         if state is None:
             return
-        if control_id == BUTTON_SOURCE:
+        name, service = self._slots.get(control_id, ("", None))
+        if name == "browse":
+            self._browse()
+        elif name == "source":
             self._choose_source(state)
+        elif service:
+            self._call(self._entity_id, service)
         elif control_id == BUTTON_MUTE:
             self._call(self._entity_id, "volume_mute",
                        ha_actions.service_data(_MUTE, state))
@@ -187,61 +186,55 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         if share is not None:
             self._width(IMAGE_FILL, max(2, int(TRACK_WIDTH * share)))
 
-        rows = [self._device(state), self._buttons(state), self._volume(state)]
+        # Cleared here rather than in a row: each row adds to it, and the one
+        # that cleared it used to throw away what the row before had filled in.
+        self._slots = {}
+        rows = [self._buttons(state), self._volume(state), self._device(state)]
         self._wire(rows)
-        # The transport row first, else the volume row, else power.
+        # The transport row first, else the volume row, else the device row.
         visible = [control for row in rows for control in row]
-        wanted = rows[1] or rows[2] or rows[0]
+        wanted = rows[0] or rows[1] or rows[2]
         if wanted and self._focused() not in visible:
             self._focus(wanted[0])
 
         self._drawn = self._picture(state)
 
-    def _buttons(self, state):
-        """Only what the player can do, centred on whatever is left.
+    def _row(self, buttons, images, drawn, size=BUTTON_SIZE, gap=BUTTON_GAP):
+        """Fill a row's slots left to right, centred, and hide the rest.
 
         Hidden rather than disabled: a disabled button is not told apart from
         a working one in this skin, and a row where half of it does nothing
         invites pressing it.
         """
-        drawn = media.controls(state)[:len(BUTTONS)]
-        self._slots = {}
-        span = len(drawn) * BUTTON_SIZE + max(0, len(drawn) - 1) * BUTTON_GAP
+        span = len(drawn) * size + max(0, len(drawn) - 1) * gap
         left = CENTRE - span // 2
-        for slot, (button, image) in enumerate(zip(BUTTONS, BUTTON_ICONS)):
+        for slot, (button, image) in enumerate(zip(buttons, images)):
             filled = slot < len(drawn)
             self._show(button, filled)
             self._show(image, filled)
             if not filled:
                 continue
             name, service = drawn[slot]
-            self._slots[button] = service
+            self._slots[button] = (name, service)
             self._image(image, "icons/%s.png" % _ICONS[name])
-            x = left + slot * (BUTTON_SIZE + BUTTON_GAP)
+            x = left + slot * (size + gap)
             self._place(button, x)
-            self._place(image, x + ICON_INSET)
+            self._place(image, x + _inset(size))
+        return list(buttons[:len(drawn)])
 
-        return [button for button, _ in zip(BUTTONS, drawn)]
+    def _buttons(self, state):
+        """The transport: what the player says it can do with the medium."""
+        return self._row(BUTTONS, BUTTON_ICONS,
+                         media.controls(state)[:len(BUTTONS)])
 
     def _device(self, state):
-        drawn = ([("source", "select_source")] if media.sources(state) else [])
+        """The box itself: its media tree, its input, its power."""
+        drawn = [("browse", None)] if media.can_browse(state) else []
+        if media.sources(state):
+            drawn.append(("source", "select_source"))
         drawn += media.power(state)
-        drawn = drawn[:len(DEVICE_BUTTONS)]
-        for slot, (button, image) in enumerate(zip(DEVICE_BUTTONS, DEVICE_ICONS)):
-            filled = slot < len(drawn)
-            self._show(button, filled)
-            self._show(image, filled)
-            if not filled:
-                continue
-            name, service = drawn[slot]
-            self._slots[button] = service
-            self._image(image, "icons/%s.png" % _ICONS[name])
-            # Right-aligned, so a single button keeps the corner.
-            x = DEVICE_RIGHT - (len(drawn) - 1 - slot) * DEVICE_STEP
-            self._place(button, x)
-            self._place(image, x + ICON_INSET)
-
-        return [button for button, _ in zip(DEVICE_BUTTONS, drawn)]
+        return self._row(DEVICE_BUTTONS, DEVICE_ICONS,
+                         drawn[:len(DEVICE_BUTTONS)])
 
     def _picture(self, state):
         """Everything that decides what is on screen, to redraw only on change."""
@@ -281,7 +274,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
                 icon = _MUTED_ICON
             self._image(image, "icons/%s.png" % icon)
             self._place(button, left)
-            self._place(image, left + VOLUME_INSET)
+            self._place(image, left + _inset(VOLUME_SIZE))
             left += VOLUME_SIZE + VOLUME_GAP
 
         self._show(SLIDER_VOLUME, level is not None)
@@ -344,6 +337,53 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         if choice >= 0:
             self._call(self._entity_id, "select_source", {"source": names[choice]})
 
+    def _browse(self):
+        """Walk the player's media tree, one select dialog per level.
+
+        Cancelling steps back out of the level, not out of the tree, which is
+        what Home Assistant's own back arrow does. The way back is this list
+        because a level's reply cannot be trusted about itself.
+        """
+        trail = [(None, None, "")]
+        while trail:
+            content_type, content_id, title = trail[-1]
+            node = self._fetch(self._entity_id, content_type, content_id)
+            if node is None:
+                return
+            listing = browse.rows(node, kodi.tr("action_play"))
+            if not listing:
+                kodi.notify(kodi.tr("browse_empty"))
+                trail.pop()
+                continue
+            choice = xbmcgui.Dialog().select(
+                title or str(node.get("title") or ""),
+                [self._item(row) for row in listing], useDetails=True)
+            if choice < 0:
+                trail.pop()
+                continue
+            row = listing[choice]
+            if row.expand:
+                trail.append((row.content_type, row.content_id, row.title))
+            else:
+                self._call(self._entity_id, "play_media",
+                           {"media_content_type": row.content_type,
+                            "media_content_id": row.content_id})
+                return
+
+    def _item(self, row):
+        """A line for the select dialog, with whatever picture there is.
+
+        Home Assistant's thumbnails are absolute for a station's own logo and
+        relative for an integration's brand, which image_url tells apart. A
+        line that brings none falls back to a shipped icon, and that needs its
+        full path: the select dialog is a dialog of Kodi's, not this skin.
+        """
+        item = xbmcgui.ListItem(row.title)
+        picture = self._art_url(row.thumbnail) if row.thumbnail else os.path.join(
+            kodi.ICON_DIR, "folder.png" if row.expand else "play.png")
+        item.setArt({"thumb": picture, "icon": picture})
+        return item
+
     def _wire(self, rows):
         """Give the visible controls their neighbours, top row first.
 
@@ -399,3 +439,8 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
             self.getControl(control_id).setWidth(width)
         except RuntimeError:
             pass
+
+
+def _inset(size):
+    """Where an icon sits in a button of that size: in the middle of it."""
+    return (size - ICON_SIZE) // 2

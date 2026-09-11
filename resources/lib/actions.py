@@ -218,6 +218,8 @@ _MEDIA_TURN_OFF = 256
 _MEDIA_VOLUME_STEP = 1024
 _MEDIA_SHUFFLE = 32768
 _MEDIA_REPEAT = 262144
+_MEDIA_PLAY_MEDIA = 512
+_MEDIA_BROWSE = 131072
 
 # Home Assistant names these three itself rather than listing them on the
 # entity, so they are spelled out here and translated when the list is shown.
@@ -529,7 +531,8 @@ KNOWN_FEATURES = {
     "media_player": (_mask(_MEDIA) | _MEDIA_VOLUME_SET | _MEDIA_VOLUME_MUTE
                      | _MEDIA_SELECT_SOURCE | _MEDIA_SELECT_SOUND_MODE
                      | _MEDIA_TURN_ON | _MEDIA_TURN_OFF | _MEDIA_VOLUME_STEP
-                     | _MEDIA_SHUFFLE | _MEDIA_REPEAT),
+                     | _MEDIA_SHUFFLE | _MEDIA_REPEAT | _MEDIA_PLAY_MEDIA
+                     | _MEDIA_BROWSE),
     "lock": _LOCK_OPEN,
     "climate": (_CLIMATE_TARGET_TEMPERATURE | _CLIMATE_FAN_MODE
                 | _CLIMATE_PRESET_MODE | _CLIMATE_TURN_ON | _CLIMATE_TURN_OFF),
@@ -550,10 +553,10 @@ KNOWN_FEATURES = {
 # Bits that have been looked at and passed over, so that a run of
 # tools/unknown_features.py names only what is genuinely new. Either the bit is
 # no command at all, or it needs something this dialog cannot ask for: a place
-# on a timeline, a media item, another player to group with.
+# on a timeline, another player to group with.
 IGNORED_FEATURES = {
     "vacuum": 256 | 4096,                       # SEND_COMMAND, STATE
-    "media_player": (2 | 512 | 131072 | 524288  # SEEK, PLAY_MEDIA, BROWSE, GROUPING
+    "media_player": (2 | 524288                 # SEEK, GROUPING
                      | 1048576 | 2097152 | 4194304),  # ANNOUNCE, ENQUEUE, SEARCH
     "light": 8 | 32,                            # FLASH, TRANSITION: call parameters
     "alarm_control_panel": _ALARM_TRIGGER,      # see _alarm_commands

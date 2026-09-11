@@ -1,5 +1,7 @@
 """Everything that talks to Kodi: settings, localisation, logging, dialogs."""
 
+import os
+
 import xbmc
 import xbmcaddon
 import xbmcgui
@@ -12,6 +14,10 @@ ADDON_ID = ADDON.getAddonInfo("id")
 ADDON_PATH = ADDON.getAddonInfo("path")
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_ICON = ADDON.getAddonInfo("icon")
+# The icons in full, for where a skin-relative path does not resolve: a
+# dialog of Kodi's own draws from no skin of ours.
+ICON_DIR = os.path.join(ADDON_PATH, "resources", "skins", "Default", "media",
+                        "icons")
 
 
 def tr(key):

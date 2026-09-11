@@ -472,6 +472,7 @@ floor-plan
 flower
 flower-outline
 focus-field
+folder
 folder-home
 folder-home-outline
 folder-lock
@@ -864,6 +865,7 @@ play-box-lock
 play-box-lock-open
 play-box-lock-open-outline
 play-box-lock-outline
+play-box-multiple
 play-pause
 play-speed
 plus-lock
