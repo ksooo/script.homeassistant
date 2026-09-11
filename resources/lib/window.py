@@ -27,7 +27,6 @@ ROW_LIST = 50
 CATEGORY_LIST = 51
 LABEL_TITLE = 100
 LABEL_STATUS = 101
-LABEL_SECTION = 102
 LABEL_STATUS_MESSAGE = 104
 LABEL_EMPTY = 105
 
@@ -370,7 +369,7 @@ class Dashboard(xbmcgui.WindowXML):
 
     def _show_section(self, index):
         if not self._sections:
-            self._set_label(LABEL_SECTION, "")
+            self._set_label(LABEL_TITLE, kodi.tr("dashboard_title"))
             self._set_label(LABEL_EMPTY, kodi.tr("empty_section"))
             return
 
@@ -379,10 +378,13 @@ class Dashboard(xbmcgui.WindowXML):
         self._section_index = index
         self._section_key = section.key
 
-        title = section.title
+        # The trail Estuary puts in the same corner. A room carries its floor
+        # as the subtitle, which is a step of its own on the way there.
+        crumbs = [kodi.tr("dashboard_title")]
         if section.subtitle:
-            title = "%s  -  %s" % (section.subtitle, section.title)
-        self._set_label(LABEL_SECTION, title)
+            crumbs.append(section.subtitle)
+        crumbs.append(section.title)
+        self._set_label(LABEL_TITLE, " / ".join(crumbs))
         self._fill_rows(section)
 
     def _fill_rows(self, section):
