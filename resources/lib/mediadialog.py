@@ -356,9 +356,11 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         names = media.sound_modes(state)
         if not names:
             return
+        labels = formatting.option_texts(self._store, self._entity_id,
+                                         "sound_mode", names)
         current = str(state.attributes.get("sound_mode") or "")
         choice = xbmcgui.Dialog().select(
-            kodi.tr("action_sound_mode"), names,
+            kodi.tr("action_sound_mode"), labels,
             preselect=names.index(current) if current in names else -1)
         if choice >= 0:
             self._call(self._entity_id, "select_sound_mode",

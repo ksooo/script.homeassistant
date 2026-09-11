@@ -75,5 +75,72 @@ class Colour(unittest.TestCase):
         self.assertEqual(self.colour("light.a", "unavailable"), formatting.DIM)
 
 
+class OptionWords(unittest.TestCase):
+    """The four key shapes, with keys and texts taken from a real install."""
+
+    SOUND = ("component.yamaha_musiccast.entity.media_player.zone"
+             ".state_attributes.sound_mode.state.action_game")
+    MOP = "component.roborock.entity.select.mop_mode.state.deep"
+    MOP_PLUS = "component.roborock.entity.select.mop_mode.state.deep_plus"
+    HVAC = "component.climate.entity_component._.state.heat"
+    LOCK = "component.lock.entity_component._.state.unlocked"
+
+    def store(self, entity_id, platform, translation_key, translations, state="on"):
+        return support.build(
+            entities=[support.entity(entity_id, "Thing", platform=platform,
+                                     translation_key=translation_key)],
+            states=[support.state(entity_id, state)],
+            translations=translations)
+
+    def test_an_integration_words_its_own_attribute_values(self):
+        store = self.store("media_player.avr", "yamaha_musiccast", "zone",
+                           {self.SOUND: "Action game"})
+        self.assertEqual(
+            formatting.option_text(store, "media_player.avr", "sound_mode",
+                                   "action_game"), "Action game")
+
+    def test_an_option_that_is_really_a_state_is_found_too(self):
+        # A select's options are its states, so they carry no attribute key.
+        store = self.store("select.mop", "roborock", "mop_mode", {self.MOP: "Deep"})
+        self.assertEqual(
+            formatting.option_text(store, "select.mop", "option", "deep"), "Deep")
+
+    def test_the_domain_answers_where_the_integration_does_not(self):
+        store = self.store("climate.socket", "meross_lan", "mts_climate",
+                           {self.HVAC: "Heat"})
+        self.assertEqual(
+            formatting.option_text(store, "climate.socket", "hvac_mode", "heat"),
+            "Heat")
+
+    def test_an_untranslated_value_reads_as_it_arrived(self):
+        store = self.store("media_player.avr", "yamaha_musiccast", "zone", {})
+        self.assertEqual(
+            formatting.option_text(store, "media_player.avr", "sound_mode",
+                                   "cellar_club"), "cellar_club")
+
+    def test_a_whole_list_keeps_home_assistants_order(self):
+        store = self.store("media_player.avr", "yamaha_musiccast", "zone",
+                           {self.SOUND: "Action game"})
+        self.assertEqual(
+            formatting.option_texts(store, "media_player.avr", "sound_mode",
+                                    ["munich", "action_game"]),
+            ["munich", "Action game"])
+
+    def test_a_row_takes_home_assistants_word_where_the_addon_has_none(self):
+        # "deep_plus" used to read "Deep plus"; Home Assistant calls it "Deep+".
+        store = self.store("select.mop", "roborock", "mop_mode",
+                           {self.MOP_PLUS: "Deep+"}, state="deep_plus")
+        self.assertEqual(
+            formatting.state_text(store, "select.mop", support.untranslated),
+            "Deep+")
+
+    def test_the_addons_own_word_still_wins(self):
+        store = self.store("lock.door", "matter", "", {self.LOCK: "Unlocked!"},
+                           state="unlocked")
+        self.assertEqual(
+            formatting.state_text(store, "lock.door", support.untranslated),
+            "unlocked")
+
+
 if __name__ == "__main__":
     unittest.main()

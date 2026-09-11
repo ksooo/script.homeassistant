@@ -44,6 +44,7 @@ This is the group that needs looking after.
 | How the Home panel is assembled: favourites, then shortcuts in their own order, then rooms by floor | `resources/lib/sections.py` (`build`) | a new kind of shortcut never arrives |
 | How a row is named: `friendly_name` for rows, the registry name under a device heading, `name_by_user or name` for a device | `resources/lib/model.py` | rows are named differently from Home Assistant |
 | What OK does per domain, and which domains are read only | `resources/lib/actions.py` (`default_action`) | a new domain is treated as display only |
+| `frontend/get_translations` and the four key shapes an option value is looked up under | `resources/lib/formatting.py` (`option_text`) | option lists read as raw values again |
 
 ### Cosmetic
 
@@ -56,6 +57,12 @@ This is the group that needs looking after.
 
 A new or renamed icon in Home Assistant ends as an empty square here, not as an
 error.
+
+The last row of that table has a limit worth knowing: the *values* in an option
+list are not translated here at all, they come from Home Assistant over
+`frontend/get_translations`. The same channel carries the state words, which
+this addon still translates itself - moving those over is a decision, not an
+oversight.
 
 ## Tried against one installation only
 

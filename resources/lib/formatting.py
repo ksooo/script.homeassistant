@@ -151,14 +151,20 @@ def state_text(store, entity_id, translate=None):
         value = _number(state.state) if _is_number(state.state) else state.state
         return "%s %s" % (value, unit) if unit else str(value)
 
-    return _word(tr, state.state)
+    return _word(tr, state.state, state_word(store, entity_id, state.state))
 
 
-def _word(tr, state):
-    """Translated wording where there is one, readable text otherwise."""
+def _word(tr, state, offered=""):
+    """This addon's wording first, Home Assistant's next, readable text last.
+
+    The addon's own words stay in front: they are hand-kept and cover the
+    states a dashboard shows all day. Home Assistant is asked for the rest - a
+    select's options, a vacuum's own vocabulary - which used to arrive as a
+    slug with its underscores rubbed out.
+    """
     if state in _SIMPLE_WORDS:
         return tr(_SIMPLE_WORDS[state])
-    return str(state).replace("_", " ").capitalize()
+    return offered or str(state).replace("_", " ").capitalize()
 
 
 def colour(store, entity_id):
@@ -201,6 +207,65 @@ def room_text(store, entity_id):
     area = store.areas.get(area_id) if area_id else None
     return area.get("name", "") if area else ""
 
+
+def option_text(store, entity_id, attribute, value):
+    """Home Assistant's own wording for one value out of an option list.
+
+    Four keys, most specific first: what the integration calls that
+    attribute's values, what the domain calls them, and the same two again for
+    values that are really states - a select's options, a thermostat's modes.
+    An untranslated value reads as it arrived, which is what every list showed
+    before: "cellar_club" rather than the sound field's name.
+    """
+    keys = (_attribute_keys(store, entity_id, attribute, value)
+            + _state_keys(store, entity_id, value))
+    return _translated(store, keys) or str(value)
+
+
+def option_texts(store, entity_id, attribute, values):
+    """The same for a whole list, in the order Home Assistant gave it."""
+    return [option_text(store, entity_id, attribute, value) for value in values]
+
+
+def state_word(store, entity_id, state):
+    """Home Assistant's own word for a state, or "" where it has none."""
+    return _translated(store, _state_keys(store, entity_id, state))
+
+
+def _attribute_keys(store, entity_id, attribute, value):
+    entity = store.entities.get(entity_id)
+    if entity is None or not attribute:
+        return []
+    keys = []
+    if entity.translation_key:
+        keys.append("component.%s.entity.%s.%s.state_attributes.%s.state.%s"
+                    % (entity.platform, entity.domain, entity.translation_key,
+                       attribute, value))
+    keys.append("component.%s.entity_component._.state_attributes.%s.state.%s"
+                % (entity.domain, attribute, value))
+    return keys
+
+
+def _state_keys(store, entity_id, value):
+    entity = store.entities.get(entity_id)
+    if entity is None:
+        return []
+    keys = []
+    if entity.translation_key:
+        keys.append("component.%s.entity.%s.%s.state.%s"
+                    % (entity.platform, entity.domain, entity.translation_key,
+                       value))
+    keys.append("component.%s.entity_component._.state.%s"
+                % (entity.domain, value))
+    return keys
+
+
+def _translated(store, keys):
+    for key in keys:
+        text = store.translations.get(key)
+        if text:
+            return str(text)
+    return ""
 
 
 def _hvac_text(state, tr):

@@ -68,8 +68,9 @@ class State:
 
 
 class Store:
-    def __init__(self, log=None):
+    def __init__(self, log=None, language="en"):
         self._log = log or (lambda message, level=0: None)
+        self._language = language
         self._lock = threading.RLock()
         self._reload_timer = None
         # Entities that changed while a fetch was in flight, so the events that
@@ -86,6 +87,7 @@ class Store:
         self.energy = {}
         self.config = {}
         self.icon_translations = {}
+        self.translations = {}
 
         self.on_states_changed = None
         self.on_structure_changed = None
@@ -122,6 +124,7 @@ class Store:
             except Exception as error:
                 self._log("icon translations unavailable: %s" % error, 2)
                 icons = {}
+            translations = self._fetch_translations(client)
         except Exception:
             with self._lock:
                 self._settling = None
@@ -133,7 +136,29 @@ class Store:
             self.states = _settled(states, self.states, self._settling)
             self.energy = energy
             self.icon_translations = icons
+            self.translations = translations
             self._settling = None
+
+    def _fetch_translations(self, client):
+        """Home Assistant's wording for the values in an option list: a sound
+        field, a preset, a select's options.
+
+        Only the keys that carry a value are kept - well under half of them -
+        and a raw value reads well enough that a failure here is worth no more
+        than a log line.
+        """
+        translations = {}
+        for category in ("entity", "entity_component"):
+            try:
+                resources = (client.command(
+                    "frontend/get_translations", language=self._language,
+                    category=category) or {}).get("resources", {})
+            except Exception as error:
+                self._log("%s translations unavailable: %s" % (category, error), 2)
+                continue
+            translations.update({key: text for key, text
+                                 in resources.items() if ".state." in key})
+        return translations
 
     def _apply_registries(self, registries):
         """Install fetched registries. Under the lock, like every other write."""

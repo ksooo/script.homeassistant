@@ -42,7 +42,7 @@ def state(entity_id, value, **attributes):
 
 
 def build(entities=(), states=(), devices=(), areas=(), floors=(),
-          home=None, icons=None, energy=None):
+          home=None, icons=None, energy=None, translations=None):
     store = model.Store()
     store.entities = {e["entity_id"]: model.Entity(e) for e in entities}
     store.states = {s["entity_id"]: model.State(s) for s in states}
@@ -51,6 +51,7 @@ def build(entities=(), states=(), devices=(), areas=(), floors=(),
     store.floors = {f["floor_id"]: f for f in floors}
     store.home = home or {}
     store.icon_translations = icons or {}
+    store.translations = translations or {}
     store.energy = energy or {}
     return store
 

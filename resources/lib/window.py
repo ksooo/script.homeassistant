@@ -43,7 +43,7 @@ class Dashboard(xbmcgui.WindowXML):
     def __init__(self, xml_file, resource_path, theme_skin, theme_res, *args, **kwargs):
         super().__init__()
         self._settings = kwargs["settings"]
-        self._store = model.Store(log=kodi.log)
+        self._store = model.Store(log=kodi.log, language=kodi.LANGUAGE)
         self._auth = ha_auth.Authenticator(
             self._settings.url,
             token=self._settings.token,
@@ -544,7 +544,8 @@ class Dashboard(xbmcgui.WindowXML):
             return None if value in (None, "") else {"temperature": float(value)}
 
         if action.kind == ha_actions.PICK:
-            labels, values = _choices(action, attributes)
+            labels, values = _choices(self._store, entity_id, action,
+                                      attributes)
             if not values:
                 return None
             choice = dialog.select(kodi.tr(action.label_key), labels)
@@ -744,18 +745,20 @@ _NUMBER_FIELDS = {
 }
 
 
-def _choices(action, attributes):
+def _choices(store, entity_id, action, attributes):
     """What to offer, and the value behind each line.
 
     Fixed steps travel with the action and carry their own label; everything
-    else the entity names itself, where label and value are the same string.
+    else the entity lists itself, and Home Assistant words those values - the
+    action already says which attribute they belong to.
     """
     steps = action.data.get("choices")
     if steps is not None:
         say = kodi.tr if action.data.get("translate") else (lambda label: label)
         return [say(label) for label, _ in steps], [value for _, value in steps]
     named = attributes.get(action.data["from"]) or []
-    return named, named
+    return (formatting.option_texts(store, entity_id, action.data["as"], named),
+            named)
 
 
 def _as_int(value):

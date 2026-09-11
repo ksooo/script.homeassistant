@@ -14,6 +14,9 @@ ADDON_ID = ADDON.getAddonInfo("id")
 ADDON_PATH = ADDON.getAddonInfo("path")
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_ICON = ADDON.getAddonInfo("icon")
+# Home Assistant words its option lists per language, and Kodi's is the one
+# the rest of this addon speaks.
+LANGUAGE = xbmc.getLanguage(xbmc.ISO_639_1) or "en"
 # The icons in full, for where a skin-relative path does not resolve: a
 # dialog of Kodi's own draws from no skin of ours.
 ICON_DIR = os.path.join(ADDON_PATH, "resources", "skins", "Default", "media",
