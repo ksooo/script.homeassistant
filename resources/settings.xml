@@ -97,6 +97,11 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="confirm_open" type="boolean" label="30041" help="30042">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="confirm_off_lights" type="boolean" label="30039" help="30040">
                     <level>0</level>
                     <default>true</default>

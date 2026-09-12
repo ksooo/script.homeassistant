@@ -1,5 +1,6 @@
 """What pressing OK offers, for entities that can do more than one thing."""
 
+import types
 import unittest
 
 from . import support
@@ -57,39 +58,63 @@ class Switching(unittest.TestCase):
                              ["action_turn_on", "action_turn_off"], value)
 
 
-class SwitchingOff(unittest.TestCase):
+class Confirming(unittest.TestCase):
     """What the user is asked about before it happens."""
 
-    def ask(self, entity_id, value, service, always=True, spare_lights=True):
+    def question(self, entity_id, value, service, **settings):
+        options = types.SimpleNamespace(confirm_off=True, confirm_off_lights=True,
+                                        confirm_open=True)
+        for key, setting in settings.items():
+            setattr(options, key, setting)
         store = one(entity_id, value)
-        return actions.confirm_switch_off(store, entity_id, service,
-                                          always, spare_lights)
+        return actions.confirmation(store, entity_id, service, options)
+
+    def asked(self, *args, **kwargs):
+        return self.question(*args, **kwargs) is not None
 
     def test_turning_something_off_is_asked_about(self):
         for entity_id in ("switch.a", "fan.a", "siren.a", "media_player.a",
                           "climate.a", "water_heater.a"):
-            self.assertTrue(self.ask(entity_id, "on", "turn_off"), entity_id)
+            self.assertTrue(self.asked(entity_id, "on", "turn_off"), entity_id)
 
     def test_a_toggle_is_asked_about_only_where_it_switches_off(self):
-        self.assertTrue(self.ask("switch.a", "on", "toggle"))
-        self.assertFalse(self.ask("switch.a", "off", "toggle"))
+        self.assertTrue(self.asked("switch.a", "on", "toggle"))
+        self.assertFalse(self.asked("switch.a", "off", "toggle"))
 
     def test_nothing_else_is_asked_about(self):
-        for service in ("turn_on", "close_cover", "lock", "media_pause"):
-            self.assertFalse(self.ask("switch.a", "on", service), service)
+        for service in ("turn_on", "close_cover", "open_cover", "lock",
+                        "unlock", "open_valve", "media_pause"):
+            self.assertFalse(self.asked("switch.a", "on", service), service)
 
     def test_a_light_is_spared_while_the_second_setting_stands(self):
-        self.assertFalse(self.ask("light.a", "on", "turn_off"))
-        self.assertTrue(self.ask("light.a", "on", "turn_off", spare_lights=False))
+        self.assertFalse(self.asked("light.a", "on", "turn_off"))
+        self.assertTrue(self.asked("light.a", "on", "turn_off",
+                                   confirm_off_lights=False))
 
     def test_the_first_setting_turns_the_whole_thing_off(self):
-        self.assertFalse(self.ask("switch.a", "on", "turn_off", always=False))
+        self.assertFalse(self.asked("switch.a", "on", "turn_off",
+                                    confirm_off=False))
 
     def test_an_entity_with_no_state_is_not_toggled_off(self):
         store = one("switch.a", "on")
         store.states.clear()
-        self.assertFalse(actions.confirm_switch_off(store, "switch.a", "toggle",
-                                                    True, True))
+        options = types.SimpleNamespace(confirm_off=True, confirm_off_lights=True,
+                                        confirm_open=True)
+        self.assertIsNone(actions.confirmation(store, "switch.a", "toggle", options))
+
+    def test_opening_a_door_is_asked_about(self):
+        self.assertEqual(self.question("lock.a", "locked", "open"),
+                         ("confirm_open_title", "confirm_open_text"))
+
+    def test_opening_a_door_has_its_own_setting(self):
+        self.assertFalse(self.asked("lock.a", "locked", "open",
+                                    confirm_open=False))
+        self.assertTrue(self.asked("lock.a", "locked", "open",
+                                   confirm_off=False))
+
+    def test_switching_off_names_its_own_question(self):
+        self.assertEqual(self.question("switch.a", "on", "turn_off"),
+                         ("confirm_off_title", "confirm_off_text"))
 
 
 class Asking(unittest.TestCase):

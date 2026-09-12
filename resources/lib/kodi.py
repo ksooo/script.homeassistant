@@ -61,6 +61,7 @@ class Settings:
         self.camera_refresh = addon.getSettingInt("camera_refresh")
         self.confirm_off = addon.getSettingBool("confirm_off")
         self.confirm_off_lights = addon.getSettingBool("confirm_off_lights")
+        self.confirm_open = addon.getSettingBool("confirm_open")
 
     @property
     def has_credentials(self):

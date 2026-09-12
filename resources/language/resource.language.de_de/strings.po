@@ -108,6 +108,14 @@ msgctxt "#30040"
 msgid "A light switched off by mistake costs nothing but switching it back on"
 msgstr "Eine versehentlich ausgeschaltete Lampe schaltet man einfach wieder ein"
 
+msgctxt "#30041"
+msgid "Ask before opening a door"
+msgstr "Vor dem Öffnen von Türen fragen"
+
+msgctxt "#30042"
+msgid "Unlocking leaves a door shut; opening it pulls the latch back"
+msgstr "Aufschließen lässt die Tür zu; Öffnen zieht die Falle zurück"
+
 msgctxt "#30111"
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
@@ -511,3 +519,11 @@ msgstr "Ausschalten?"
 msgctxt "#30409"
 msgid "Switch %s off?"
 msgstr "%s ausschalten?"
+
+msgctxt "#30410"
+msgid "Open the door?"
+msgstr "Tür öffnen?"
+
+msgctxt "#30411"
+msgid "Open %s?"
+msgstr "%s öffnen?"

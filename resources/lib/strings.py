@@ -99,6 +99,8 @@ IDS = {
     "action_play_pause": 30381,
     "confirm_off_title": 30408,
     "confirm_off_text": 30409,
+    "confirm_open_title": 30410,
+    "confirm_open_text": 30411,
     "action_speed": 30370,
     "action_oscillate": 30371,
     "action_direction": 30372,

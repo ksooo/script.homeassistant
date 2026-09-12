@@ -180,16 +180,22 @@ def switches_off(store, entity_id, service):
     return state is not None and _switched_on(state) is True
 
 
-def confirm_switch_off(store, entity_id, service, always, spare_lights):
-    """Whether to ask before carrying this service out.
+def confirmation(store, entity_id, service, settings):
+    """The heading and the question to put before this service, or None.
 
-    The two arguments are the two settings. A socket may be holding up the
-    router or the machine Home Assistant itself runs on, where a light
-    costs nothing but switching it back on.
+    Settings is read for confirm_off, confirm_off_lights and confirm_open -
+    anything carrying those three will do, which is what the tests hand it.
+    A socket may be holding up the router or the machine Home Assistant runs
+    on, where a light costs nothing but switching it back on; and a door that
+    opens is a door anyone can walk through.
     """
-    if not always or not switches_off(store, entity_id, service):
-        return False
-    return not (spare_lights and entity_id.split(".")[0] == "light")
+    domain = entity_id.split(".")[0]
+    if settings.confirm_open and domain == "lock" and service == "open":
+        return "confirm_open_title", "confirm_open_text"
+    if (settings.confirm_off and switches_off(store, entity_id, service)
+            and not (settings.confirm_off_lights and domain == "light")):
+        return "confirm_off_title", "confirm_off_text"
+    return None
 
 
 def service_data(action, state=None):

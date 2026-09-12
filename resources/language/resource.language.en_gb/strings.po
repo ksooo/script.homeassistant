@@ -108,6 +108,14 @@ msgctxt "#30040"
 msgid "A light switched off by mistake costs nothing but switching it back on"
 msgstr ""
 
+msgctxt "#30041"
+msgid "Ask before opening a door"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Unlocking leaves a door shut; opening it pulls the latch back"
+msgstr ""
+
 msgctxt "#30111"
 msgid "Unavailable"
 msgstr ""
@@ -510,4 +518,12 @@ msgstr ""
 
 msgctxt "#30409"
 msgid "Switch %s off?"
+msgstr ""
+
+msgctxt "#30410"
+msgid "Open the door?"
+msgstr ""
+
+msgctxt "#30411"
+msgid "Open %s?"
 msgstr ""
