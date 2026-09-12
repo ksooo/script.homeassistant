@@ -10,6 +10,8 @@ are read live; only the rules deciding which entity belongs to which summary
 live here, because Home Assistant does not expose them.
 """
 
+from . import actions
+
 FAVOURITES = "favourites"
 SUMMARY = "summary"
 AREA = "area"
@@ -281,6 +283,18 @@ def _device_groups(store, entity_ids, no_device_title):
 
 
 def _sorted(store, entity_ids):
-    return sorted(set(entity_ids), key=lambda entity_id: store.name_of(entity_id).lower())
+    """What can be acted on first, then by kind, then by name.
+
+    A device brings a dozen entities of half a dozen kinds. The ones there is
+    something to do with come first - they are drawn as buttons and are what
+    anyone came for - and within each half the kinds stand as blocks, so a
+    device's automations are together and its sensors are together.
+    """
+    def order(entity_id):
+        return (actions.default_action(store, entity_id) is None,
+                entity_id.split(".")[0],
+                store.name_of(entity_id).lower())
+
+    return sorted(set(entity_ids), key=order)
 
 

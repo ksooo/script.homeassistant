@@ -47,6 +47,27 @@ class AreaSections(unittest.TestCase):
         self.assertEqual(sorted(kitchen.groups[1].entity_ids),
                          ["sensor.cpu", "sensor.kueche_temperatur"])
 
+    def test_a_devices_entities_stand_by_doing_then_kind_then_name(self):
+        """What can be acted on first, and each kind together within that."""
+        store = house(
+            extra_entities=[
+                support.entity("automation.zzz", "Zuletzt", device_id="dev_sensor"),
+                support.entity("automation.aaa", "Anfang", device_id="dev_sensor"),
+                support.entity("switch.mitte", "Mitte", device_id="dev_sensor"),
+            ],
+            extra_states=[
+                support.state("automation.zzz", "on"),
+                support.state("automation.aaa", "on"),
+                support.state("switch.mitte", "off"),
+            ])
+        built = {s.key: s for s in sections.build(store, translate=support.untranslated)}
+        sensor = built["area:kueche"].groups[0]
+        # The binary sensor only reports, so it falls behind the switch even
+        # though its kind sorts ahead of one.
+        self.assertEqual(sensor.entity_ids,
+                         ["automation.aaa", "automation.zzz", "switch.mitte",
+                          "binary_sensor.fenster"])
+
     def test_floors_and_rooms_keep_registry_order(self):
         store = house()
         options = sections.Options(hide_empty_areas=False)
