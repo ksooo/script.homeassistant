@@ -67,6 +67,7 @@ class Dashboard(xbmcgui.WindowXML):
         self._section_index = 0
         self._section_key = ""
         self._row_positions = {}
+        self._rows_key = ""
         self._image_token = ""
         self._icons = _shipped_icons()
         self._snapshots = cameras.Snapshots(
@@ -420,10 +421,14 @@ class Dashboard(xbmcgui.WindowXML):
         except RuntimeError:
             return
 
-        # Where the user was standing. A rebuild in the background - a registry
-        # change, a reload - would otherwise drop them at the top of the list,
-        # and a dialog they had open would outlive its own row.
-        standing = self._focused_entity()
+        # Where the user was standing, but only within the same section. A
+        # rebuild in the background - a registry change, a reload - should not
+        # move them, and a dialog they had open should outlive its own row;
+        # stepping to another section should start at the top, even where that
+        # section holds the very entity they were standing on, as a room and a
+        # summary both do.
+        standing = self._focused_entity() if section.key == self._rows_key else ""
+        self._rows_key = section.key
         rows.reset()
         self._row_positions = {}
         items = []
