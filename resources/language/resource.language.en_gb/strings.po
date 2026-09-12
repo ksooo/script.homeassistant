@@ -92,6 +92,22 @@ msgctxt "#30036"
 msgid "Seconds between two stills; 0 turns the preview off"
 msgstr ""
 
+msgctxt "#30037"
+msgid "Ask before switching a device off"
+msgstr ""
+
+msgctxt "#30038"
+msgid "A device switched off by accident can matter - a router, a freezer, the machine Home Assistant runs on"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Switch lights off without asking"
+msgstr ""
+
+msgctxt "#30040"
+msgid "A light switched off by mistake costs nothing but switching it back on"
+msgstr ""
+
 msgctxt "#30111"
 msgid "Unavailable"
 msgstr ""
@@ -486,4 +502,12 @@ msgstr ""
 
 msgctxt "#30407"
 msgid "Connection failed: %s"
+msgstr ""
+
+msgctxt "#30408"
+msgid "Switch off?"
+msgstr ""
+
+msgctxt "#30409"
+msgid "Switch %s off?"
 msgstr ""

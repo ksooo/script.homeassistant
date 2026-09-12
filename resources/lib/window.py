@@ -548,6 +548,9 @@ class Dashboard(xbmcgui.WindowXML):
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
 
+        if not self._may_switch_off(entity_id, action.service):
+            return
+
         data = self._collect_input(entity_id, action)
         if data is None:
             return
@@ -661,7 +664,19 @@ class Dashboard(xbmcgui.WindowXML):
             browse=self._browse_media)
         self._media.show()
 
+    def _may_switch_off(self, entity_id, service):
+        """Ask first where the settings say to, and take no for an answer."""
+        if not ha_actions.confirm_switch_off(
+                self._store, entity_id, service,
+                self._settings.confirm_off, self._settings.confirm_off_lights):
+            return True
+        return xbmcgui.Dialog().yesno(
+            kodi.tr("confirm_off_title"),
+            kodi.tr("confirm_off_text") % self._store.display_name_of(entity_id))
+
     def _call_service(self, entity_id, service, data=None):
+        if not self._may_switch_off(entity_id, service):
+            return
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)

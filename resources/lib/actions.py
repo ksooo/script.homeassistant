@@ -166,6 +166,32 @@ def _power_actions(state, domain, on=True, off=True):
     return actions
 
 
+def switches_off(store, entity_id, service):
+    """Whether carrying this service out would leave the entity off.
+
+    A turn_off says so itself; a toggle only when the thing is on. Every
+    domain with an off to reach has a turn_off, so nothing else needs listing.
+    """
+    if service == "turn_off":
+        return True
+    if service != "toggle":
+        return False
+    state = store.states.get(entity_id)
+    return state is not None and _switched_on(state) is True
+
+
+def confirm_switch_off(store, entity_id, service, always, spare_lights):
+    """Whether to ask before carrying this service out.
+
+    The two arguments are the two settings. A socket may be holding up the
+    router or the machine Home Assistant itself runs on, where a light
+    costs nothing but switching it back on.
+    """
+    if not always or not switches_off(store, entity_id, service):
+        return False
+    return not (spare_lights and entity_id.split(".")[0] == "light")
+
+
 def service_data(action, state=None):
     """The data a service call carries, with any flip resolved now.
 

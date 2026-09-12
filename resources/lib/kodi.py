@@ -59,6 +59,8 @@ class Settings:
         self.areas = addon.getSettingBool("show_areas")
         self.hide_empty_areas = addon.getSettingBool("hide_empty_areas")
         self.camera_refresh = addon.getSettingInt("camera_refresh")
+        self.confirm_off = addon.getSettingBool("confirm_off")
+        self.confirm_off_lights = addon.getSettingBool("confirm_off_lights")
 
     @property
     def has_credentials(self):

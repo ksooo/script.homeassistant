@@ -92,6 +92,22 @@ msgctxt "#30036"
 msgid "Seconds between two stills; 0 turns the preview off"
 msgstr "Sekunden zwischen zwei Standbildern; 0 schaltet die Vorschau ab"
 
+msgctxt "#30037"
+msgid "Ask before switching a device off"
+msgstr "Vor dem Ausschalten eines Geräts fragen"
+
+msgctxt "#30038"
+msgid "A device switched off by accident can matter - a router, a freezer, the machine Home Assistant runs on"
+msgstr "Ein versehentlich ausgeschaltetes Gerät kann Folgen haben - ein Router, eine Gefriertruhe, der Rechner, auf dem Home Assistant läuft"
+
+msgctxt "#30039"
+msgid "Switch lights off without asking"
+msgstr "Lampen ohne Nachfrage ausschalten"
+
+msgctxt "#30040"
+msgid "A light switched off by mistake costs nothing but switching it back on"
+msgstr "Eine versehentlich ausgeschaltete Lampe schaltet man einfach wieder ein"
+
 msgctxt "#30111"
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
@@ -487,3 +503,11 @@ msgstr "Verbunden mit Home Assistant %s"
 msgctxt "#30407"
 msgid "Connection failed: %s"
 msgstr "Verbindung fehlgeschlagen: %s"
+
+msgctxt "#30408"
+msgid "Switch off?"
+msgstr "Ausschalten?"
+
+msgctxt "#30409"
+msgid "Switch %s off?"
+msgstr "%s ausschalten?"

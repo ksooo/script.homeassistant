@@ -57,6 +57,41 @@ class Switching(unittest.TestCase):
                              ["action_turn_on", "action_turn_off"], value)
 
 
+class SwitchingOff(unittest.TestCase):
+    """What the user is asked about before it happens."""
+
+    def ask(self, entity_id, value, service, always=True, spare_lights=True):
+        store = one(entity_id, value)
+        return actions.confirm_switch_off(store, entity_id, service,
+                                          always, spare_lights)
+
+    def test_turning_something_off_is_asked_about(self):
+        for entity_id in ("switch.a", "fan.a", "siren.a", "media_player.a",
+                          "climate.a", "water_heater.a"):
+            self.assertTrue(self.ask(entity_id, "on", "turn_off"), entity_id)
+
+    def test_a_toggle_is_asked_about_only_where_it_switches_off(self):
+        self.assertTrue(self.ask("switch.a", "on", "toggle"))
+        self.assertFalse(self.ask("switch.a", "off", "toggle"))
+
+    def test_nothing_else_is_asked_about(self):
+        for service in ("turn_on", "close_cover", "lock", "media_pause"):
+            self.assertFalse(self.ask("switch.a", "on", service), service)
+
+    def test_a_light_is_spared_while_the_second_setting_stands(self):
+        self.assertFalse(self.ask("light.a", "on", "turn_off"))
+        self.assertTrue(self.ask("light.a", "on", "turn_off", spare_lights=False))
+
+    def test_the_first_setting_turns_the_whole_thing_off(self):
+        self.assertFalse(self.ask("switch.a", "on", "turn_off", always=False))
+
+    def test_an_entity_with_no_state_is_not_toggled_off(self):
+        store = one("switch.a", "on")
+        store.states.clear()
+        self.assertFalse(actions.confirm_switch_off(store, "switch.a", "toggle",
+                                                    True, True))
+
+
 class Asking(unittest.TestCase):
     def test_ok_asks_where_the_state_does_not_say_what_is_wanted(self):
         for entity_id in ("vacuum.a", "lock.a", "climate.a"):
