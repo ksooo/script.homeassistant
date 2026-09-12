@@ -218,11 +218,11 @@ msgstr "Anhalten"
 
 msgctxt "#30315"
 msgid "Lock"
-msgstr "Verriegeln"
+msgstr "Zuschließen"
 
 msgctxt "#30316"
 msgid "Unlock"
-msgstr "Entriegeln"
+msgstr "Aufschließen"
 
 msgctxt "#30317"
 msgid "Run"
