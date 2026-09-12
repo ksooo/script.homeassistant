@@ -25,6 +25,8 @@ MEDIA_XML = "script.homeassistant-media.xml"
 
 ROW_LIST = 50
 CATEGORY_LIST = 51
+ROW_BAR = 60
+CATEGORY_BAR = 61
 LABEL_TITLE = 100
 LABEL_STATUS = 101
 LABEL_STATUS_MESSAGE = 104
@@ -74,6 +76,7 @@ class Dashboard(xbmcgui.WindowXML):
         self._camera_due = 0.0
         self._media = None
         self._window_id = 0
+        self._landed = False
         self._started = False
 
         # Notes left by the session thread, taken by pump().
@@ -361,8 +364,23 @@ class Dashboard(xbmcgui.WindowXML):
 
         self._show_section(index)
         if (self._sections and self._media is None
-                and self._focused_control() not in (CATEGORY_LIST, ROW_LIST)):
-            self._set_focus(CATEGORY_LIST)
+                and self._focused_control() not in (CATEGORY_LIST, ROW_LIST,
+                                                    CATEGORY_BAR, ROW_BAR)):
+            self._set_focus(self._landing())
+            self._landed = True
+
+    def _landing(self):
+        """Where the focus goes when nothing holds it.
+
+        The first time that is the favourites themselves rather than the list
+        of sections: they are what the dashboard is opened for, and they are
+        already the section it opens on, so standing beside them would only
+        cost a press.
+        """
+        if (not self._landed and self._row_positions
+                and self._sections[self._section_index].kind == sections.FAVOURITES):
+            return ROW_LIST
+        return CATEGORY_LIST
 
     def _follow_section(self):
         """Show the section the list is on, without waiting for OK.
