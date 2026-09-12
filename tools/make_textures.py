@@ -142,35 +142,35 @@ def main():
     os.makedirs(MEDIA, exist_ok=True)
     made = []
 
-    made.append(write_png(os.path.join(MEDIA, "background.png"), 1280, 720,
-                          ground(1280, 720, (0x14, 0x1A, 0x24),
+    made.append(write_png(os.path.join(MEDIA, "background.png"), 1920, 1080,
+                          ground(1920, 1080, (0x14, 0x1A, 0x24),
                                  (0x0B, 0x0E, 0x14), ACCENT, 0.86, 0.18)))
-    made.append(write_png(os.path.join(MEDIA, "tile.png"), 64, 64,
-                          rounded_rect(64, 64, 14, (0xFF, 0xFF, 0xFF), 0.07)))
-    made.append(write_png(os.path.join(MEDIA, "tile_focus.png"), 64, 64,
-                          rounded_rect(64, 64, 14, ACCENT, 0.22, border=ACCENT,
-                                       border_width=2.5)))
-    made.append(write_png(os.path.join(MEDIA, "item.png"), 48, 48,
-                          rounded_rect(48, 48, 10, (0xFF, 0xFF, 0xFF), 0.05)))
+    made.append(write_png(os.path.join(MEDIA, "tile.png"), 96, 96,
+                          rounded_rect(96, 96, 21, (0xFF, 0xFF, 0xFF), 0.07)))
+    made.append(write_png(os.path.join(MEDIA, "tile_focus.png"), 96, 96,
+                          rounded_rect(96, 96, 21, ACCENT, 0.22, border=ACCENT,
+                                       border_width=3.75)))
+    made.append(write_png(os.path.join(MEDIA, "item.png"), 72, 72,
+                          rounded_rect(72, 72, 15, (0xFF, 0xFF, 0xFF), 0.05)))
     # Same treatment as the tiles: faint fill plus an accent outline.
-    made.append(write_png(os.path.join(MEDIA, "item_focus.png"), 48, 48,
-                          rounded_rect(48, 48, 10, ACCENT, 0.22, border=ACCENT,
-                                       border_width=2.5)))
+    made.append(write_png(os.path.join(MEDIA, "item_focus.png"), 72, 72,
+                          rounded_rect(72, 72, 15, ACCENT, 0.22, border=ACCENT,
+                                       border_width=3.75)))
     made.append(write_png(os.path.join(MEDIA, "separator.png"), 8, 2,
                           rounded_rect(8, 2, 0, (0xFF, 0xFF, 0xFF), 0.15)))
 
     # The media window's panel, and the one bar its progress is drawn with:
     # tinted faint for the track and accent for the part already played.
-    made.append(write_png(os.path.join(MEDIA, "panel.png"), 64, 64,
-                          rounded_rect(64, 64, 16, (0x16, 0x1C, 0x26), 1.0)))
+    made.append(write_png(os.path.join(MEDIA, "panel.png"), 96, 96,
+                          rounded_rect(96, 96, 24, (0x16, 0x1C, 0x26), 1.0)))
     made.append(write_png(os.path.join(MEDIA, "bar.png"), 8, 2,
                           rounded_rect(8, 2, 0, (0xFF, 0xFF, 0xFF), 1.0)))
 
-    # The scrollbars, drawn 12 wide: a stadium whose ends stay put while the
+    # The scrollbars, drawn 18 wide: a stadium whose ends stay put while the
     # middle stretches. Kodi draws a border one to one, so the radius is the
     # border value, the way the tiles and the rows are done.
-    made.append(write_png(os.path.join(MEDIA, "scroll.png"), 12, 16,
-                          rounded_rect(12, 16, 6, (0xFF, 0xFF, 0xFF), 1.0)))
+    made.append(write_png(os.path.join(MEDIA, "scroll.png"), 18, 24,
+                          rounded_rect(18, 24, 9, (0xFF, 0xFF, 0xFF), 1.0)))
 
     # The volume slider's track and thumb. Kodi sizes the thumb from the
     # *track* texture's height - fScale = slider height / track texture height
@@ -186,8 +186,8 @@ def main():
                           circle(80, (0xFF, 0xFF, 0xFF))))
 
     # One white circle, tinted per entity by the skin.
-    made.append(write_png(os.path.join(MEDIA, "circle.png"), 64,
-                          64, circle(64, (0xFF, 0xFF, 0xFF))))
+    made.append(write_png(os.path.join(MEDIA, "circle.png"), 128,
+                          128, circle(128, (0xFF, 0xFF, 0xFF))))
 
     for path in made:
         print("%7d  %s" % (os.path.getsize(path), os.path.relpath(path, ROOT)))

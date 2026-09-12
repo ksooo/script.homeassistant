@@ -14,16 +14,16 @@
         <control type="videowindow">
             <left>0</left>
             <top>0</top>
-            <width>1280</width>
-            <height>720</height>
+            <width>1920</width>
+            <height>1080</height>
             <visible>Player.HasVideo</visible>
         </control>
 
         <control type="image">
             <left>0</left>
             <top>0</top>
-            <width>1280</width>
-            <height>720</height>
+            <width>1920</width>
+            <height>1080</height>
             <texture>background.png</texture>
             <!-- Estuary's own figure: the ground goes back to 79 while
                  something is playing, and the picture shows through the
@@ -33,20 +33,20 @@
         </control>
 
         <control type="label" id="100">
-            <left>40</left>
-            <top>22</top>
-            <width>820</width>
-            <height>40</height>
+            <left>60</left>
+            <top>33</top>
+            <width>1230</width>
+            <height>60</height>
             <font>font14</font>
             <textcolor>FFF0F0F0</textcolor>
             <label></label>
         </control>
 
         <control type="label" id="101">
-            <left>540</left>
-            <top>28</top>
-            <width>700</width>
-            <height>32</height>
+            <left>810</left>
+            <top>42</top>
+            <width>1050</width>
+            <height>48</height>
             <align>right</align>
             <font>font12</font>
             <textcolor>FFA0A0A0</textcolor>
@@ -54,43 +54,43 @@
         </control>
 
         <control type="image">
-            <left>40</left>
-            <top>72</top>
-            <width>1200</width>
-            <height>2</height>
+            <left>60</left>
+            <top>108</top>
+            <width>1800</width>
+            <height>3</height>
             <texture border="1">separator.png</texture>
         </control>
 
         <control type="image">
-            <left>369</left>
-            <top>92</top>
-            <width>2</width>
-            <height>576</height>
+            <left>554</left>
+            <top>138</top>
+            <width>3</width>
+            <height>864</height>
             <texture>separator.png</texture>
         </control>
 
         <control type="list" id="51">
-            <left>46</left>
-            <top>92</top>
-            <width>314</width>
-            <height>576</height>
+            <left>69</left>
+            <top>138</top>
+            <width>471</width>
+            <height>864</height>
             <onright>50</onright>
             <onleft>61</onleft>
             <pagecontrol>61</pagecontrol>
             <scrolltime>200</scrolltime>
-            <itemlayout height="64" width="314">
+            <itemlayout height="96" width="471">
                 <control type="image">
-                    <left>2</left>
-                    <top>2</top>
-                    <width>310</width>
-                    <height>60</height>
-                    <texture border="10">item.png</texture>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>465</width>
+                    <height>90</height>
+                    <texture border="15">item.png</texture>
                 </control>
                 <control type="label">
-                    <left>18</left>
+                    <left>27</left>
                     <top>0</top>
-                    <width>278</width>
-                    <height>64</height>
+                    <width>417</width>
+                    <height>96</height>
                     <aligny>center</aligny>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
@@ -98,47 +98,47 @@
                     <visible>String.IsEmpty(ListItem.Label2)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
-                    <top>8</top>
-                    <width>278</width>
-                    <height>28</height>
+                    <left>27</left>
+                    <top>12</top>
+                    <width>417</width>
+                    <height>42</height>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                     <visible>!String.IsEmpty(ListItem.Label2)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
-                    <top>32</top>
-                    <width>278</width>
-                    <height>24</height>
+                    <left>27</left>
+                    <top>48</top>
+                    <width>417</width>
+                    <height>36</height>
                     <font>font10</font>
                     <textcolor>FFA0A0A0</textcolor>
                     <label>$INFO[ListItem.Label2]</label>
                 </control>
             </itemlayout>
-            <focusedlayout height="64" width="314">
+            <focusedlayout height="96" width="471">
                 <control type="image">
-                    <left>2</left>
-                    <top>2</top>
-                    <width>310</width>
-                    <height>60</height>
-                    <texture border="10">item_focus.png</texture>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>465</width>
+                    <height>90</height>
+                    <texture border="15">item_focus.png</texture>
                     <visible>Control.HasFocus(51)</visible>
                 </control>
                 <control type="image">
-                    <left>2</left>
-                    <top>2</top>
-                    <width>310</width>
-                    <height>60</height>
-                    <texture border="10">item.png</texture>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>465</width>
+                    <height>90</height>
+                    <texture border="15">item.png</texture>
                     <visible>!Control.HasFocus(51)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
+                    <left>27</left>
                     <top>0</top>
-                    <width>278</width>
-                    <height>64</height>
+                    <width>417</width>
+                    <height>96</height>
                     <aligny>center</aligny>
                     <scroll>true</scroll>
                     <font>font13</font>
@@ -147,10 +147,10 @@
                     <visible>String.IsEmpty(ListItem.Label2) + Control.HasFocus(51)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
+                    <left>27</left>
                     <top>0</top>
-                    <width>278</width>
-                    <height>64</height>
+                    <width>417</width>
+                    <height>96</height>
                     <aligny>center</aligny>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -158,10 +158,10 @@
                     <visible>String.IsEmpty(ListItem.Label2) + !Control.HasFocus(51)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
-                    <top>8</top>
-                    <width>278</width>
-                    <height>28</height>
+                    <left>27</left>
+                    <top>12</top>
+                    <width>417</width>
+                    <height>42</height>
                     <scroll>true</scroll>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -169,20 +169,20 @@
                     <visible>!String.IsEmpty(ListItem.Label2) + Control.HasFocus(51)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
-                    <top>8</top>
-                    <width>278</width>
-                    <height>28</height>
+                    <left>27</left>
+                    <top>12</top>
+                    <width>417</width>
+                    <height>42</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                     <visible>!String.IsEmpty(ListItem.Label2) + !Control.HasFocus(51)</visible>
                 </control>
                 <control type="label">
-                    <left>18</left>
-                    <top>32</top>
-                    <width>278</width>
-                    <height>24</height>
+                    <left>27</left>
+                    <top>48</top>
+                    <width>417</width>
+                    <height>36</height>
                     <font>font10</font>
                     <textcolor>FFE2EAF2</textcolor>
                     <label>$INFO[ListItem.Label2]</label>
@@ -191,10 +191,10 @@
         </control>
 
         <control type="list" id="50">
-            <left>380</left>
-            <top>92</top>
-            <width>854</width>
-            <height>576</height>
+            <left>570</left>
+            <top>138</top>
+            <width>1281</width>
+            <height>864</height>
             <onleft>51</onleft>
             <onright>60</onright>
             <pagecontrol>60</pagecontrol>
@@ -205,75 +205,75 @@
             <visible>String.IsEmpty(Window.Property(switching))</visible>
             <animation effect="fade" start="100" end="0" time="120">Hidden</animation>
             <animation effect="fade" start="0" end="100" time="120">Visible</animation>
-            <itemlayout height="64" width="854">
+            <itemlayout height="96" width="1281">
                 <control type="label">
-                    <left>14</left>
-                    <top>18</top>
-                    <width>700</width>
-                    <height>26</height>
+                    <left>21</left>
+                    <top>27</top>
+                    <width>1050</width>
+                    <height>39</height>
                     <font>font13</font>
                     <textcolor>FF6FC7EE</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                     <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
                 </control>
                 <control type="image">
-                    <left>14</left>
-                    <top>48</top>
-                    <width>826</width>
-                    <height>2</height>
+                    <left>21</left>
+                    <top>72</top>
+                    <width>1239</width>
+                    <height>3</height>
                     <texture border="1">separator.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
                 </control>
                 <control type="image">
-                    <left>2</left>
-                    <top>2</top>
-                    <width>850</width>
-                    <height>60</height>
-                    <texture border="14">tile.png</texture>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>1275</width>
+                    <height>90</height>
+                    <texture border="21">tile.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + String.IsEqual(ListItem.Property(action),yes)</visible>
                 </control>
                 <control type="image">
-                    <left>14</left>
-                    <top>14</top>
-                    <width>36</width>
-                    <height>36</height>
+                    <left>21</left>
+                    <top>21</top>
+                    <width>54</width>
+                    <height>54</height>
                     <colordiffuse>$INFO[ListItem.Property(halo)]</colordiffuse>
                     <texture>circle.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="image">
-                    <left>22</left>
-                    <top>22</top>
-                    <width>20</width>
-                    <height>20</height>
+                    <left>33</left>
+                    <top>33</top>
+                    <width>30</width>
+                    <height>30</height>
                     <aspectratio>keep</aspectratio>
                     <colordiffuse>$INFO[ListItem.Property(colour)]</colordiffuse>
                     <texture>$INFO[ListItem.Property(icon)]</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="image">
-                    <left>790</left>
-                    <top>10</top>
-                    <width>44</width>
-                    <height>44</height>
+                    <left>1185</left>
+                    <top>15</top>
+                    <width>66</width>
+                    <height>66</height>
                     <aspectratio>keep</aspectratio>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <visible>!String.IsEmpty(ListItem.Art(thumb)) + !String.IsEqual(ListItem.Property(camera),yes)</visible>
                 </control>
                 <control type="image">
-                    <left>730</left>
-                    <top>8</top>
-                    <width>104</width>
-                    <height>48</height>
+                    <left>1095</left>
+                    <top>12</top>
+                    <width>156</width>
+                    <height>72</height>
                     <aspectratio aligny="center">keep</aspectratio>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <visible>String.IsEqual(ListItem.Property(camera),yes) + !String.IsEmpty(ListItem.Art(thumb))</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>20</right>
-                    <height>64</height>
+                    <right>30</right>
+                    <height>96</height>
                     <aligny>center</aligny>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
@@ -281,30 +281,30 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + String.IsEmpty(ListItem.Property(secondary))</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
-                    <top>6</top>
-                    <right>20</right>
-                    <height>24</height>
+                    <left>93</left>
+                    <top>9</top>
+                    <right>30</right>
+                    <height>36</height>
                     <font>font13</font>
                     <textcolor>FFF0F0F0</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEmpty(ListItem.Property(secondary))</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
-                    <top>30</top>
-                    <right>20</right>
-                    <height>20</height>
+                    <left>93</left>
+                    <top>45</top>
+                    <right>30</right>
+                    <height>30</height>
                     <font>font10</font>
                     <textcolor>FF9AA6B4</textcolor>
                     <label>$INFO[ListItem.Property(secondary)]</label>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>20</right>
-                    <height>64</height>
+                    <right>30</right>
+                    <height>96</height>
                     <align>right</align>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -314,10 +314,10 @@
                 </control>
                 <!-- Artwork sits at 790, so a row that carries one stops short of it. -->
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>76</right>
-                    <height>64</height>
+                    <right>114</right>
+                    <height>96</height>
                     <align>right</align>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -326,83 +326,83 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEqual(ListItem.Property(camera),yes) + !String.IsEmpty(ListItem.Art(thumb))</visible>
                 </control>
             </itemlayout>
-            <focusedlayout height="64" width="854">
+            <focusedlayout height="96" width="1281">
                 <control type="label">
-                    <left>14</left>
-                    <top>18</top>
-                    <width>700</width>
-                    <height>26</height>
+                    <left>21</left>
+                    <top>27</top>
+                    <width>1050</width>
+                    <height>39</height>
                     <font>font13</font>
                     <textcolor>FF6FC7EE</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                     <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
                 </control>
                 <control type="image">
-                    <left>14</left>
-                    <top>48</top>
-                    <width>826</width>
-                    <height>2</height>
+                    <left>21</left>
+                    <top>72</top>
+                    <width>1239</width>
+                    <height>3</height>
                     <texture border="1">separator.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
                 </control>
                 <control type="image">
-                    <left>2</left>
-                    <top>2</top>
-                    <width>850</width>
-                    <height>60</height>
-                    <texture border="14">tile_focus.png</texture>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>1275</width>
+                    <height>90</height>
+                    <texture border="21">tile_focus.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + Control.HasFocus(50)</visible>
                 </control>
                 <control type="image">
-                    <left>2</left>
-                    <top>2</top>
-                    <width>850</width>
-                    <height>60</height>
-                    <texture border="14">tile.png</texture>
+                    <left>3</left>
+                    <top>3</top>
+                    <width>1275</width>
+                    <height>90</height>
+                    <texture border="21">tile.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !Control.HasFocus(50) + String.IsEqual(ListItem.Property(action),yes)</visible>
                 </control>
                 <control type="image">
-                    <left>14</left>
-                    <top>14</top>
-                    <width>36</width>
-                    <height>36</height>
+                    <left>21</left>
+                    <top>21</top>
+                    <width>54</width>
+                    <height>54</height>
                     <colordiffuse>$INFO[ListItem.Property(halo)]</colordiffuse>
                     <texture>circle.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="image">
-                    <left>22</left>
-                    <top>22</top>
-                    <width>20</width>
-                    <height>20</height>
+                    <left>33</left>
+                    <top>33</top>
+                    <width>30</width>
+                    <height>30</height>
                     <aspectratio>keep</aspectratio>
                     <colordiffuse>$INFO[ListItem.Property(colour)]</colordiffuse>
                     <texture>$INFO[ListItem.Property(icon)]</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="image">
-                    <left>790</left>
-                    <top>10</top>
-                    <width>44</width>
-                    <height>44</height>
+                    <left>1185</left>
+                    <top>15</top>
+                    <width>66</width>
+                    <height>66</height>
                     <aspectratio>keep</aspectratio>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <visible>!String.IsEmpty(ListItem.Art(thumb)) + !String.IsEqual(ListItem.Property(camera),yes)</visible>
                 </control>
                 <control type="image">
-                    <left>730</left>
-                    <top>8</top>
-                    <width>104</width>
-                    <height>48</height>
+                    <left>1095</left>
+                    <top>12</top>
+                    <width>156</width>
+                    <height>72</height>
                     <aspectratio aligny="center">keep</aspectratio>
                     <texture background="true">$INFO[ListItem.Art(thumb)]</texture>
                     <visible>String.IsEqual(ListItem.Property(camera),yes) + !String.IsEmpty(ListItem.Art(thumb))</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>20</right>
-                    <height>64</height>
+                    <right>30</right>
+                    <height>96</height>
                     <aligny>center</aligny>
                     <scroll>true</scroll>
                     <font>font13</font>
@@ -411,10 +411,10 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + String.IsEmpty(ListItem.Property(secondary)) + Control.HasFocus(50)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>20</right>
-                    <height>64</height>
+                    <right>30</right>
+                    <height>96</height>
                     <aligny>center</aligny>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -422,10 +422,10 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + String.IsEmpty(ListItem.Property(secondary)) + !Control.HasFocus(50)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
-                    <top>6</top>
-                    <right>20</right>
-                    <height>24</height>
+                    <left>93</left>
+                    <top>9</top>
+                    <right>30</right>
+                    <height>36</height>
                     <scroll>true</scroll>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
@@ -433,30 +433,30 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEmpty(ListItem.Property(secondary)) + Control.HasFocus(50)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
-                    <top>6</top>
-                    <right>20</right>
-                    <height>24</height>
+                    <left>93</left>
+                    <top>9</top>
+                    <right>30</right>
+                    <height>36</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <label>$INFO[ListItem.Label]</label>
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEmpty(ListItem.Property(secondary)) + !Control.HasFocus(50)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
-                    <top>30</top>
-                    <right>20</right>
-                    <height>20</height>
+                    <left>93</left>
+                    <top>45</top>
+                    <right>30</right>
+                    <height>30</height>
                     <font>font10</font>
                     <textcolor>FFE2EAF2</textcolor>
                     <label>$INFO[ListItem.Property(secondary)]</label>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>20</right>
-                    <height>64</height>
+                    <right>30</right>
+                    <height>96</height>
                     <align>right</align>
                     <aligny>center</aligny>
                     <scroll>true</scroll>
@@ -466,10 +466,10 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEqual(ListItem.Property(camera),yes) + String.IsEmpty(ListItem.Art(thumb)) + Control.HasFocus(50)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>20</right>
-                    <height>64</height>
+                    <right>30</right>
+                    <height>96</height>
                     <align>right</align>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -479,10 +479,10 @@
                 </control>
                 <!-- Artwork sits at 790, so a row that carries one stops short of it. -->
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>76</right>
-                    <height>64</height>
+                    <right>114</right>
+                    <height>96</height>
                     <align>right</align>
                     <aligny>center</aligny>
                     <scroll>true</scroll>
@@ -492,10 +492,10 @@
                     <visible>String.IsEqual(ListItem.Property(kind),entity) + !String.IsEqual(ListItem.Property(camera),yes) + !String.IsEmpty(ListItem.Art(thumb)) + Control.HasFocus(50)</visible>
                 </control>
                 <control type="label">
-                    <left>62</left>
+                    <left>93</left>
                     <top>0</top>
-                    <right>76</right>
-                    <height>64</height>
+                    <right>114</right>
+                    <height>96</height>
                     <align>right</align>
                     <aligny>center</aligny>
                     <font>font13</font>
@@ -507,10 +507,10 @@
         </control>
 
         <control type="label" id="104">
-            <left>380</left>
-            <top>340</top>
-            <width>854</width>
-            <height>40</height>
+            <left>570</left>
+            <top>510</top>
+            <width>1281</width>
+            <height>60</height>
             <align>center</align>
             <font>font13</font>
             <textcolor>FFA0A0A0</textcolor>
@@ -518,10 +518,10 @@
         </control>
 
         <control type="label" id="105">
-            <left>380</left>
-            <top>370</top>
-            <width>854</width>
-            <height>40</height>
+            <left>570</left>
+            <top>555</top>
+            <width>1281</width>
+            <height>60</height>
             <align>center</align>
             <font>font13</font>
             <textcolor>FFA0A0A0</textcolor>
@@ -533,30 +533,30 @@
              Left and right walk a ring - list, its bar, the other list, its
              bar - and Kodi skips a bar that is not on screen. -->
         <control type="scrollbar" id="61">
-            <left>30</left>
-            <top>92</top>
-            <width>12</width>
-            <height>576</height>
+            <left>45</left>
+            <top>138</top>
+            <width>18</width>
+            <height>864</height>
             <orientation>vertical</orientation>
             <showonepage>false</showonepage>
-            <texturesliderbackground border="0,6,0,6" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
-            <texturesliderbar border="0,6,0,6" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
-            <texturesliderbarfocus border="0,6,0,6" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
+            <texturesliderbackground border="0,9,0,9" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
+            <texturesliderbar border="0,9,0,9" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
+            <texturesliderbarfocus border="0,9,0,9" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
             <textureslidernib />
             <textureslidernibfocus />
             <onleft>60</onleft>
             <onright>51</onright>
         </control>
         <control type="scrollbar" id="60">
-            <left>1238</left>
-            <top>92</top>
-            <width>12</width>
-            <height>576</height>
+            <left>1857</left>
+            <top>138</top>
+            <width>18</width>
+            <height>864</height>
             <orientation>vertical</orientation>
             <showonepage>false</showonepage>
-            <texturesliderbackground border="0,6,0,6" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
-            <texturesliderbar border="0,6,0,6" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
-            <texturesliderbarfocus border="0,6,0,6" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
+            <texturesliderbackground border="0,9,0,9" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
+            <texturesliderbar border="0,9,0,9" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
+            <texturesliderbarfocus border="0,9,0,9" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
             <textureslidernib />
             <textureslidernibfocus />
             <onleft>50</onleft>

@@ -53,9 +53,9 @@ BUTTON_DOWN = 153
 IMAGE_DOWN = 154
 BUTTON_UP = 155
 IMAGE_UP = 156
-VOLUME_SIZE = 44
-VOLUME_GAP = 12
-SLIDER_WIDTH = 300
+VOLUME_SIZE = 66
+VOLUME_GAP = 18
+SLIDER_WIDTH = 450
 
 # Home Assistant is told at most this often while the slider moves.
 _VOLUME_INTERVAL = 0.25
@@ -74,10 +74,10 @@ _MUTED_ICON = "volume-off"
 # still this long. Seeking on every keypress would set the player going a
 # dozen times across one drag.
 _SEEK_SETTLE = 0.5
-BUTTON_SIZE = 56
-BUTTON_GAP = 24
-ICON_SIZE = 24
-CENTRE = 640
+BUTTON_SIZE = 84
+BUTTON_GAP = 36
+ICON_SIZE = 36
+CENTRE = 960
 
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92

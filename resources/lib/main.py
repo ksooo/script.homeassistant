@@ -32,7 +32,7 @@ def show_dashboard():
     # Shown rather than run modally: doModal() blocks, and the live updates
     # need a thread of their own to be applied on - the window's, not the
     # session's.
-    window = Dashboard(_WINDOW_XML, kodi.ADDON_PATH, "Default", "720p",
+    window = Dashboard(_WINDOW_XML, kodi.ADDON_PATH, "Default", "1080i",
                        settings=settings)
     monitor = xbmc.Monitor()
     try:

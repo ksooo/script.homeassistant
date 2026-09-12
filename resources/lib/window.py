@@ -707,7 +707,7 @@ class Dashboard(xbmcgui.WindowXML):
 
     def _open_media(self, entity_id):
         self._media = mediadialog.MediaDialog(
-            MEDIA_XML, kodi.ADDON_PATH, "Default", "720p",
+            MEDIA_XML, kodi.ADDON_PATH, "Default", "1080i",
             store=self._store, entity_id=entity_id,
             art_url=lambda picture: kodi.image_url(
                 self._settings.url, picture, self._image_token),
