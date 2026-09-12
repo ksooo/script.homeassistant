@@ -23,6 +23,10 @@ from .ha import client as ha_client
 
 MEDIA_XML = "script.homeassistant-media.xml"
 
+# How long the rows are given to fade out before the next section is put in
+# their place. The skin's fade is the same length.
+_SWITCH_FADE = 0.12
+
 ROW_LIST = 50
 CATEGORY_LIST = 51
 ROW_BAR = 60
@@ -68,6 +72,9 @@ class Dashboard(xbmcgui.WindowXML):
         self._section_key = ""
         self._row_positions = {}
         self._rows_key = ""
+        self._pending_section = None
+        self._switch_due = 0.0
+        self._wanted_focus = 0
         self._image_token = ""
         self._icons = _shipped_icons()
         self._snapshots = cameras.Snapshots(
@@ -109,7 +116,12 @@ class Dashboard(xbmcgui.WindowXML):
     def onClick(self, control_id):
         if control_id == CATEGORY_LIST:
             self._show_section(self._position_of(CATEGORY_LIST))
-            self._set_focus(ROW_LIST)
+            # A list on its way back cannot take the focus; pump() hands it
+            # over once the rows are there.
+            if self._pending_section is None:
+                self._set_focus(ROW_LIST)
+            else:
+                self._wanted_focus = ROW_LIST
         elif control_id == ROW_LIST:
             entity_id = self._focused_entity()
             if not entity_id:
@@ -212,6 +224,13 @@ class Dashboard(xbmcgui.WindowXML):
             self._refresh_rows(changed)
         if stills:
             self._show_stills(stills)
+        if self._pending_section is not None and time.time() >= self._switch_due:
+            section, self._pending_section = self._pending_section, None
+            self._fill_rows(section)
+            self.clearProperty("switching")
+            if self._wanted_focus:
+                self._set_focus(self._wanted_focus)
+                self._wanted_focus = 0
         self._take_camera_stills()
         self._tick_media()
 
@@ -413,7 +432,16 @@ class Dashboard(xbmcgui.WindowXML):
             crumbs.append(section.subtitle)
         crumbs.append(section.title)
         self._set_label(LABEL_TITLE, " / ".join(crumbs))
-        self._fill_rows(section)
+        if not self._rows_key or section.key == self._rows_key:
+            self._fill_rows(section)
+        else:
+            # Kodi has no trigger for a list being refilled, and forcing a
+            # control hidden draws no animation either - only a skin visible
+            # condition turning over does. So this one is turned over, and
+            # the rows are put back once the fade behind it has had its time.
+            self.setProperty("switching", "1")
+            self._pending_section = section
+            self._switch_due = time.time() + _SWITCH_FADE
 
     def _fill_rows(self, section):
         try:

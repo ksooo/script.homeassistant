@@ -199,6 +199,12 @@
             <onright>60</onright>
             <pagecontrol>60</pagecontrol>
             <scrolltime>200</scrolltime>
+            <!-- The rows are swapped out by the code, which Kodi has no
+                 animation for. It does animate a visible condition turning
+                 over, so the code turns this one over instead. -->
+            <visible>String.IsEmpty(Window.Property(switching))</visible>
+            <animation effect="fade" start="100" end="0" time="120">Hidden</animation>
+            <animation effect="fade" start="0" end="100" time="120">Visible</animation>
             <itemlayout height="64" width="854">
                 <control type="label">
                     <left>14</left>
