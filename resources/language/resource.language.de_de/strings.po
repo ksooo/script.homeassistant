@@ -190,7 +190,7 @@ msgstr "Verbinde neu ..."
 
 msgctxt "#30305"
 msgid "Loading ..."
-msgstr "Lade ..."
+msgstr "Wird geladen ..."
 
 msgctxt "#30306"
 msgid "Nothing here"

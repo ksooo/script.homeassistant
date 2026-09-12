@@ -507,9 +507,9 @@
         </control>
 
         <control type="label" id="104">
-            <left>0</left>
+            <left>380</left>
             <top>340</top>
-            <width>1280</width>
+            <width>854</width>
             <height>40</height>
             <align>center</align>
             <font>font13</font>
