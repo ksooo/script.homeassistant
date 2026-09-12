@@ -1,3 +1,11 @@
+v1.5.0
+- Switching a device off now asks first - two settings decide whether it asks at all, and whether lights are spared
+- Opening a door now asks first, under a setting of its own
+- A device's entities stand by what can be done with them, then by kind, then by name
+- The dashboard opens on your favourites
+- Moving from one section to another is animated
+- Fixed: stepping into a section could land halfway down it
+
 v1.4.0
 - A video playing behind the dashboard shows through it
 
