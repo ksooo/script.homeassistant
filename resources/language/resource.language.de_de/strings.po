@@ -182,7 +182,7 @@ msgstr "Home Assistant"
 
 msgctxt "#30301"
 msgid "Connecting ..."
-msgstr "Verbinde ..."
+msgstr "Wird verbunden ..."
 
 msgctxt "#30302"
 msgid "Connected"
@@ -194,7 +194,7 @@ msgstr "Nicht verbunden"
 
 msgctxt "#30304"
 msgid "Reconnecting ..."
-msgstr "Verbinde neu ..."
+msgstr "Wird neu verbunden ..."
 
 msgctxt "#30305"
 msgid "Loading ..."
