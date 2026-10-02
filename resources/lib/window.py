@@ -129,9 +129,7 @@ class Dashboard(xbmcgui.WindowXML):
             if not entity_id:
                 return
             action = ha_actions.default_action(self._store, entity_id)
-            if action is None:
-                kodi.notify(kodi.tr("read_only"))
-            else:
+            if action is not None:
                 self._execute(entity_id, action)
 
     def onFocus(self, control_id):
@@ -610,7 +608,6 @@ class Dashboard(xbmcgui.WindowXML):
             return
         commands = ha_actions.commands_for(self._store, state)
         if not commands:
-            kodi.notify(kodi.tr("read_only"))
             return
         choice = xbmcgui.Dialog().select(
             kodi.tr("action_commands"),

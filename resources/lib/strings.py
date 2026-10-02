@@ -111,7 +111,6 @@ IDS = {
     "action_target_humidity": 30375,
     "action_position": 30376,
     "details_title": 30329,
-    "read_only": 30330,
 
     # messages
     "error_no_url": 30400,

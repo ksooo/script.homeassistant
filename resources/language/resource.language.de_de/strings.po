@@ -288,10 +288,6 @@ msgctxt "#30329"
 msgid "Details"
 msgstr "Details"
 
-msgctxt "#30330"
-msgid "Read only"
-msgstr "Nur Anzeige"
-
 msgctxt "#30331"
 msgid "Command"
 msgstr "Befehl"
