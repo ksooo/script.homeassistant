@@ -448,6 +448,29 @@ class CoverState(unittest.TestCase):
         self.assertIn("action_open_tilt", offered)
 
 
+class Update(unittest.TestCase):
+    def offered(self, value, features=1, **attributes):
+        return "action_run" in menu("update.a", value,
+                                    supported_features=features, **attributes)
+
+    def test_only_where_an_update_is_waiting(self):
+        self.assertTrue(self.offered("on"))
+        self.assertFalse(self.offered("off"))
+        self.assertFalse(self.offered("unavailable"))
+
+    def test_a_skipped_version_can_still_be_installed(self):
+        self.assertTrue(self.offered("off", latest_version="2.0",
+                                     skipped_version="2.0"))
+        self.assertFalse(self.offered("off", latest_version="2.1",
+                                      skipped_version="2.0"))
+
+    def test_not_where_the_integration_cannot_install(self):
+        self.assertFalse(self.offered("on", features=0))
+
+    def test_not_while_it_is_installing(self):
+        self.assertFalse(self.offered("on", in_progress=True))
+
+
 class Fan(unittest.TestCase):
     TOWER = 1 | 2 | 4 | 8 | 16 | 32
 

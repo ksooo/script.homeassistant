@@ -119,7 +119,7 @@ def menu_actions(store, entity_id):
     if domain in ("scene", "script"):
         actions.append(Action("action_run", SERVICE, domain, "turn_on"))
 
-    if domain == "update":
+    if domain == "update" and _can_install(state):
         actions.append(Action("action_run", SERVICE, "update", "install"))
 
     actions.append(Action("action_details", DETAILS))
@@ -628,6 +628,21 @@ _LIGHT_EFFECT = 4
 
 _SIREN_ON_OFF = 1 | 2
 _UPDATE_INSTALL = 1
+
+
+def _can_install(state):
+    """Whether there is an update to install, by Home Assistant's own rules.
+
+    One is waiting, or the latest version was skipped, which can still be
+    installed; the integration can install at all; and it is not installing
+    already.
+    """
+    attributes = state.attributes
+    if not features_of(state) & _UPDATE_INSTALL or attributes.get("in_progress"):
+        return False
+    latest = attributes.get("latest_version")
+    return (state.state == "on"
+            or bool(latest and attributes.get("skipped_version") == latest))
 
 
 def _mask(table):
