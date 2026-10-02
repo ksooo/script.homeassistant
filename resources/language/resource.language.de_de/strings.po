@@ -484,6 +484,10 @@ msgctxt "#30382"
 msgid "Install"
 msgstr "Installieren"
 
+msgctxt "#30383"
+msgid "Cancel"
+msgstr "Abbrechen"
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr "Keine Adresse von Home Assistant eingetragen"

@@ -100,6 +100,7 @@ IDS = {
     "action_group": 30380,
     "action_play_pause": 30381,
     "action_install": 30382,
+    "action_cancel": 30383,
     "confirm_off_title": 30408,
     "confirm_off_text": 30409,
     "confirm_open_title": 30410,

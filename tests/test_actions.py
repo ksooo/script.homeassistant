@@ -476,6 +476,32 @@ class CoverState(unittest.TestCase):
         self.assertIn("action_open_tilt", offered)
 
 
+class Script(unittest.TestCase):
+    def offered(self, value, **attributes):
+        return [label for label in menu("script.a", value, **attributes)
+                if label != "action_details"]
+
+    def test_an_idle_script_can_be_run(self):
+        self.assertEqual(self.offered("off", mode="single"), ["action_run"])
+
+    def test_a_running_single_script_can_only_be_cancelled(self):
+        self.assertEqual(self.offered("on", mode="single", current=1),
+                         ["action_cancel"])
+
+    def test_a_queue_with_room_takes_another_run(self):
+        self.assertEqual(self.offered("on", mode="queued", current=1, max=10),
+                         ["action_run", "action_cancel"])
+        self.assertEqual(self.offered("on", mode="queued", current=10, max=10),
+                         ["action_cancel"])
+
+    def test_nothing_while_unavailable(self):
+        self.assertEqual(self.offered("unavailable"), [])
+
+    def test_cancelling_is_not_asked_about_as_switching_off(self):
+        store = one("script.a", "on")
+        self.assertFalse(actions.switches_off(store, "script.a", "turn_off"))
+
+
 class Update(unittest.TestCase):
     def offered(self, value, features=1, **attributes):
         return "action_install" in menu("update.a", value,

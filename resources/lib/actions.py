@@ -116,8 +116,11 @@ def menu_actions(store, entity_id):
         actions.append(Action("action_select_option", PICK, domain,
                               "select_option", {"from": "options", "as": "option"}))
 
-    if domain in ("scene", "script"):
-        actions.append(Action("action_run", SERVICE, domain, "turn_on"))
+    if domain == "scene":
+        actions.append(Action("action_run", SERVICE, "scene", "turn_on"))
+
+    if domain == "script":
+        actions.extend(_script_actions(state))
 
     if domain == "update" and _can_install(state):
         actions.append(Action("action_install", SERVICE, "update", "install"))
@@ -166,7 +169,10 @@ def switches_off(store, entity_id, service):
 
     A turn_off says so itself; a toggle only when the thing is on. Every
     domain with an off to reach has a turn_off, so nothing else needs listing.
+    A script's turn_off cancels a run and switches nothing off.
     """
+    if entity_id.startswith("script."):
+        return False
     if service == "turn_off":
         return True
     if service != "toggle":
@@ -646,6 +652,25 @@ _LIGHT_EFFECT = 4
 
 _SIREN_ON_OFF = 1 | 2
 _UPDATE_INSTALL = 1
+
+
+def _script_actions(state):
+    """Running and cancelling, by Home Assistant's rules for its script row.
+
+    Run where the script is idle, or where its mode lets another run start
+    alongside and there is room for one; cancel while it runs.
+    """
+    if state.state == "unavailable":
+        return []
+    attributes = state.attributes
+    room = (attributes.get("mode") in ("queued", "parallel")
+            and (attributes.get("current") or 0) < (attributes.get("max") or 0))
+    actions = []
+    if state.state == "off" or (state.state == "on" and room):
+        actions.append(Action("action_run", SERVICE, "script", "turn_on"))
+    if state.state == "on":
+        actions.append(Action("action_cancel", SERVICE, "script", "turn_off"))
+    return actions
 
 
 def _can_install(state):
