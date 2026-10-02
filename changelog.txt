@@ -1,3 +1,11 @@
+v1.6.0
+- A room opens with its scenes and closes with its automations, around its devices and everything without one, as in Home Assistant
+- A lamp's brightness and colour temperature are set with a slider, as in Home Assistant
+- The context menus no longer carry Refresh: the dashboard follows Home Assistant live, and reopening it fetches everything anew
+- A lock's menu offers only what the lock can do from where it stands, and nothing that needs the door shut while it stands open
+- A cover's menu offers only what the cover can do from where it stands, as in Home Assistant
+- The menus of updates, vacuums, scripts, alarm panels and valves likewise offer only what makes sense from where they stand, and a running script can be cancelled
+
 v1.5.0
 - Switching a device off now asks first - two settings decide whether it asks at all, and whether lights are spared
 - Opening a door now asks first, under a setting of its own
