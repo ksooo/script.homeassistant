@@ -94,7 +94,9 @@ def menu_actions(store, entity_id):
     domain = state.domain
     actions = list(commands_for(store, state))
 
-    if domain in _TOGGLE_DOMAINS or domain in ("light", "switch"):
+    # A valve's open and close are what the others call on and off, and Home
+    # Assistant's valve dialog offers nothing besides.
+    if (domain in _TOGGLE_DOMAINS or domain in ("light", "switch")) and domain != "valve":
         actions.extend(_power_actions(state, "homeassistant"))
 
     if domain == "automation":

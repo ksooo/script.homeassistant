@@ -49,8 +49,12 @@ class Switching(unittest.TestCase):
                              ["action_turn_on"], entity_id)
 
     def test_a_valve_counts_closed_as_off(self):
-        self.assertEqual(self.power("valve.a", "closed"), ["action_turn_on"])
-        self.assertEqual(self.power("valve.a", "open"), ["action_turn_off"])
+        # Toggling an open valve shuts it, which is what the question before
+        # switching something off is about; toggling a closed one is not.
+        self.assertTrue(actions.switches_off(one("valve.a", "open"),
+                                             "valve.a", "toggle"))
+        self.assertFalse(actions.switches_off(one("valve.a", "closed"),
+                                              "valve.a", "toggle"))
 
     def test_a_state_that_says_nothing_leaves_both(self):
         for value in ("unavailable", "unknown"):
@@ -610,6 +614,10 @@ class Valve(unittest.TestCase):
     def test_an_assumed_state_is_not_taken_at_its_word(self):
         self.assertEqual(self.offered("open", assumed_state=True),
                          ["action_open", "action_close", "action_stop"])
+
+    def test_the_menu_says_open_and_close_not_on_and_off_as_well(self):
+        self.assertEqual(menu("valve.a", "open", supported_features=1 | 2 | 8),
+                         ["action_close", "action_stop", "action_details"])
 
 
 class Flipping(unittest.TestCase):
