@@ -165,12 +165,46 @@ class MediaPlayer(unittest.TestCase):
 
 
 class Lock(unittest.TestCase):
-    def test_a_lock_that_can_only_bolt_offers_two_commands(self):
-        self.assertEqual(labels("lock.a", "locked", supported_features=0),
-                         ["action_lock", "action_unlock"])
-
-    def test_one_that_can_draw_the_latch_offers_three(self):
+    def test_only_what_the_lock_is_not_already(self):
         self.assertEqual(labels("lock.a", "locked", supported_features=1),
+                         ["action_unlock", "action_unlatch"])
+        self.assertEqual(labels("lock.a", "unlocked", supported_features=1),
+                         ["action_lock", "action_unlatch"])
+        self.assertEqual(labels("lock.a", "open", supported_features=1),
+                         ["action_lock"])
+
+    def test_the_latch_only_where_the_lock_can_draw_it(self):
+        self.assertEqual(labels("lock.a", "locked", supported_features=0),
+                         ["action_unlock"])
+
+    def test_a_jammed_lock_is_offered_every_way_out(self):
+        self.assertEqual(labels("lock.a", "jammed", supported_features=1),
+                         ["action_lock", "action_unlock", "action_unlatch"])
+
+    def test_nothing_while_it_moves_or_is_gone(self):
+        for value in ("locking", "unlocking", "opening", "unavailable"):
+            self.assertEqual(labels("lock.a", value, supported_features=1), [],
+                             value)
+
+    def test_neither_bolt_nor_latch_while_the_locks_own_door_is_open(self):
+        def offered(door):
+            store = support.build(
+                entities=[support.entity("lock.a", "Schloss", device_id="dev_lock"),
+                          support.entity("binary_sensor.tuer", "Tür",
+                                         device_id="dev_lock", device_class="door"),
+                          support.entity("binary_sensor.anderswo", "Andere Tür",
+                                         device_id="dev_other", device_class="door")],
+                states=[support.state("lock.a", "unlocked", supported_features=1),
+                        support.state("binary_sensor.tuer", door),
+                        support.state("binary_sensor.anderswo", "on")])
+            return [a.label_key
+                    for a in actions.commands_for(store, store.states["lock.a"])]
+        self.assertEqual(offered("on"), [])
+        self.assertEqual(offered("off"), ["action_lock", "action_unlatch"])
+
+    def test_an_assumed_state_is_not_taken_at_its_word(self):
+        self.assertEqual(labels("lock.a", "locked", supported_features=1,
+                                assumed_state=True),
                          ["action_lock", "action_unlock", "action_unlatch"])
 
 

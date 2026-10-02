@@ -286,11 +286,52 @@ _LOCK_OPEN = 1  # LockEntityFeature.OPEN: draws the latch, not just the bolt
 
 
 def _lock_commands(store, state):
-    commands = [Action("action_lock", SERVICE, "lock", "lock"),
-                Action("action_unlock", SERVICE, "lock", "unlock")]
-    if features_of(state) & _LOCK_OPEN:
+    """What the lock can be told now, by Home Assistant's own rules.
+
+    Whatever it is not already, and nothing while it is on its way somewhere.
+    A lock that only assumes its state is offered everything, since what it
+    reports may not be so. Two rules are the addon's own: an opened lock is
+    not offered unlocking, since drawing the latch drew the bolt with it; and
+    while the door stands open, neither locking nor opening it is offered -
+    the bolt would shoot into thin air, and the door is open already.
+    """
+    if state.state == "unavailable":
+        return []
+    assumed = state.attributes.get("assumed_state") is True
+    waiting = state.state in ("locking", "unlocking", "opening")
+    door_open = _door_open(store, state)
+
+    def can(*already):
+        return assumed or (state.state not in already and not waiting)
+
+    commands = []
+    if can("locked") and not door_open:
+        commands.append(Action("action_lock", SERVICE, "lock", "lock"))
+    if can("unlocked", "open"):
+        commands.append(Action("action_unlock", SERVICE, "lock", "unlock"))
+    if features_of(state) & _LOCK_OPEN and can("open") and not door_open:
         commands.append(Action("action_unlatch", SERVICE, "lock", "open"))
     return commands
+
+
+def _door_open(store, state):
+    """Whether a door contact on the lock's own device reports the door open.
+
+    The lock knows its bolt and its latch, not the door. A lock that senses
+    the door as well, as a Nuki does, reports it as a binary sensor of the
+    door class on the same device.
+    """
+    entity = store.entities.get(state.entity_id)
+    device_id = entity.device_id if entity is not None else None
+    if not device_id:
+        return False
+    for entity_id, other in store.entities.items():
+        if (other.device_id == device_id and entity_id.startswith("binary_sensor.")
+                and store.device_class_of(entity_id) == "door"):
+            sensor = store.states.get(entity_id)
+            if sensor is not None and sensor.state == "on":
+                return True
+    return False
 
 
 # ClimateEntityFeature
