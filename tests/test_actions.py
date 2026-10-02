@@ -140,9 +140,9 @@ class Vacuum(unittest.TestCase):
 
     def test_only_what_the_vacuum_reports_is_offered(self):
         self.assertEqual(
-            labels("vacuum.a", supported_features=self.ROBOROCK,
+            labels("vacuum.a", "error", supported_features=self.ROBOROCK,
                    fan_speed_list=["quiet", "max"]),
-            ["action_start", "action_pause", "action_stop", "action_return",
+            ["action_start", "action_stop", "action_return",
              "action_clean_spot", "action_locate", "action_fan_speed"])
 
     def test_a_simpler_vacuum_gets_a_shorter_list(self):
@@ -152,6 +152,34 @@ class Vacuum(unittest.TestCase):
     def test_suction_needs_a_list_to_choose_from(self):
         self.assertNotIn("action_fan_speed",
                          labels("vacuum.a", supported_features=self.ROBOROCK))
+
+    def commands(self, value):
+        return [label for label in labels("vacuum.a", value,
+                                          supported_features=self.ROBOROCK)
+                if label in ("action_start", "action_pause", "action_stop",
+                             "action_return")]
+
+    def test_in_the_dock_only_starting(self):
+        self.assertEqual(self.commands("docked"), ["action_start"])
+
+    def test_cleaning_swaps_start_for_pause(self):
+        self.assertEqual(self.commands("cleaning"),
+                         ["action_pause", "action_stop", "action_return"])
+
+    def test_paused_resumes_stops_or_goes_home(self):
+        self.assertEqual(self.commands("paused"),
+                         ["action_start", "action_stop", "action_return"])
+
+    def test_on_its_way_home_not_sent_home_again(self):
+        self.assertEqual(self.commands("returning"),
+                         ["action_start", "action_stop"])
+
+    def test_idle_is_at_rest(self):
+        self.assertEqual(self.commands("idle"), ["action_start", "action_return"])
+
+    def test_nothing_while_unavailable(self):
+        self.assertEqual(labels("vacuum.a", "unavailable",
+                                supported_features=self.ROBOROCK), [])
 
 
 class MediaPlayer(unittest.TestCase):

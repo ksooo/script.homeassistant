@@ -250,10 +250,28 @@ _VACUUM_FAN_SPEED = 32
 _VACUUM_CLEAN_AREA = 16384
 
 
+_VACUUM_CLEANING = ("cleaning", "on")
+_VACUUM_AT_REST = ("docked", "off", "idle")
+
+
 def _vacuum_commands(store, state):
+    """What the vacuum can be told now, by Home Assistant's own rules.
+
+    Start where it is not cleaning and pause only where it is - Home Assistant
+    swaps the one for the other - stop where it is not at rest, and send it
+    home where it is not on its way there. One rule is the addon's own: a
+    vacuum standing in its dock is not sent there again.
+    """
+    if state.state == "unavailable":
+        return []
+    allowed = {"start": state.state not in _VACUUM_CLEANING,
+               "pause": state.state in _VACUUM_CLEANING,
+               "stop": state.state not in _VACUUM_AT_REST,
+               "return_to_base": state.state not in ("returning", "docked")}
     features = features_of(state)
     commands = [Action(label, SERVICE, "vacuum", service)
-                for bit, label, service in _VACUUM if features & bit]
+                for bit, label, service in _VACUUM
+                if features & bit and allowed.get(service, True)]
     if (features & _VACUUM_CLEAN_AREA
             and cleanable_areas(store.entities.get(state.entity_id))):
         commands.append(Action("action_clean_areas", AREAS, "vacuum",
