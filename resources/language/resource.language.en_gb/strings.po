@@ -480,6 +480,10 @@ msgctxt "#30381"
 msgid "Play/Pause"
 msgstr ""
 
+msgctxt "#30382"
+msgid "Install"
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr ""

@@ -450,8 +450,8 @@ class CoverState(unittest.TestCase):
 
 class Update(unittest.TestCase):
     def offered(self, value, features=1, **attributes):
-        return "action_run" in menu("update.a", value,
-                                    supported_features=features, **attributes)
+        return "action_install" in menu("update.a", value,
+                                        supported_features=features, **attributes)
 
     def test_only_where_an_update_is_waiting(self):
         self.assertTrue(self.offered("on"))

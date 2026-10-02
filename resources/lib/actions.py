@@ -120,7 +120,7 @@ def menu_actions(store, entity_id):
         actions.append(Action("action_run", SERVICE, domain, "turn_on"))
 
     if domain == "update" and _can_install(state):
-        actions.append(Action("action_run", SERVICE, "update", "install"))
+        actions.append(Action("action_install", SERVICE, "update", "install"))
 
     actions.append(Action("action_details", DETAILS))
     return actions
