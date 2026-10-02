@@ -110,7 +110,6 @@ IDS = {
     "direction_reverse": 30374,
     "action_target_humidity": 30375,
     "action_position": 30376,
-    "action_refresh": 30328,
     "details_title": 30329,
     "read_only": 30330,
 

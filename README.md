@@ -47,7 +47,7 @@ login; it walks whatever steps Home Assistant declares.
 | Select on a section | Move on to the rows |
 | Select on a row | Act on the entity, offer the commands it understands, or open its window |
 | Info on a row | The entity's state and every attribute it reports |
-| Context menu | All other actions, entity details, refresh |
+| Context menu | All other actions, entity details |
 | Back | Close |
 
 Select does what the entity's domain suggests - toggling a light, opening a

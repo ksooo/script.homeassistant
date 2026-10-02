@@ -284,10 +284,6 @@ msgctxt "#30327"
 msgid "Details"
 msgstr ""
 
-msgctxt "#30328"
-msgid "Refresh"
-msgstr ""
-
 msgctxt "#30329"
 msgid "Details"
 msgstr ""

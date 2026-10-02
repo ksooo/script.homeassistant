@@ -563,25 +563,16 @@ class Dashboard(xbmcgui.WindowXML):
 
     def _show_menu(self):
         if self._focused_control() != ROW_LIST:
-            # In the section list there is nothing to act on but a reload.
-            if xbmcgui.Dialog().contextmenu([kodi.tr("action_refresh")]) == 0:
-                self._refresh()
             return
 
         entity_id = self._focused_entity()
         if not entity_id:
             return
         menu = ha_actions.menu_actions(self._store, entity_id)
-        labels = [kodi.tr(action.label_key) for action in menu]
-        labels.append(kodi.tr("action_refresh"))
-
-        choice = xbmcgui.Dialog().contextmenu(labels)
-        if choice < 0:
-            return
-        if choice == len(menu):
-            self._refresh()
-            return
-        self._execute(entity_id, menu[choice])
+        choice = xbmcgui.Dialog().contextmenu(
+            [kodi.tr(action.label_key) for action in menu])
+        if choice >= 0:
+            self._execute(entity_id, menu[choice])
 
     def _execute(self, entity_id, action):
         if action.kind == ha_actions.DETAILS:
@@ -780,18 +771,6 @@ class Dashboard(xbmcgui.WindowXML):
         xbmcgui.Dialog().textviewer("%s - %s" % (kodi.tr("details_title"),
                                                  self._store.name_of(entity_id)),
                                     "\n".join(lines))
-
-    def _refresh(self):
-        client = self._session.client
-        if client is None:
-            kodi.notify(kodi.tr("disconnected"), error=True)
-            return
-        try:
-            self._store.load(client)
-        except ha_client.HomeAssistantError as error:
-            kodi.notify(kodi.tr("error_service") % error, error=True)
-            return
-        self._rebuild()
 
     # -- control helpers -------------------------------------------------
 
