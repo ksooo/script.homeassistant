@@ -234,7 +234,7 @@ msgstr "Anhalten"
 
 msgctxt "#30315"
 msgid "Lock"
-msgstr "Zuschließen"
+msgstr "Abschließen"
 
 msgctxt "#30316"
 msgid "Unlock"
