@@ -378,7 +378,8 @@ class CoverTilt(unittest.TestCase):
     ROLLER = 1 | 2 | 4 | 8
 
     def menu(self, features):
-        store = one("cover.a", "open", supported_features=features)
+        store = one("cover.a", "open", supported_features=features,
+                    current_position=50, current_tilt_position=50)
         return [a.label_key for a in actions.menu_actions(store, "cover.a")]
 
     def test_a_venetian_blind_is_offered_its_slats(self):
@@ -404,6 +405,47 @@ class CoverTilt(unittest.TestCase):
                       if a.label_key == "action_set_tilt")
         self.assertEqual((action.kind, action.domain, action.service),
                          (actions.NUMBER, "cover", "set_cover_tilt_position"))
+
+
+class CoverState(unittest.TestCase):
+    VENETIAN = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128
+
+    def menu(self, value, **attributes):
+        store = one("cover.a", value, supported_features=self.VENETIAN,
+                    **attributes)
+        return [a.label_key for a in actions.menu_actions(store, "cover.a")]
+
+    def test_the_position_decides_where_there_is_one(self):
+        self.assertNotIn("action_open", self.menu("open", current_position=100))
+        self.assertIn("action_close", self.menu("open", current_position=100))
+        self.assertNotIn("action_close", self.menu("closed", current_position=0))
+        self.assertIn("action_open", self.menu("open", current_position=30))
+
+    def test_the_state_decides_where_there_is_none(self):
+        self.assertNotIn("action_open", self.menu("open"))
+        self.assertNotIn("action_close", self.menu("closed"))
+
+    def test_not_the_way_it_is_already_going_but_stop_always(self):
+        opening = self.menu("opening", current_position=40)
+        self.assertNotIn("action_open", opening)
+        self.assertIn("action_stop", opening)
+        self.assertNotIn("action_close", self.menu("closing", current_position=40))
+        self.assertIn("action_stop", self.menu("closed", current_position=0))
+
+    def test_slats_fully_one_way_are_not_offered_that_way(self):
+        self.assertNotIn("action_open_tilt",
+                         self.menu("open", current_tilt_position=100))
+        self.assertNotIn("action_close_tilt",
+                         self.menu("open", current_tilt_position=0))
+
+    def test_nothing_but_details_while_unavailable(self):
+        self.assertEqual(self.menu("unavailable"), ["action_details"])
+
+    def test_an_assumed_state_is_not_taken_at_its_word(self):
+        offered = self.menu("open", current_position=100,
+                            current_tilt_position=100, assumed_state=True)
+        self.assertIn("action_open", offered)
+        self.assertIn("action_open_tilt", offered)
 
 
 class Fan(unittest.TestCase):

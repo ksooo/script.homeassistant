@@ -107,14 +107,7 @@ def menu_actions(store, entity_id):
         actions.append(Action("action_media", MEDIA))
 
     if domain == "cover":
-        features = features_of(state)
-        actions.append(Action("action_open", SERVICE, "cover", "open_cover"))
-        actions.append(Action("action_close", SERVICE, "cover", "close_cover"))
-        actions.append(Action("action_stop", SERVICE, "cover", "stop_cover"))
-        if features & _COVER_SET_POSITION:
-            actions.append(Action("action_position", NUMBER, "cover",
-                                  "set_cover_position"))
-        actions.extend(_tilt_actions(features))
+        actions.extend(_cover_actions(state))
 
     if domain in ("number", "input_number"):
         actions.append(Action("action_set_value", NUMBER, domain, "set_value"))
@@ -580,15 +573,51 @@ _TILT = ((16, "action_open_tilt", "open_cover_tilt"),
 _COVER_SET_TILT_POSITION = 128
 
 
-def _tilt_actions(features):
+def _cover_actions(state):
+    """What the cover can be told now, by Home Assistant's own rules.
+
+    Open where it is not fully open and not opening already, close likewise,
+    stop whenever it can be reached - many covers never say they are moving.
+    Nothing while it is unavailable, and everything for a cover that only
+    assumes its state, since what it reports may not be so.
+    """
+    if state.state == "unavailable":
+        return []
+    features = features_of(state)
+    attributes = state.attributes
+    assumed = attributes.get("assumed_state") is True
+    position = attributes.get("current_position")
+    if position is not None:
+        fully_open, fully_closed = position == 100, position == 0
+    else:
+        fully_open, fully_closed = state.state == "open", state.state == "closed"
+
+    actions = []
+    if assumed or not (fully_open or state.state == "opening"):
+        actions.append(Action("action_open", SERVICE, "cover", "open_cover"))
+    if assumed or not (fully_closed or state.state == "closing"):
+        actions.append(Action("action_close", SERVICE, "cover", "close_cover"))
+    actions.append(Action("action_stop", SERVICE, "cover", "stop_cover"))
+    if features & _COVER_SET_POSITION:
+        actions.append(Action("action_position", NUMBER, "cover",
+                              "set_cover_position"))
+    actions.extend(_tilt_actions(features, attributes.get("current_tilt_position"),
+                                 assumed))
+    return actions
+
+
+def _tilt_actions(features, tilt, assumed):
     """The slats, each asked for by its own bit.
 
     Opening and closing a cover are offered whatever it reports, because every
     cover does them. Tilt is the opposite: offering it where there are no slats
-    would be offering nothing.
+    would be offering nothing. Slats already fully open or shut are not
+    offered that way again; they have only their position to tell.
     """
+    done = {"open_cover_tilt": tilt == 100, "close_cover_tilt": tilt == 0}
     actions = [Action(label, SERVICE, "cover", service)
-               for bit, label, service in _TILT if features & bit]
+               for bit, label, service in _TILT
+               if features & bit and (assumed or not done.get(service))]
     if features & _COVER_SET_TILT_POSITION:
         actions.append(Action("action_set_tilt", NUMBER, "cover",
                               "set_cover_tilt_position"))
