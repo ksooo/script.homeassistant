@@ -369,10 +369,10 @@ class Alarm(unittest.TestCase):
         self.assertEqual(labels("alarm_control_panel.a", "disarmed",
                                 supported_features=self.PANEL),
                          ["action_arm_home", "action_arm_away",
-                          "action_arm_night", "action_disarm"])
+                          "action_arm_night"])
 
     def test_disarming_is_offered_even_where_no_arming_is(self):
-        self.assertEqual(labels("alarm_control_panel.a", "disarmed",
+        self.assertEqual(labels("alarm_control_panel.a", "armed_home",
                                 supported_features=0),
                          ["action_disarm"])
 
@@ -380,6 +380,21 @@ class Alarm(unittest.TestCase):
         actions_offered = labels("alarm_control_panel.a", "disarmed",
                                  supported_features=self.PANEL)
         self.assertNotIn("action_trigger", actions_offered)
+
+    def test_not_the_mode_it_is_in_already(self):
+        self.assertEqual(labels("alarm_control_panel.a", "armed_away",
+                                supported_features=self.PANEL),
+                         ["action_arm_home", "action_arm_night", "action_disarm"])
+
+    def test_only_disarming_while_it_arms_counts_down_or_rings(self):
+        for value in ("arming", "pending", "triggered"):
+            self.assertEqual(labels("alarm_control_panel.a", value,
+                                    supported_features=self.PANEL),
+                             ["action_disarm"], value)
+
+    def test_nothing_while_unavailable(self):
+        self.assertEqual(labels("alarm_control_panel.a", "unavailable",
+                                supported_features=self.PANEL), [])
 
 
 class WaterHeater(unittest.TestCase):

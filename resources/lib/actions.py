@@ -462,18 +462,31 @@ _ALARM = ((1, "action_arm_home", "alarm_arm_home"),
 _ALARM_TRIGGER = 8
 
 
+_ALARM_BUSY = ("arming", "pending", "triggered")
+
+
 def _alarm_commands(store, state):
-    """Arming and disarming.
+    """Arming and disarming, by Home Assistant's rules for its alarm panel.
+
+    Every way of arming the panel reports, and disarming, less the mode it is
+    in already; while it is arming, counting down or ringing, only disarming.
 
     Setting the alarm off is left out although panels offer it: on a remote
     control it is one wrong press away, and nothing here is worth waking the
     street for.
     """
+    if state.state == "unavailable":
+        return []
+    disarm = Action("action_disarm", ALARM, "alarm_control_panel", "alarm_disarm")
+    if state.state in _ALARM_BUSY:
+        return [disarm]
     features = features_of(state)
     commands = [Action(label, ALARM, "alarm_control_panel", service)
-                for bit, label, service in _ALARM if features & bit]
-    commands.append(Action("action_disarm", ALARM, "alarm_control_panel",
-                           "alarm_disarm"))
+                for bit, label, service in _ALARM
+                if features & bit
+                and state.state != service.replace("alarm_arm_", "armed_")]
+    if state.state != "disarmed":
+        commands.append(disarm)
     return commands
 
 
