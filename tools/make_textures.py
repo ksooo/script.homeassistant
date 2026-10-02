@@ -182,6 +182,10 @@ def main():
     # soft on the way.
     made.append(write_png(os.path.join(MEDIA, "slider_track.png"), 32, 80,
                           horizontal_band(32, 80, 24, (0xFF, 0xFF, 0xFF), 0.20)))
+    # The same height without a band, for a slider whose track is an image
+    # of its own laid underneath.
+    made.append(write_png(os.path.join(MEDIA, "slider_clear.png"), 32, 80,
+                          render(32, 80, lambda x, y: None)))
     made.append(write_png(os.path.join(MEDIA, "slider_nib.png"), 80, 80,
                           circle(80, (0xFF, 0xFF, 0xFF))))
 

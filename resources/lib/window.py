@@ -17,11 +17,13 @@ import time
 import xbmcgui
 
 from . import actions as ha_actions
-from . import cameras, formatting, icons, kodi, mediadialog, model, sections
+from . import (cameras, formatting, icons, kodi, mediadialog, model, sections,
+               sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
 MEDIA_XML = "script.homeassistant-media.xml"
+SLIDER_XML = "script.homeassistant-slider.xml"
 
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
@@ -82,7 +84,7 @@ class Dashboard(xbmcgui.WindowXML):
             verify_ssl=self._settings.verify_ssl, log=kodi.log)
         self._camera_worker = None
         self._camera_due = 0.0
-        self._media = None
+        self._overlay = None
         self._window_id = 0
         self._landed = False
         self._started = False
@@ -186,9 +188,9 @@ class Dashboard(xbmcgui.WindowXML):
 
     def shutdown(self):
         self.closed = True
-        if self._media is not None:
-            self._media.close()
-            self._media = None
+        if self._overlay is not None:
+            self._overlay.close()
+            self._overlay = None
         self._store.cancel_pending_reload()
         self._session.stop()
         self._snapshots.clean_up()
@@ -232,26 +234,26 @@ class Dashboard(xbmcgui.WindowXML):
                 self._set_focus(self._wanted_focus)
                 self._wanted_focus = 0
         self._take_camera_stills()
-        self._tick_media()
+        self._tick_overlay()
 
-    def _tick_media(self):
-        """Let the media dialog redraw. Window thread, like everything here.
+    def _tick_overlay(self):
+        """Let a shown dialog redraw or send. Window thread, like everything here.
 
-        The dialog is shown rather than run modally, so nothing else would
-        drive it: without this it draws once and then stands still.
+        The dialogs are shown rather than run modally, so nothing else would
+        drive them: without this they draw once and then stand still.
         """
-        if self._media is None:
+        if self._overlay is None:
             return
-        if self._media.closed:
-            self._media = None
+        if self._overlay.closed:
+            self._overlay = None
         elif not self._in_front():
             # Playing on Kodi itself brings up the fullscreen video, which
             # displaces this window - but not a dialog of ours, which would
             # be left sitting over a picture it has nothing to do with.
-            self._media.close()
-            self._media = None
+            self._overlay.close()
+            self._overlay = None
         else:
-            self._media.tick()
+            self._overlay.tick()
 
     def _in_front(self):
         """Whether this window is still the one Kodi has up.
@@ -383,7 +385,7 @@ class Dashboard(xbmcgui.WindowXML):
                 self._select(categories, index)
 
         self._show_section(index)
-        if (self._sections and self._media is None
+        if (self._sections and self._overlay is None
                 and self._focused_control() not in (CATEGORY_LIST, ROW_LIST,
                                                     CATEGORY_BAR, ROW_BAR)):
             self._set_focus(self._landing())
@@ -594,8 +596,11 @@ class Dashboard(xbmcgui.WindowXML):
             self._open_media(entity_id)
             return
 
-        client = self._session.client
-        if client is None:
+        if action.kind == ha_actions.SLIDER:
+            self._open_slider(entity_id, action)
+            return
+
+        if self._session.client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
 
@@ -605,12 +610,7 @@ class Dashboard(xbmcgui.WindowXML):
         data = self._collect_input(entity_id, action)
         if data is None:
             return
-
-        try:
-            client.call_service(action.domain, action.service, data=data,
-                                target={"entity_id": entity_id})
-        except ha_client.HomeAssistantError as error:
-            kodi.notify(kodi.tr("error_service") % error, error=True)
+        self._send(action.domain, action.service, entity_id, data)
 
     def _ask_command(self, entity_id):
         """Offer what the entity says it can do, then carry it out."""
@@ -706,14 +706,14 @@ class Dashboard(xbmcgui.WindowXML):
                 if area_id in mapped]
 
     def _open_media(self, entity_id):
-        self._media = mediadialog.MediaDialog(
+        self._overlay = mediadialog.MediaDialog(
             MEDIA_XML, kodi.ADDON_PATH, "Default", "1080i",
             store=self._store, entity_id=entity_id,
             art_url=lambda picture: kodi.image_url(
                 self._settings.url, picture, self._image_token),
             call=self._call_service,
             browse=self._browse_media)
-        self._media.show()
+        self._overlay.show()
 
     def _may_act(self, entity_id, service):
         """Ask first where the settings say to, and take no for an answer."""
@@ -726,15 +726,26 @@ class Dashboard(xbmcgui.WindowXML):
             kodi.tr(title),
             kodi.tr(text) % self._store.display_name_of(entity_id))
 
+    def _open_slider(self, entity_id, action):
+        self._overlay = sliderdialog.SliderDialog(
+            SLIDER_XML, kodi.ADDON_PATH, "Default", "1080i",
+            name=self._store.display_name_of(entity_id), action=action,
+            start=ha_actions.slider_start(self._store.states.get(entity_id), action),
+            send=lambda data: self._send(action.domain, action.service,
+                                         entity_id, data))
+        self._overlay.show()
+
     def _call_service(self, entity_id, service, data=None):
-        if not self._may_act(entity_id, service):
-            return
+        if self._may_act(entity_id, service):
+            self._send("media_player", service, entity_id, data)
+
+    def _send(self, domain, service, entity_id, data):
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
         try:
-            client.call_service("media_player", service, data=data,
+            client.call_service(domain, service, data=data,
                                 target={"entity_id": entity_id})
         except ha_client.HomeAssistantError as error:
             kodi.notify(kodi.tr("error_service") % error, error=True)

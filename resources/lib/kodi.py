@@ -93,7 +93,7 @@ def prompt_login_field(field, step_id, errors):
 
 
 def temp_directory():
-    """A writable place for the camera stills, created on first use."""
+    """A writable place for camera stills and drawn images, created on first use."""
     path = xbmcvfs.translatePath("special://temp/%s/" % ADDON_ID)
     if not xbmcvfs.exists(path):
         xbmcvfs.mkdirs(path)

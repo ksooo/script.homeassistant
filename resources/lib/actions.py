@@ -13,6 +13,8 @@ TEMPERATURE = "temperature"
 PICK = "pick"
 # Several rooms at once, named by the area registry.
 AREAS = "areas"
+# A slider; data carries the service field, the range, the step and the unit.
+SLIDER = "slider"
 # A service the panel may want its code for.
 ALARM = "alarm"
 # The media player's own window.
@@ -323,42 +325,74 @@ def _climate_commands(store, state):
     return commands
 
 
-# The steps offered for a dimmable light. Fixed steps rather than a slider:
-# a remote control has no thumb to drag with, and the round numbers are what
-# people ask for anyway.
-_BRIGHTNESS_STEPS = (10, 25, 50, 75, 100)
-_KELVIN_STEPS = (2200, 2700, 3000, 4000, 5000, 6500)
+# How far one press moves a light's sliders. Home Assistant steps by one,
+# which would take a remote a hundred presses for the brightness and
+# thousands for the colour temperature.
+_BRIGHTNESS_STEP = 5
+_KELVIN_STEP = 100
+# Home Assistant's range for a lamp that names none of its own.
+_DEFAULT_KELVIN = (2700, 6500)
 
 
 def _light_commands(store, state):
     modes = set(state.attributes.get("supported_color_modes") or [])
     commands = []
     if modes - {"onoff"}:
-        commands.append(Action("action_brightness", PICK, "light", "turn_on",
-                               {"as": "brightness_pct",
-                                "choices": [("%d %%" % step, step)
-                                            for step in _BRIGHTNESS_STEPS]}))
-    kelvins = _colour_temperatures(state)
+        commands.append(Action("action_brightness", SLIDER, "light", "turn_on",
+                               {"as": "brightness_pct", "min": 1, "max": 100,
+                                "step": _BRIGHTNESS_STEP, "unit": "%"}))
+    kelvins = _kelvin_range(state)
     if kelvins:
-        commands.append(Action("action_colour_temperature", PICK, "light",
+        commands.append(Action("action_colour_temperature", SLIDER, "light",
                                "turn_on", {"as": "color_temp_kelvin",
-                                           "choices": kelvins}))
+                                           "min": kelvins[0], "max": kelvins[1],
+                                           "step": _KELVIN_STEP, "unit": "K"}))
     if state.attributes.get("effect_list"):
         commands.append(Action("action_effect", PICK, "light", "turn_on",
                                {"from": "effect_list", "as": "effect"}))
     return commands
 
 
-def _colour_temperatures(state):
-    """The usual steps, kept within what this lamp says it can reach."""
+def _kelvin_range(state):
     if "color_temp" not in (state.attributes.get("supported_color_modes") or []):
-        return []
-    low = state.attributes.get("min_color_temp_kelvin")
-    high = state.attributes.get("max_color_temp_kelvin")
-    if not low or not high or low >= high:
-        return []
-    steps = sorted({low, high}.union(k for k in _KELVIN_STEPS if low < k < high))
-    return [("%d K" % kelvin, kelvin) for kelvin in steps]
+        return None
+    low = state.attributes.get("min_color_temp_kelvin") or _DEFAULT_KELVIN[0]
+    high = state.attributes.get("max_color_temp_kelvin") or _DEFAULT_KELVIN[1]
+    return (low, high) if low < high else None
+
+
+def slider_start(state, action):
+    """Where a slider opens: at the lamp's own value where it has one.
+
+    Without one, Home Assistant leaves the brightness slider empty and shows
+    no position on the colour temperature; a Kodi slider needs a position,
+    so the one starts at its low end and the other in the middle.
+    """
+    data = action.data
+    attributes = state.attributes if state is not None else {}
+    if data["as"] == "brightness_pct":
+        brightness = attributes.get("brightness")
+        if brightness is None:
+            return data["min"]
+        return max(int(brightness * 100 / 255.0 + 0.5), 1)
+    if (state is not None and state.state == "on"
+            and attributes.get("color_mode") == "color_temp"
+            and attributes.get("color_temp_kelvin")):
+        return attributes["color_temp_kelvin"]
+    return (data["min"] + data["max"]) // 2
+
+
+def slider_value(raw, data):
+    """Where a press leaves the slider: on the step grid, ends included.
+
+    Kodi steps from wherever the slider stood, so from a range that starts
+    at 1 or 2202 it would count 6, 11 or 2302, 2402.
+    """
+    low, high = data["min"], data["max"]
+    if raw <= low or raw >= high:
+        return min(max(raw, low), high)
+    step = data["step"]
+    return min(max(int(raw / float(step) + 0.5) * step, low), high)
 
 
 # AlarmControlPanelEntityFeature

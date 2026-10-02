@@ -234,23 +234,59 @@ class Light(unittest.TestCase):
         self.assertEqual(labels("light.a", "on", supported_color_modes=["onoff"]),
                          [])
 
-    def test_a_dimmable_lamp_is_offered_brightness(self):
-        self.assertEqual(
-            labels("light.a", "on", supported_color_modes=["brightness"]),
-            ["action_brightness"])
+    def test_a_dimmable_lamp_is_offered_a_brightness_slider(self):
+        store = one("light.a", "on", supported_color_modes=["brightness"])
+        [action] = actions.commands_for(store, store.states["light.a"])
+        self.assertEqual((action.label_key, action.kind, action.data),
+                         ("action_brightness", actions.SLIDER,
+                          {"as": "brightness_pct", "min": 1, "max": 100,
+                           "step": 5, "unit": "%"}))
 
-    def test_colour_temperature_steps_stay_within_the_lamp(self):
+    def test_colour_temperature_is_a_slider_over_the_lamps_range(self):
         store = one("light.a", "on", supported_color_modes=["color_temp"],
                     min_color_temp_kelvin=2202, max_color_temp_kelvin=4000)
         action = actions.commands_for(store, store.states["light.a"])[1]
-        self.assertEqual(action.data["choices"],
-                         [("2202 K", 2202), ("2700 K", 2700), ("3000 K", 3000),
-                          ("4000 K", 4000)])
+        self.assertEqual((action.kind, action.data),
+                         (actions.SLIDER, {"as": "color_temp_kelvin",
+                                           "min": 2202, "max": 4000,
+                                           "step": 100, "unit": "K"}))
 
-    def test_a_lamp_that_names_no_range_is_offered_no_temperature(self):
-        self.assertEqual(
-            labels("light.a", "on", supported_color_modes=["color_temp"]),
-            ["action_brightness"])
+    def test_a_lamp_that_names_no_range_gets_home_assistants(self):
+        store = one("light.a", "on", supported_color_modes=["color_temp"])
+        action = actions.commands_for(store, store.states["light.a"])[1]
+        self.assertEqual((action.data["min"], action.data["max"]), (2700, 6500))
+
+    def test_the_brightness_slider_starts_at_the_lamps_brightness(self):
+        def start(value, **attributes):
+            store = one("light.a", value, supported_color_modes=["brightness"],
+                        **attributes)
+            state = store.states["light.a"]
+            return actions.slider_start(state, actions.commands_for(store, state)[0])
+        self.assertEqual(start("on", brightness=128), 50)
+        self.assertEqual(start("on", brightness=1), 1)
+        self.assertEqual(start("off"), 1)
+
+    def test_the_kelvin_slider_starts_where_the_lamp_is_only_in_white(self):
+        def start(value, **attributes):
+            store = one("light.a", value, supported_color_modes=["color_temp"],
+                        min_color_temp_kelvin=2000, max_color_temp_kelvin=6000,
+                        **attributes)
+            state = store.states["light.a"]
+            return actions.slider_start(state, actions.commands_for(store, state)[1])
+        self.assertEqual(start("on", color_mode="color_temp",
+                               color_temp_kelvin=3100), 3100)
+        self.assertEqual(start("on", color_mode="hs", color_temp_kelvin=3100), 4000)
+        self.assertEqual(start("off"), 4000)
+
+    def test_a_press_lands_on_the_step_grid_and_the_ends_stay_reachable(self):
+        brightness = {"min": 1, "max": 100, "step": 5}
+        self.assertEqual(actions.slider_value(6, brightness), 5)
+        self.assertEqual(actions.slider_value(1, brightness), 1)
+        self.assertEqual(actions.slider_value(100, brightness), 100)
+        kelvin = {"min": 2202, "max": 9009, "step": 100}
+        self.assertEqual(actions.slider_value(2302, kelvin), 2300)
+        self.assertEqual(actions.slider_value(9009, kelvin), 9009)
+        self.assertEqual(actions.slider_value(8909, kelvin), 8900)
 
     def test_effects_come_from_the_lamp(self):
         store = one("light.a", "on", supported_color_modes=["onoff"],

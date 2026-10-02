@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <defaultcontrol>110</defaultcontrol>
+    <controls>
+        <control type="image">
+            <left>510</left><top>402</top><width>900</width><height>276</height>
+            <texture border="24">panel.png</texture>
+        </control>
+
+        <control type="label" id="100">
+            <left>570</left><top>444</top><width>780</width><height>33</height>
+            <font>font10</font><textcolor>FFA0A0A0</textcolor><label></label>
+        </control>
+        <control type="label" id="101">
+            <left>570</left><top>477</top><width>570</width><height>54</height>
+            <scroll>true</scroll><font>font14</font>
+            <textcolor>FFF0F0F0</textcolor><label></label>
+        </control>
+        <control type="label" id="102">
+            <left>1140</left><top>477</top><width>210</width><height>54</height>
+            <align>right</align><font>font14</font>
+            <textcolor>FFF0F0F0</textcolor><label></label>
+        </control>
+
+        <!-- The slider draws no track of its own, because a script cannot
+             swap a slider's texture and the colour temperature's gradient
+             depends on the lamp's range. The track lies underneath instead,
+             where slider_track.png draws its band: 24 of its 80 pixels,
+             centred. -->
+        <control type="image" id="103">
+            <left>570</left><top>597</top><width>780</width><height>18</height>
+            <texture></texture>
+        </control>
+        <control type="image" id="104">
+            <left>570</left><top>597</top><width>780</width><height>18</height>
+            <texture colordiffuse="33FFFFFF">bar.png</texture>
+        </control>
+        <control type="slider" id="110">
+            <left>570</left><top>576</top><width>780</width><height>60</height>
+            <texturesliderbar>slider_clear.png</texturesliderbar>
+            <textureslidernib colordiffuse="FF41BDF5">slider_nib.png</textureslidernib>
+            <textureslidernibfocus colordiffuse="FF41BDF5">slider_nib.png</textureslidernibfocus>
+        </control>
+    </controls>
+</window>
