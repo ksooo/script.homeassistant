@@ -253,7 +253,7 @@ def _area_sections(store, options, label):
             entity_ids = store.entities_in_area(area["area_id"])
             if not entity_ids and options.hide_empty_areas:
                 continue
-            groups = _device_groups(store, entity_ids, label("no_device"))
+            groups = _device_groups(store, entity_ids, label)
             sections.append(Section(
                 "area:%s" % area["area_id"], AREA, area.get("name", ""),
                 [entity_id for group in groups for entity_id in group.entity_ids],
@@ -262,23 +262,39 @@ def _area_sections(store, options, label):
     return sections
 
 
-def _device_groups(store, entity_ids, no_device_title):
-    """One group per device, entities without one collected at the end."""
+def _device_groups(store, entity_ids, label):
+    """The room's scenes, one group per device, what has none, its automations.
+
+    Scenes and automations are taken out before grouping, as Home Assistant's
+    area view does, so one tied to a device still stands with its own kind.
+    """
     by_device = {}
-    orphans = []
+    others = []
+    scenes, automations = [], []
     for entity_id in entity_ids:
+        domain = entity_id.split(".")[0]
+        if domain == "scene":
+            scenes.append(entity_id)
+            continue
+        if domain == "automation":
+            automations.append(entity_id)
+            continue
         entity = store.entities.get(entity_id)
         device_id = entity.device_id if entity is not None else None
         if device_id and store.device_name(device_id):
             by_device.setdefault(device_id, []).append(entity_id)
         else:
-            orphans.append(entity_id)
+            others.append(entity_id)
 
     groups = [Group(store.device_name(device_id), _sorted(store, members))
               for device_id, members in by_device.items()]
     groups.sort(key=lambda group: group.title.lower())
-    if orphans:
-        groups.append(Group(no_device_title, _sorted(store, orphans)))
+    if scenes:
+        groups.insert(0, Group(label("scenes"), _sorted(store, scenes)))
+    if others:
+        groups.append(Group(label("others"), _sorted(store, others)))
+    if automations:
+        groups.append(Group(label("automations"), _sorted(store, automations)))
     return groups
 
 
@@ -288,7 +304,7 @@ def _sorted(store, entity_ids):
     A device brings a dozen entities of half a dozen kinds. The ones there is
     something to do with come first - they are drawn as buttons and are what
     anyone came for - and within each half the kinds stand as blocks, so a
-    device's automations are together and its sensors are together.
+    device's switches are together and its sensors are together.
     """
     def order(entity_id):
         return (actions.default_action(store, entity_id) is None,

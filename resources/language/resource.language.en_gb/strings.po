@@ -161,11 +161,19 @@ msgid "Unassigned"
 msgstr ""
 
 msgctxt "#30209"
-msgid "Without device"
+msgid "Others"
 msgstr ""
 
 msgctxt "#30210"
 msgid "Without room"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Automations"
+msgstr ""
+
+msgctxt "#30212"
+msgid "Scenes"
 msgstr ""
 
 msgctxt "#30300"

@@ -21,8 +21,10 @@ IDS = {
     "weather": 30206,
     "energy": 30207,
     "no_floor": 30208,
-    "no_device": 30209,
+    "others": 30209,
     "no_room": 30210,
+    "automations": 30211,
+    "scenes": 30212,
 
     # states
     "unavailable": 30111,

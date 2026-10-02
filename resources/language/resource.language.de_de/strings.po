@@ -161,12 +161,20 @@ msgid "Unassigned"
 msgstr "Ohne Etage"
 
 msgctxt "#30209"
-msgid "Without device"
-msgstr "Ohne Gerät"
+msgid "Others"
+msgstr "Andere"
 
 msgctxt "#30210"
 msgid "Without room"
 msgstr "Ohne Raum"
+
+msgctxt "#30211"
+msgid "Automations"
+msgstr "Automationen"
+
+msgctxt "#30212"
+msgid "Scenes"
+msgstr "Szenen"
 
 msgctxt "#30300"
 msgid "Home Assistant"

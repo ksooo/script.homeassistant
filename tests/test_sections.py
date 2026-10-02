@@ -41,31 +41,51 @@ class AreaSections(unittest.TestCase):
         kitchen = built["area:kueche"]
 
         self.assertEqual([g.title for g in kitchen.groups],
-                         ["Fenstersensor", "no_device"])
+                         ["Fenstersensor", "others"])
         # The battery is diagnostic, so it belongs to maintenance, not here.
         self.assertEqual(kitchen.groups[0].entity_ids, ["binary_sensor.fenster"])
         self.assertEqual(sorted(kitchen.groups[1].entity_ids),
                          ["sensor.cpu", "sensor.kueche_temperatur"])
 
+    def test_scenes_open_the_room_and_automations_close_it(self):
+        store = house(
+            extra_entities=[
+                support.entity("automation.lueften", "Lüften", device_id="dev_sensor"),
+                support.entity("automation.heizen", "Heizen", area_id="kueche"),
+                support.entity("scene.kochen", "Kochen", device_id="dev_sensor"),
+            ],
+            extra_states=[
+                support.state("automation.lueften", "on"),
+                support.state("automation.heizen", "on"),
+                support.state("scene.kochen", "2026-10-02T07:00:00+00:00"),
+            ])
+        built = {s.key: s for s in sections.build(store, translate=support.untranslated)}
+        kitchen = built["area:kueche"]
+        self.assertEqual([g.title for g in kitchen.groups],
+                         ["scenes", "Fenstersensor", "others", "automations"])
+        self.assertEqual(kitchen.groups[0].entity_ids, ["scene.kochen"])
+        self.assertEqual(kitchen.groups[-1].entity_ids,
+                         ["automation.heizen", "automation.lueften"])
+
     def test_a_devices_entities_stand_by_doing_then_kind_then_name(self):
         """What can be acted on first, and each kind together within that."""
         store = house(
             extra_entities=[
-                support.entity("automation.zzz", "Zuletzt", device_id="dev_sensor"),
-                support.entity("automation.aaa", "Anfang", device_id="dev_sensor"),
-                support.entity("switch.mitte", "Mitte", device_id="dev_sensor"),
+                support.entity("switch.zzz", "Zuletzt", device_id="dev_sensor"),
+                support.entity("switch.aaa", "Anfang", device_id="dev_sensor"),
+                support.entity("light.mitte", "Mitte", device_id="dev_sensor"),
             ],
             extra_states=[
-                support.state("automation.zzz", "on"),
-                support.state("automation.aaa", "on"),
-                support.state("switch.mitte", "off"),
+                support.state("switch.zzz", "on"),
+                support.state("switch.aaa", "on"),
+                support.state("light.mitte", "off"),
             ])
         built = {s.key: s for s in sections.build(store, translate=support.untranslated)}
         sensor = built["area:kueche"].groups[0]
-        # The binary sensor only reports, so it falls behind the switch even
-        # though its kind sorts ahead of one.
+        # The binary sensor only reports, so it falls behind the switches even
+        # though its kind sorts ahead of theirs.
         self.assertEqual(sensor.entity_ids,
-                         ["automation.aaa", "automation.zzz", "switch.mitte",
+                         ["light.mitte", "switch.aaa", "switch.zzz",
                           "binary_sensor.fenster"])
 
     def test_floors_and_rooms_keep_registry_order(self):
