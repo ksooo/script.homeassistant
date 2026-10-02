@@ -569,9 +569,15 @@ _VALVE_SET_POSITION = 4
 
 
 def _valve_commands(store, state):
+    """What the valve can be told now, by the rules it shares with covers."""
+    if state.state == "unavailable":
+        return []
     features = features_of(state)
+    can_open, can_close = _can_travel(state)
+    allowed = {"open_valve": can_open, "close_valve": can_close}
     commands = [Action(label, SERVICE, "valve", service)
-                for bit, label, service in _VALVE if features & bit]
+                for bit, label, service in _VALVE
+                if features & bit and allowed.get(service, True)]
     if features & _VALVE_SET_POSITION:
         commands.append(Action("action_position", NUMBER, "valve",
                                "set_valve_position"))
@@ -623,16 +629,12 @@ def _cover_actions(state):
     features = features_of(state)
     attributes = state.attributes
     assumed = attributes.get("assumed_state") is True
-    position = attributes.get("current_position")
-    if position is not None:
-        fully_open, fully_closed = position == 100, position == 0
-    else:
-        fully_open, fully_closed = state.state == "open", state.state == "closed"
+    can_open, can_close = _can_travel(state)
 
     actions = []
-    if assumed or not (fully_open or state.state == "opening"):
+    if can_open:
         actions.append(Action("action_open", SERVICE, "cover", "open_cover"))
-    if assumed or not (fully_closed or state.state == "closing"):
+    if can_close:
         actions.append(Action("action_close", SERVICE, "cover", "close_cover"))
     actions.append(Action("action_stop", SERVICE, "cover", "stop_cover"))
     if features & _COVER_SET_POSITION:
@@ -641,6 +643,25 @@ def _cover_actions(state):
     actions.extend(_tilt_actions(features, attributes.get("current_tilt_position"),
                                  assumed))
     return actions
+
+
+def _can_travel(state):
+    """Whether opening and whether closing make sense, for a cover or a valve.
+
+    Home Assistant judges both the same way: not where it is fully that way
+    already, by its position where it reports one and by its state where it
+    does not, and not while it is on its way there. One that only assumes
+    its state may always be told either.
+    """
+    if state.attributes.get("assumed_state") is True:
+        return True, True
+    position = state.attributes.get("current_position")
+    if position is not None:
+        fully_open, fully_closed = position == 100, position == 0
+    else:
+        fully_open, fully_closed = state.state == "open", state.state == "closed"
+    return (not (fully_open or state.state == "opening"),
+            not (fully_closed or state.state == "closing"))
 
 
 def _tilt_actions(features, tilt, assumed):

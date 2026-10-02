@@ -582,12 +582,34 @@ class Humidifier(unittest.TestCase):
 class Valve(unittest.TestCase):
     def test_only_what_the_valve_reports(self):
         self.assertEqual(
-            labels("valve.a", "open", supported_features=1 | 2 | 4 | 8),
+            labels("valve.a", "open", supported_features=1 | 2 | 4 | 8,
+                   current_position=50),
             ["action_open", "action_close", "action_stop", "action_position"])
 
     def test_a_valve_without_a_position_is_not_offered_one(self):
-        self.assertEqual(labels("valve.a", "open", supported_features=1 | 2),
-                         ["action_open", "action_close"])
+        self.assertNotIn("action_position",
+                         labels("valve.a", "open", supported_features=1 | 2))
+
+    def offered(self, value, **attributes):
+        return labels("valve.a", value, supported_features=1 | 2 | 8,
+                      **attributes)
+
+    def test_not_the_way_it_is_already(self):
+        self.assertEqual(self.offered("open"), ["action_close", "action_stop"])
+        self.assertEqual(self.offered("closed"), ["action_open", "action_stop"])
+        self.assertEqual(self.offered("open", current_position=100),
+                         ["action_close", "action_stop"])
+
+    def test_not_the_way_it_is_going(self):
+        self.assertEqual(self.offered("opening", current_position=40),
+                         ["action_close", "action_stop"])
+
+    def test_nothing_while_unavailable(self):
+        self.assertEqual(self.offered("unavailable"), [])
+
+    def test_an_assumed_state_is_not_taken_at_its_word(self):
+        self.assertEqual(self.offered("open", assumed_state=True),
+                         ["action_open", "action_close", "action_stop"])
 
 
 class Flipping(unittest.TestCase):
