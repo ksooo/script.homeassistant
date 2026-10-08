@@ -53,8 +53,8 @@ msgid "Long-lived access token"
 msgstr "Long-Lived Access Token"
 
 msgctxt "#30024"
-msgid "Used instead of user name and password when set. Create one in Home Assistant under your profile, Security."
-msgstr "Wird anstelle von Benutzername und Passwort verwendet, wenn gesetzt. In Home Assistant unter Profil, Sicherheit anlegen."
+msgid "Create one in Home Assistant under your profile, Security. It is valid for ten years and stored unencrypted in the addon settings."
+msgstr "In Home Assistant unter Profil, Sicherheit anlegen. Gilt zehn Jahre und wird unverschlüsselt in den Addon-Einstellungen gespeichert."
 
 msgctxt "#30025"
 msgid "Test connection"
@@ -63,6 +63,18 @@ msgstr "Verbindung testen"
 msgctxt "#30026"
 msgid "Stored unencrypted in the addon settings"
 msgstr "Wird unverschlüsselt in den Addon-Einstellungen gespeichert"
+
+msgctxt "#30027"
+msgid "Sign-in method"
+msgstr "Anmeldemethode"
+
+msgctxt "#30028"
+msgid "User name and password"
+msgstr "Benutzername und Passwort"
+
+msgctxt "#30029"
+msgid "Choice of the method used to sign in to Home Assistant"
+msgstr "Auswahl der für die Anmeldung an Home Assistant zu nutzenden Methode"
 
 msgctxt "#30030"
 msgid "Dashboard"
@@ -115,6 +127,14 @@ msgstr "Vor dem Öffnen von Türen fragen"
 msgctxt "#30042"
 msgid "Unlocking leaves a door shut; opening it pulls the latch back"
 msgstr "Aufschließen lässt die Tür zu; Öffnen zieht die Falle zurück"
+
+msgctxt "#30043"
+msgid "The name the user signs in to Home Assistant with, not the name it is shown by"
+msgstr "Der Name, mit dem sich der Benutzer bei Home Assistant anmeldet, nicht sein Anzeigename"
+
+msgctxt "#30044"
+msgid "Signs in with the chosen method and reports the version of Home Assistant"
+msgstr "Meldet sich mit der gewählten Methode an und nennt die Version von Home Assistant"
 
 msgctxt "#30111"
 msgid "Unavailable"
@@ -501,8 +521,8 @@ msgid "No Home Assistant address configured"
 msgstr "Keine Adresse von Home Assistant eingetragen"
 
 msgctxt "#30401"
-msgid "No username, password or token configured"
-msgstr "Weder Benutzername und Passwort noch Token eingetragen"
+msgid "User name or password missing"
+msgstr "Benutzername oder Passwort fehlt"
 
 msgctxt "#30402"
 msgid "Cannot reach Home Assistant: %s"
@@ -543,3 +563,7 @@ msgstr "Tür öffnen?"
 msgctxt "#30411"
 msgid "Open %s?"
 msgstr "%s öffnen?"
+
+msgctxt "#30412"
+msgid "No long-lived access token configured"
+msgstr "Kein Long-Lived Access Token eingetragen"

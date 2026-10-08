@@ -44,15 +44,41 @@ def notify(message, error=False, time=4000):
     xbmcgui.Dialog().notification(ADDON_NAME, message, icon, time)
 
 
+# The two values of the auth_method setting.
+AUTH_PASSWORD = 0
+AUTH_TOKEN = 1
+# Raised whenever migrate_settings learns something new to bring forward.
+_SETTINGS_VERSION = 1
+
+
+def migrate_settings(addon=None):
+    """Bring settings from an older version forward, once.
+
+    Before there was a choice of sign-in method, a token on its own was the
+    way in. Such a setup would meet the new default and find no user name, so
+    the choice is set to the token it has been using all along.
+    """
+    addon = addon or xbmcaddon.Addon()
+    if addon.getSettingInt("settings_version") >= _SETTINGS_VERSION:
+        return
+    if (addon.getSettingString("token").strip()
+            and not (addon.getSettingString("username")
+                     and addon.getSettingString("password"))):
+        addon.setSettingInt("auth_method", AUTH_TOKEN)
+    addon.setSettingInt("settings_version", _SETTINGS_VERSION)
+
+
 class Settings:
     """Snapshot of the addon settings."""
 
     def __init__(self):
         addon = xbmcaddon.Addon()
+        migrate_settings(addon)
         self.url = addon.getSettingString("url").strip().rstrip("/")
-        self.username = addon.getSettingString("username")
-        self.password = addon.getSettingString("password")
-        self.token = addon.getSettingString("token").strip()
+        self.uses_token = uses_token = addon.getSettingInt("auth_method") == AUTH_TOKEN
+        self.token = addon.getSettingString("token").strip() if uses_token else ""
+        self.username = "" if uses_token else addon.getSettingString("username")
+        self.password = "" if uses_token else addon.getSettingString("password")
         self.verify_ssl = addon.getSettingBool("verify_ssl")
         self.favourites = addon.getSettingBool("show_favourites")
         self.summaries = addon.getSettingBool("show_summaries")
@@ -63,15 +89,13 @@ class Settings:
         self.confirm_off_lights = addon.getSettingBool("confirm_off_lights")
         self.confirm_open = addon.getSettingBool("confirm_open")
 
-    @property
-    def has_credentials(self):
-        return bool(self.token) or bool(self.username and self.password)
-
     def validate(self):
         """Returns an error message, or an empty string when usable."""
         if not self.url:
             return tr("error_no_url")
-        if not self.has_credentials:
+        if self.uses_token and not self.token:
+            return tr("error_no_token")
+        if not self.uses_token and not (self.username and self.password):
             return tr("error_no_credentials")
         return ""
 

@@ -53,7 +53,7 @@ msgid "Long-lived access token"
 msgstr ""
 
 msgctxt "#30024"
-msgid "Used instead of user name and password when set. Create one in Home Assistant under your profile, Security."
+msgid "Create one in Home Assistant under your profile, Security. It is valid for ten years and stored unencrypted in the addon settings."
 msgstr ""
 
 msgctxt "#30025"
@@ -62,6 +62,18 @@ msgstr ""
 
 msgctxt "#30026"
 msgid "Stored unencrypted in the addon settings"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Sign-in method"
+msgstr ""
+
+msgctxt "#30028"
+msgid "User name and password"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Choice of the method used to sign in to Home Assistant"
 msgstr ""
 
 msgctxt "#30030"
@@ -114,6 +126,14 @@ msgstr ""
 
 msgctxt "#30042"
 msgid "Unlocking leaves a door shut; opening it pulls the latch back"
+msgstr ""
+
+msgctxt "#30043"
+msgid "The name the user signs in to Home Assistant with, not the name it is shown by"
+msgstr ""
+
+msgctxt "#30044"
+msgid "Signs in with the chosen method and reports the version of Home Assistant"
 msgstr ""
 
 msgctxt "#30111"
@@ -501,7 +521,7 @@ msgid "No Home Assistant address configured"
 msgstr ""
 
 msgctxt "#30401"
-msgid "No username, password or token configured"
+msgid "User name or password missing"
 msgstr ""
 
 msgctxt "#30402"
@@ -542,4 +562,8 @@ msgstr ""
 
 msgctxt "#30411"
 msgid "Open %s?"
+msgstr ""
+
+msgctxt "#30412"
+msgid "No long-lived access token configured"
 msgstr ""

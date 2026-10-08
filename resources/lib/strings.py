@@ -119,6 +119,7 @@ IDS = {
     # messages
     "error_no_url": 30400,
     "error_no_credentials": 30401,
+    "error_no_token": 30412,
     "error_connect": 30402,
     "error_auth": 30403,
     "error_service": 30404,
