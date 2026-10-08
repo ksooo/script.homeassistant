@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.7.0"
+       version="1.8.0"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -18,10 +18,9 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.7.0
-- OK on a camera shows its live picture in Kodi's player
-- The settings ask how to sign in - user name and password, or a long-lived access token - and show only the fields that need filling; every setting now explains itself
-- Fixed: camera stills and brand images stopped loading after half an hour when signed in with a user name and password
+    <news>v1.8.0
+- Reolink cameras that pan and tilt can now be steered with the arrow keys while their live picture plays, with OK going to the home position. It needs the camera's pan, tilt and stop buttons enabled in Home Assistant
+- Fixed: cameras that Home Assistant shows only by WebRTC were offered a live picture that then failed
 </news>
     <assets>
       <icon>resources/icon.png</icon>

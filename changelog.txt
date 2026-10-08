@@ -1,3 +1,7 @@
+v1.8.0
+- Reolink cameras that pan and tilt can now be steered with the arrow keys while their live picture plays, with OK going to the home position. It needs the camera's pan, tilt and stop buttons enabled in Home Assistant
+- Fixed: cameras that Home Assistant shows only by WebRTC were offered a live picture that then failed
+
 v1.7.0
 - OK on a camera shows its live picture in Kodi's player
 - The settings ask how to sign in - user name and password, or a long-lived access token - and show only the fields that need filling; every setting now explains itself
