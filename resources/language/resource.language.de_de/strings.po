@@ -29,8 +29,8 @@ msgid "Verify SSL certificate"
 msgstr "SSL-Zertifikat prüfen"
 
 msgctxt "#30013"
-msgid "For example https://homeassistant.local:8123 or your Nabu Casa address"
-msgstr "Zum Beispiel https://homeassistant.local:8123 oder deine Nabu-Casa-Adresse"
+msgid "For example https://homeassistant.local:8123 or the Nabu Casa address"
+msgstr "Zum Beispiel https://homeassistant.local:8123 oder die Nabu-Casa-Adresse"
 
 msgctxt "#30014"
 msgid "Turn off only for a self-signed certificate on your own network"
