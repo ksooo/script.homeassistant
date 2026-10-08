@@ -18,7 +18,8 @@ let go. So a press is a short step: the move, and a stop a moment after the
 last press - which a held key, repeating, keeps putting off.
 
 The picture comes seconds late, so the arrow lights up for the move it
-stands for, and turns red for a moment where the camera would not take it -
+stands for - the whole cross for the way home - and turns red for a moment
+where the camera would not take it -
 Home Assistant answers only once the camera has, so a refusal is known at
 once, long before the picture could tell.
 """
@@ -33,6 +34,8 @@ from . import formatting
 _STEP = 0.3
 # How long a refused move stays red, and new presses of it wait.
 _REFUSED = 1.5
+# How long the cross stays lit once the camera has taken the way home.
+_HOME_LIT = 1.0
 
 _MOVING = "FF41BDF5"
 _FAILED = formatting.RED
@@ -59,6 +62,7 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
         self._moving = None
         self._stop_due = 0.0
         self._refused_until = 0.0
+        self._lit_until = 0.0
         self.closed = False
 
     def onAction(self, action):
@@ -74,6 +78,7 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
             # A held key repeats; the camera is told once and kept going.
             if move != self._moving:
                 self._moving = move
+                self._lit_until = 0.0
                 self._light(move, _MOVING)
                 if not self._move(self._buttons[move]):
                     self._moving = None
@@ -82,7 +87,14 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
                     return
             self._stop_due = time.time() + _STEP
         elif code == ACTION_SELECT_ITEM and "home" in self._buttons:
-            self._press(self._buttons["home"])
+            # Going home is a move of its own; a stop still due would cut it short.
+            self._moving = None
+            self._light("home", _MOVING)
+            if self._press(self._buttons["home"]):
+                self._lit_until = time.time() + _HOME_LIT
+            else:
+                self._light("home", _FAILED)
+                self._refused_until = time.time() + _REFUSED
 
     def tick(self):
         now = time.time()
@@ -90,6 +102,9 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
             self._stop()
         elif self._refused_until and now >= self._refused_until:
             self._refused_until = 0.0
+            self.clearProperty("ptz_move")
+        elif self._lit_until and now >= self._lit_until:
+            self._lit_until = 0.0
             self.clearProperty("ptz_move")
 
     def finish(self):
