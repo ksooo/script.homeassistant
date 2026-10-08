@@ -34,6 +34,11 @@ _SWITCH_FADE = 0.12
 # and leaves the player to it.
 _LIVE_PATIENCE = 30.0
 
+# Home Assistant renews the token for brand images every thirty minutes and
+# honours the one before as well; fetched this often, the one in hand always
+# works, as its own frontend keeps it.
+_BRANDS_RENEWAL = 25 * 60
+
 ROW_LIST = 50
 CATEGORY_LIST = 51
 ROW_BAR = 60
@@ -104,7 +109,8 @@ class Dashboard(xbmcgui.WindowXML):
         self._pending_section = None
         self._switch_due = 0.0
         self._wanted_focus = 0
-        self._image_token = ""
+        self._brands_token = ""
+        self._brands_due = 0.0
         self._icons = _shipped_icons()
         self._snapshots = cameras.Snapshots(
             self._settings.url, kodi.temp_directory(),
@@ -263,6 +269,7 @@ class Dashboard(xbmcgui.WindowXML):
                 self._set_focus(self._wanted_focus)
                 self._wanted_focus = 0
         self._take_camera_stills()
+        self._renew_brands_token()
         self._tick_overlay()
         self._tick_live()
 
@@ -332,7 +339,7 @@ class Dashboard(xbmcgui.WindowXML):
             self._note(status=kodi.tr("disconnected"), message=str(error))
             raise
 
-        self._image_token = self._auth.access_token()
+        self._fetch_brands_token(client)
         self._store.on_states_changed = self._on_states_changed
         self._store.on_structure_changed = self._on_structure_changed
         self._note(rebuild=True, message="",
@@ -360,6 +367,24 @@ class Dashboard(xbmcgui.WindowXML):
                 self._message_text = message
             if stills:
                 self._camera_stills.update(stills)
+
+    # -- brand images ----------------------------------------------------
+
+    def _renew_brands_token(self):
+        client = self._session.client
+        if client is None or time.time() < self._brands_due:
+            return
+        self._brands_due = time.time() + _BRANDS_RENEWAL
+        threading.Thread(target=self._fetch_brands_token, args=(client,),
+                         name="ha-brands", daemon=True).start()
+
+    def _fetch_brands_token(self, client):
+        """Off the window thread: the session's on connecting, its own after."""
+        self._brands_due = time.time() + _BRANDS_RENEWAL
+        try:
+            self._brands_token = client.command("brands/access_token")["token"]
+        except (ha_client.HomeAssistantError, KeyError, TypeError) as error:
+            kodi.log("brands token unavailable: %s" % error, 2)
 
     # -- camera stills ---------------------------------------------------
 
@@ -567,7 +592,7 @@ class Dashboard(xbmcgui.WindowXML):
                    if state and not entity_id.startswith("camera.") else None)
         if picture:
             item.setArt({"thumb": kodi.image_url(self._settings.url, picture,
-                                                 self._image_token)})
+                                                 self._brands_token)})
         self._apply_state(item, entity_id)
         return item
 
@@ -765,7 +790,7 @@ class Dashboard(xbmcgui.WindowXML):
             MEDIA_XML, kodi.ADDON_PATH, "Default", "1080i",
             store=self._store, entity_id=entity_id,
             art_url=lambda picture: kodi.image_url(
-                self._settings.url, picture, self._image_token),
+                self._settings.url, picture, self._brands_token),
             call=self._call_service,
             browse=self._browse_media)
         self._overlay.show()

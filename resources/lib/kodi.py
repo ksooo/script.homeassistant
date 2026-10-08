@@ -100,14 +100,16 @@ def temp_directory():
     return path
 
 
-def image_url(base_url, path, token):
-    """A Home Assistant image URL Kodi can fetch, carrying the bearer token."""
+def image_url(base_url, path, brands_token=""):
+    """A Home Assistant image URL Kodi can fetch as it is.
+
+    Home Assistant's picture addresses carry a token of their own where they
+    need one - all but its brand images, which want the token it hands out
+    for them. None of them wants the addon's own sign-in.
+    """
     if not path:
         return ""
-    if path.startswith("http"):
-        url = path
-    else:
-        url = base_url.rstrip("/") + path
-    if token and "/api/" in url:
-        return "%s|Authorization=Bearer %s" % (url, token)
+    url = path if path.startswith("http") else base_url.rstrip("/") + path
+    if brands_token and "/api/brands/" in url:
+        url += ("&" if "?" in url else "?") + "token=" + brands_token
     return url
