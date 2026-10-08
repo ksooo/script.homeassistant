@@ -1,3 +1,8 @@
+v1.7.0
+- OK on a camera shows its live picture in Kodi's player
+- The settings ask how to sign in - user name and password, or a long-lived access token - and show only the fields that need filling; every setting now explains itself
+- Fixed: camera stills and brand images stopped loading after half an hour when signed in with a user name and password
+
 v1.6.0
 - A room opens with its scenes and closes with its automations, around its devices and everything without one, as in Home Assistant
 - A lamp's brightness and colour temperature are set with a slider, as in Home Assistant
