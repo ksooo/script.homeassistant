@@ -101,7 +101,7 @@ msgid "Camera preview every"
 msgstr ""
 
 msgctxt "#30036"
-msgid "Seconds between two stills; 0 turns the preview off"
+msgid "Seconds between two stills. 0 turns the preview off. Only the cameras on screen are fetched."
 msgstr ""
 
 msgctxt "#30037"
@@ -109,7 +109,7 @@ msgid "Ask before switching a device off"
 msgstr ""
 
 msgctxt "#30038"
-msgid "A device switched off by accident can matter - a router, a freezer, the machine Home Assistant runs on"
+msgid "Asks before anything is switched off, by OK as from the context menu. A device switched off by accident can matter."
 msgstr ""
 
 msgctxt "#30039"
@@ -117,7 +117,7 @@ msgid "Switch lights off without asking"
 msgstr ""
 
 msgctxt "#30040"
-msgid "A light switched off by mistake costs nothing but switching it back on"
+msgid "Leaves lights out of the question. A light switched off by mistake is usually harmless. It is simply switched back on."
 msgstr ""
 
 msgctxt "#30041"
@@ -125,7 +125,7 @@ msgid "Ask before opening a door"
 msgstr ""
 
 msgctxt "#30042"
-msgid "Unlocking leaves a door shut; opening it pulls the latch back"
+msgid "Asks before a lock opens the door. Unlocking leaves a door shut. Opening it pulls the latch back."
 msgstr ""
 
 msgctxt "#30043"
@@ -134,6 +134,22 @@ msgstr ""
 
 msgctxt "#30044"
 msgid "Signs in with the chosen method and reports the version of Home Assistant"
+msgstr ""
+
+msgctxt "#30045"
+msgid "The entities chosen as favourites on Home Assistant's Home dashboard, as a page of their own"
+msgstr ""
+
+msgctxt "#30046"
+msgid "Lighting, climate, security and the other summaries of the Home dashboard, in Home Assistant's order"
+msgstr ""
+
+msgctxt "#30047"
+msgid "One page per room, grouped by floor, in Home Assistant's order"
+msgstr ""
+
+msgctxt "#30048"
+msgid "Rooms with nothing to show are left out"
 msgstr ""
 
 msgctxt "#30111"

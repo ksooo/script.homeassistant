@@ -89,22 +89,22 @@
         </category>
         <category id="dashboard" label="30030">
             <group id="1">
-                <setting id="show_favourites" type="boolean" label="30031">
+                <setting id="show_favourites" type="boolean" label="30031" help="30045">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="show_summaries" type="boolean" label="30032">
+                <setting id="show_summaries" type="boolean" label="30032" help="30046">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="show_areas" type="boolean" label="30033">
+                <setting id="show_areas" type="boolean" label="30033" help="30047">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide_empty_areas" type="boolean" label="30034">
+                <setting id="hide_empty_areas" type="boolean" label="30034" help="30048">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>

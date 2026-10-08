@@ -101,32 +101,32 @@ msgid "Camera preview every"
 msgstr "Kameravorschau alle"
 
 msgctxt "#30036"
-msgid "Seconds between two stills; 0 turns the preview off"
-msgstr "Sekunden zwischen zwei Standbildern; 0 schaltet die Vorschau ab"
+msgid "Seconds between two stills. 0 turns the preview off. Only the cameras on screen are fetched."
+msgstr "Sekunden zwischen zwei Standbildern. 0 schaltet die Vorschau ab. Abgerufen werden nur die Kameras, die gerade zu sehen sind."
 
 msgctxt "#30037"
 msgid "Ask before switching a device off"
 msgstr "Vor dem Ausschalten eines Geräts fragen"
 
 msgctxt "#30038"
-msgid "A device switched off by accident can matter - a router, a freezer, the machine Home Assistant runs on"
-msgstr "Ein versehentlich ausgeschaltetes Gerät kann Folgen haben - ein Router, eine Gefriertruhe, der Rechner, auf dem Home Assistant läuft"
+msgid "Asks before anything is switched off, by OK as from the context menu. A device switched off by accident can matter."
+msgstr "Fragt nach, bevor etwas ausgeschaltet wird, per OK wie über das Kontextmenü. Ein versehentlich ausgeschaltetes Gerät kann Folgen haben."
 
 msgctxt "#30039"
 msgid "Switch lights off without asking"
 msgstr "Lampen ohne Nachfrage ausschalten"
 
 msgctxt "#30040"
-msgid "A light switched off by mistake costs nothing but switching it back on"
-msgstr "Eine versehentlich ausgeschaltete Lampe schaltet man einfach wieder ein"
+msgid "Leaves lights out of the question. A light switched off by mistake is usually harmless. It is simply switched back on."
+msgstr "Nimmt Lampen von der Rückfrage aus. Eine versehentlich ausgeschaltete Lampe ist gewöhnlich unkritisch. Man schaltet sie einfach wieder ein."
 
 msgctxt "#30041"
 msgid "Ask before opening a door"
 msgstr "Vor dem Öffnen von Türen fragen"
 
 msgctxt "#30042"
-msgid "Unlocking leaves a door shut; opening it pulls the latch back"
-msgstr "Aufschließen lässt die Tür zu; Öffnen zieht die Falle zurück"
+msgid "Asks before a lock opens the door. Unlocking leaves a door shut. Opening it pulls the latch back."
+msgstr "Fragt nach, bevor ein Schloss die Tür öffnet. Aufschließen lässt die Tür zu. Öffnen zieht die Falle zurück."
 
 msgctxt "#30043"
 msgid "The name the user signs in to Home Assistant with, not the name it is shown by"
@@ -135,6 +135,22 @@ msgstr "Der Name, mit dem sich der Benutzer bei Home Assistant anmeldet, nicht s
 msgctxt "#30044"
 msgid "Signs in with the chosen method and reports the version of Home Assistant"
 msgstr "Meldet sich mit der gewählten Methode an und nennt die Version von Home Assistant"
+
+msgctxt "#30045"
+msgid "The entities chosen as favourites on Home Assistant's Home dashboard, as a page of their own"
+msgstr "Die im Home-Dashboard von Home Assistant als Favoriten gewählten Entitäten, als eigene Seite"
+
+msgctxt "#30046"
+msgid "Lighting, climate, security and the other summaries of the Home dashboard, in Home Assistant's order"
+msgstr "Beleuchtung, Raumklima, Sicherheit und die weiteren Übersichten des Home-Dashboards, in der Reihenfolge von Home Assistant"
+
+msgctxt "#30047"
+msgid "One page per room, grouped by floor, in Home Assistant's order"
+msgstr "Eine Seite je Raum, nach Etagen gruppiert, in der Reihenfolge von Home Assistant"
+
+msgctxt "#30048"
+msgid "Rooms with nothing to show are left out"
+msgstr "Räume, in denen nichts anzuzeigen ist, werden weggelassen"
 
 msgctxt "#30111"
 msgid "Unavailable"
