@@ -366,7 +366,7 @@ class Dashboard(xbmcgui.WindowXML):
     def _take_camera_stills(self):
         """Fetch a new still for the cameras on screen, off the window thread."""
         interval = self._settings.camera_refresh
-        if not interval or not self._image_token:
+        if not interval:
             return
         if self._camera_worker is not None and self._camera_worker.is_alive():
             return
@@ -377,22 +377,27 @@ class Dashboard(xbmcgui.WindowXML):
 
         # Only what the user is looking at; eight cameras at once would be a
         # lot of traffic for pictures nobody sees.
-        entity_ids = [entity_id for entity_id in self._row_positions
-                      if entity_id.startswith("camera.")]
-        if not entity_ids:
+        pictures = {}
+        for entity_id in self._row_positions:
+            if not entity_id.startswith("camera."):
+                continue
+            state = self._store.states.get(entity_id)
+            picture = state.attributes.get("entity_picture") if state else None
+            if picture:
+                pictures[entity_id] = picture
+        if not pictures:
             return
 
         self._camera_worker = threading.Thread(
-            target=self._fetch_stills, args=(entity_ids, self._image_token),
-            name="ha-cameras")
+            target=self._fetch_stills, args=(pictures,), name="ha-cameras")
         self._camera_worker.daemon = True
         self._camera_worker.start()
 
-    def _fetch_stills(self, entity_ids, token):
-        for entity_id in entity_ids:
+    def _fetch_stills(self, pictures):
+        for entity_id, picture in pictures.items():
             if self.closed:
                 return
-            path = self._snapshots.fetch(entity_id, token)
+            path = self._snapshots.fetch(entity_id, picture)
             if path:
                 self._note(stills={entity_id: path})
 

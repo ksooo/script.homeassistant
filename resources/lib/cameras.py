@@ -52,13 +52,16 @@ class Snapshots:
         self._log = log or (lambda message, level=0: None)
         self._slots = {}
 
-    def fetch(self, entity_id, token):
-        """Returns the path of a freshly written still, or an empty string."""
-        url = "%s/api/camera_proxy/%s" % (self._base_url, entity_id)
-        request = urllib.request.Request(url, headers={
-            "Authorization": "Bearer %s" % token})
+    def fetch(self, entity_id, picture):
+        """Returns the path of a freshly written still, or an empty string.
+
+        The picture is the camera's own entity_picture, whose token Home
+        Assistant renews by itself, as its own frontend uses it - so the still
+        does not depend on how the addon signed in, or for how long.
+        """
+        url = self._base_url + picture
         try:
-            with urllib.request.urlopen(request, timeout=_TIMEOUT,
+            with urllib.request.urlopen(url, timeout=_TIMEOUT,
                                         context=_context(url, self._verify_ssl)) as response:
                 if not response.headers.get("Content-Type", "").startswith("image/"):
                     return ""
