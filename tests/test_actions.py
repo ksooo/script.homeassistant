@@ -513,6 +513,14 @@ class Camera(unittest.TestCase):
         store = one("camera.a", "unavailable", supported_features=2)
         self.assertIsNone(actions.default_action(store, "camera.a"))
 
+    def test_not_where_home_assistant_shows_it_only_by_webrtc(self):
+        store = one("camera.a", "idle", supported_features=2)
+        store.camera_streams = {"camera.a": {"web_rtc"}}
+        self.assertIsNone(actions.default_action(store, "camera.a"))
+        store.camera_streams = {"camera.a": {"hls", "web_rtc"}}
+        self.assertEqual(actions.default_action(store, "camera.a").kind,
+                         actions.LIVE)
+
 
 class Script(unittest.TestCase):
     def offered(self, value, **attributes):

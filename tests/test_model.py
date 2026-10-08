@@ -166,5 +166,34 @@ class LoadingWhileEventsArrive(unittest.TestCase):
         self.assertNotIn("light.a", store.states)
 
 
+class CameraStreams(unittest.TestCase):
+    def load(self, capabilities):
+        store = model.Store()
+
+        class Client:
+            def command(self, type_, **payload):
+                if type_ == "get_states":
+                    return [{"entity_id": "camera.a", "state": "idle", "attributes": {}},
+                            {"entity_id": "light.a", "state": "on", "attributes": {}}]
+                if type_ == "camera/capabilities":
+                    return capabilities(payload["entity_id"])
+                if type_.endswith("_registry/list"):
+                    return []
+                return {}
+
+        store.load(Client())
+        return store.camera_streams
+
+    def test_each_camera_is_asked_how_it_streams(self):
+        self.assertEqual(
+            self.load(lambda entity_id: {"frontend_stream_types": ["web_rtc"]}),
+            {"camera.a": {"web_rtc"}})
+
+    def test_a_camera_that_cannot_be_asked_is_left_out(self):
+        def refuse(entity_id):
+            raise RuntimeError("unknown command")
+        self.assertEqual(self.load(refuse), {})
+
+
 if __name__ == "__main__":
     unittest.main()

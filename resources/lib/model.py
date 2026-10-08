@@ -88,6 +88,8 @@ class Store:
         self.config = {}
         self.icon_translations = {}
         self.translations = {}
+        # How Home Assistant can show each camera: "hls", "web_rtc" or both.
+        self.camera_streams = {}
 
         self.on_states_changed = None
         self.on_structure_changed = None
@@ -125,6 +127,7 @@ class Store:
                 self._log("icon translations unavailable: %s" % error, 2)
                 icons = {}
             translations = self._fetch_translations(client)
+            camera_streams = self._fetch_camera_streams(client, states)
         except Exception:
             with self._lock:
                 self._settling = None
@@ -137,7 +140,26 @@ class Store:
             self.energy = energy
             self.icon_translations = icons
             self.translations = translations
+            self.camera_streams = camera_streams
             self._settling = None
+
+    def _fetch_camera_streams(self, client, states):
+        """Ask Home Assistant how it can show each camera.
+
+        A camera with a WebRTC of its own is shown only that way, which Kodi
+        cannot play. A camera that cannot be asked is left out of the answer.
+        """
+        streams = {}
+        for entity_id, state in states.items():
+            if state.domain != "camera":
+                continue
+            try:
+                answer = client.command("camera/capabilities", entity_id=entity_id) or {}
+            except Exception as error:
+                self._log("camera capabilities unavailable for %s: %s" % (entity_id, error), 2)
+                continue
+            streams[entity_id] = set(answer.get("frontend_stream_types") or ())
+        return streams
 
     def _fetch_translations(self, client):
         """Home Assistant's wording for the values in an option list: a sound

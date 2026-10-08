@@ -52,7 +52,7 @@ def default_action(store, entity_id):
     domain = state.domain
 
     if domain == "camera":
-        return _live_action(state)
+        return _live_action(store, state)
 
     if domain in _READ_ONLY_DOMAINS or domain == "update":
         return None
@@ -108,7 +108,7 @@ def menu_actions(store, entity_id):
         actions.append(Action("action_trigger", SERVICE, "automation", "trigger"))
 
     if domain == "camera":
-        live = _live_action(state)
+        live = _live_action(store, state)
         if live is not None:
             actions.append(live)
 
@@ -698,9 +698,16 @@ _CAMERA_ON_OFF = 1
 _CAMERA_STREAM = 2
 
 
-def _live_action(state):
-    """The live picture, where Home Assistant can stream the camera at all."""
+def _live_action(store, state):
+    """The live picture, where Home Assistant can stream the camera as HLS.
+
+    A camera Home Assistant has not been asked about is offered it, since it
+    streams and most cameras stream HLS.
+    """
     if state.state == "unavailable" or not features_of(state) & _CAMERA_STREAM:
+        return None
+    streams = store.camera_streams.get(state.entity_id)
+    if streams is not None and "hls" not in streams:
         return None
     return Action("action_live", LIVE)
 
