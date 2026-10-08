@@ -13,6 +13,35 @@ import urllib.error
 import urllib.request
 
 _TIMEOUT = 15
+# How long the first request for a stream may take: Home Assistant answers
+# it only once the stream has its first segments.
+_STREAM_TIMEOUT = 30
+
+
+def stream_ready(url, verify_ssl=True):
+    """Whether Home Assistant serves the stream's playlist yet.
+
+    Kodi makes this first request itself before it plays, on the thread that
+    draws and reads keys - so for as long as the stream takes to start, Kodi
+    would stand still. Made here first, Kodi finds the stream running.
+    """
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url),
+                                    timeout=_STREAM_TIMEOUT,
+                                    context=_context(url, verify_ssl)) as response:
+            response.read()
+        return True
+    except (urllib.error.URLError, OSError):
+        return False
+
+
+def _context(url, verify_ssl):
+    if not url.startswith("https://") or verify_ssl:
+        return None
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    return context
 
 
 class Snapshots:
@@ -28,15 +57,9 @@ class Snapshots:
         url = "%s/api/camera_proxy/%s" % (self._base_url, entity_id)
         request = urllib.request.Request(url, headers={
             "Authorization": "Bearer %s" % token})
-        context = None
-        if url.startswith("https://") and not self._verify_ssl:
-            context = ssl.create_default_context()
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-
         try:
             with urllib.request.urlopen(request, timeout=_TIMEOUT,
-                                        context=context) as response:
+                                        context=_context(url, self._verify_ssl)) as response:
                 if not response.headers.get("Content-Type", "").startswith("image/"):
                     return ""
                 data = response.read()

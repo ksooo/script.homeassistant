@@ -488,6 +488,14 @@ msgctxt "#30383"
 msgid "Cancel"
 msgstr ""
 
+msgctxt "#30384"
+msgid "Live view"
+msgstr ""
+
+msgctxt "#30385"
+msgid "Fetching the live view ..."
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant address configured"
 msgstr ""

@@ -14,6 +14,7 @@ import os
 import threading
 import time
 
+import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
@@ -28,6 +29,10 @@ SLIDER_XML = "script.homeassistant-slider.xml"
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
 _SWITCH_FADE = 0.12
+
+# How long the wait for a live picture is shown before the dialog gives up
+# and leaves the player to it.
+_LIVE_PATIENCE = 30.0
 
 ROW_LIST = 50
 CATEGORY_LIST = 51
@@ -44,6 +49,28 @@ ACTION_SHOW_INFO = 11
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
+
+
+class _LivePlayer(xbmc.Player):
+    """Says when the live picture is up, or will not come."""
+
+    def __init__(self):
+        super().__init__()
+        self.settled = False
+        self.pending = None
+        self.ready = None
+
+    def onAVStarted(self):
+        self.settled = True
+
+    def onPlayBackError(self):
+        self.settled = True
+
+    def onPlayBackStopped(self):
+        self.settled = True
+
+    def onPlayBackEnded(self):
+        self.settled = True
 
 
 class Dashboard(xbmcgui.WindowXML):
@@ -85,6 +112,7 @@ class Dashboard(xbmcgui.WindowXML):
         self._camera_worker = None
         self._camera_due = 0.0
         self._overlay = None
+        self._live = None
         self._window_id = 0
         self._landed = False
         self._started = False
@@ -189,6 +217,9 @@ class Dashboard(xbmcgui.WindowXML):
         if self._overlay is not None:
             self._overlay.close()
             self._overlay = None
+        if self._live is not None:
+            self._live[0].close()
+            self._live = None
         self._store.cancel_pending_reload()
         self._session.stop()
         self._snapshots.clean_up()
@@ -233,6 +264,33 @@ class Dashboard(xbmcgui.WindowXML):
                 self._wanted_focus = 0
         self._take_camera_stills()
         self._tick_overlay()
+        self._tick_live()
+
+    def _tick_live(self):
+        """Start the player once the stream is running, and take the waiting
+        dialog down once the picture is up, or will not be.
+
+        Cancelling it stops the player too, which may still be buffering.
+        """
+        if self._live is None:
+            return
+        dialog, player, due = self._live
+        if dialog.iscanceled():
+            if player.pending is None:
+                player.stop()
+        elif player.pending is not None:
+            if player.ready is None and time.time() < due:
+                return
+            # Played even where the stream did not answer the addon: Kodi
+            # has its own way of saying why it cannot play.
+            url, item = player.pending
+            player.pending = None
+            player.play(url, item)
+            return
+        elif not player.settled and time.time() < due:
+            return
+        dialog.close()
+        self._live = None
 
     def _tick_overlay(self):
         """Let a shown dialog redraw or send. Window thread, like everything here.
@@ -585,6 +643,10 @@ class Dashboard(xbmcgui.WindowXML):
             self._open_media(entity_id)
             return
 
+        if action.kind == ha_actions.LIVE:
+            self._play_live(entity_id)
+            return
+
         if action.kind == ha_actions.SLIDER:
             self._open_slider(entity_id, action)
             return
@@ -713,6 +775,41 @@ class Dashboard(xbmcgui.WindowXML):
         return xbmcgui.Dialog().yesno(
             kodi.tr(title),
             kodi.tr(text) % self._store.display_name_of(entity_id))
+
+    def _play_live(self, entity_id):
+        """Hand the camera's stream to Kodi's own player.
+
+        Home Assistant answers with an HLS playlist whose address carries a
+        token of its own, so the player needs no credentials from the addon.
+        """
+        client = self._session.client
+        if client is None:
+            kodi.notify(kodi.tr("disconnected"), error=True)
+            return
+        name = self._store.display_name_of(entity_id)
+        dialog = xbmcgui.DialogProgress()
+        dialog.create(name, kodi.tr("live_fetching"))
+        # Nothing says how far along the stream is, so no bar to fill.
+        dialog.update(-1)
+        try:
+            path = client.command("camera/stream", entity_id=entity_id)["url"]
+        except ha_client.HomeAssistantError as error:
+            dialog.close()
+            kodi.notify(kodi.tr("error_service") % error, error=True)
+            return
+        item = xbmcgui.ListItem(name)
+        item.setMimeType("application/vnd.apple.mpegurl")
+        item.setContentLookup(False)
+        player = _LivePlayer()
+        url = self._settings.url.rstrip("/") + path
+        player.pending = (url, item)
+        verify_ssl = self._settings.verify_ssl
+
+        def warm_up():
+            player.ready = cameras.stream_ready(url, verify_ssl)
+
+        threading.Thread(target=warm_up, daemon=True).start()
+        self._live = (dialog, player, time.time() + _LIVE_PATIENCE)
 
     def _open_slider(self, entity_id, action):
         self._overlay = sliderdialog.SliderDialog(

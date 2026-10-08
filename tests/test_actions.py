@@ -495,6 +495,25 @@ class CoverState(unittest.TestCase):
         self.assertIn("action_open_tilt", offered)
 
 
+class Camera(unittest.TestCase):
+    def test_ok_shows_the_live_picture_where_it_can_be_streamed(self):
+        store = one("camera.a", "idle", supported_features=2)
+        self.assertEqual(actions.default_action(store, "camera.a").kind,
+                         actions.LIVE)
+        self.assertEqual(menu("camera.a", "idle", supported_features=2),
+                         ["action_live", "action_details"])
+
+    def test_a_camera_without_a_stream_stays_a_picture(self):
+        store = one("camera.a", "idle", supported_features=0)
+        self.assertIsNone(actions.default_action(store, "camera.a"))
+        self.assertEqual(menu("camera.a", "idle", supported_features=0),
+                         ["action_details"])
+
+    def test_nothing_while_unavailable(self):
+        store = one("camera.a", "unavailable", supported_features=2)
+        self.assertIsNone(actions.default_action(store, "camera.a"))
+
+
 class Script(unittest.TestCase):
     def offered(self, value, **attributes):
         return [label for label in menu("script.a", value, **attributes)

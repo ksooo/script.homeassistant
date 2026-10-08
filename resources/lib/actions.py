@@ -21,13 +21,15 @@ ALARM = "alarm"
 MEDIA = "media"
 COMMANDS = "commands"
 DETAILS = "details"
+# A camera's live picture in Kodi's own player.
+LIVE = "live"
 
 # Domains where homeassistant.toggle does the right thing.
 _TOGGLE_DOMAINS = ("light", "switch", "fan", "input_boolean", "siren",
                    "humidifier", "remote", "automation", "valve")
 
 _READ_ONLY_DOMAINS = ("sensor", "binary_sensor", "person", "device_tracker",
-                      "weather", "sun", "calendar", "image", "camera",
+                      "weather", "sun", "calendar", "image",
                       "conversation", "stt", "tts", "event")
 
 
@@ -48,6 +50,9 @@ def default_action(store, entity_id):
     if state is None:
         return None
     domain = state.domain
+
+    if domain == "camera":
+        return _live_action(state)
 
     if domain in _READ_ONLY_DOMAINS or domain == "update":
         return None
@@ -101,6 +106,11 @@ def menu_actions(store, entity_id):
 
     if domain == "automation":
         actions.append(Action("action_trigger", SERVICE, "automation", "trigger"))
+
+    if domain == "camera":
+        live = _live_action(state)
+        if live is not None:
+            actions.append(live)
 
     if domain == "media_player":
         # The window is what a player has instead of commands, so the menu
@@ -684,6 +694,17 @@ def _tilt_actions(features, tilt, assumed):
     return actions
 
 
+_CAMERA_ON_OFF = 1
+_CAMERA_STREAM = 2
+
+
+def _live_action(state):
+    """The live picture, where Home Assistant can stream the camera at all."""
+    if state.state == "unavailable" or not features_of(state) & _CAMERA_STREAM:
+        return None
+    return Action("action_live", LIVE)
+
+
 _LIGHT_EFFECT = 4
 
 _SIREN_ON_OFF = 1 | 2
@@ -749,6 +770,7 @@ KNOWN_FEATURES = {
             | _FAN_PRESET_MODE),
     "humidifier": _HUMIDIFIER_MODES,
     "valve": _mask(_VALVE) | _VALVE_SET_POSITION,
+    "camera": _CAMERA_STREAM,
 }
 
 # Bits that have been looked at and passed over, so that a run of
@@ -763,4 +785,5 @@ IGNORED_FEATURES = {
     "alarm_control_panel": _ALARM_TRIGGER,      # see _alarm_commands
     "siren": 4 | 8 | 16,                        # TONES, DURATION, VOLUME_SET
     "update": 2 | 4 | 8 | 16,                   # version, progress, backup, notes
+    "camera": _CAMERA_ON_OFF,                   # the camera's own power
 }
