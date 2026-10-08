@@ -237,6 +237,7 @@
                     <top>21</top>
                     <width>54</width>
                     <height>54</height>
+                    <aspectratio>keep</aspectratio>
                     <colordiffuse>$INFO[ListItem.Property(halo)]</colordiffuse>
                     <texture>circle.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
@@ -366,6 +367,7 @@
                     <top>21</top>
                     <width>54</width>
                     <height>54</height>
+                    <aspectratio>keep</aspectratio>
                     <colordiffuse>$INFO[ListItem.Property(halo)]</colordiffuse>
                     <texture>circle.png</texture>
                     <visible>String.IsEqual(ListItem.Property(kind),entity)</visible>
