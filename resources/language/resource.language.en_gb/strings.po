@@ -29,11 +29,11 @@ msgid "Verify SSL certificate"
 msgstr ""
 
 msgctxt "#30013"
-msgid "For example https://homeassistant.local:8123 or the Nabu Casa address"
+msgid "For example https://homeassistant.local:8123 or the Nabu Casa address."
 msgstr ""
 
 msgctxt "#30014"
-msgid "Turn off only for a self-signed certificate on your own network"
+msgid "Turn off only for a self-signed certificate on the local network."
 msgstr ""
 
 msgctxt "#30020"
@@ -61,7 +61,7 @@ msgid "Test connection"
 msgstr ""
 
 msgctxt "#30026"
-msgid "Stored unencrypted in the addon settings"
+msgid "Stored unencrypted in the addon settings."
 msgstr ""
 
 msgctxt "#30027"
@@ -73,7 +73,7 @@ msgid "User name and password"
 msgstr ""
 
 msgctxt "#30029"
-msgid "Choice of the method used to sign in to Home Assistant"
+msgid "Choice of the method used to sign in to Home Assistant."
 msgstr ""
 
 msgctxt "#30030"
@@ -129,27 +129,27 @@ msgid "Asks before a lock opens the door. Unlocking leaves a door shut. Opening 
 msgstr ""
 
 msgctxt "#30043"
-msgid "The name the user signs in to Home Assistant with, not the name it is shown by"
+msgid "The name the user signs in to Home Assistant with, not the name it is shown by."
 msgstr ""
 
 msgctxt "#30044"
-msgid "Signs in with the chosen method and reports the version of Home Assistant"
+msgid "Signs in with the chosen method and reports the version of Home Assistant."
 msgstr ""
 
 msgctxt "#30045"
-msgid "The entities chosen as favourites on Home Assistant's Home dashboard, as a page of their own"
+msgid "The entities chosen as favourites on Home Assistant's Home dashboard, as a page of their own."
 msgstr ""
 
 msgctxt "#30046"
-msgid "Lighting, climate, security and the other summaries of the Home dashboard, in Home Assistant's order"
+msgid "Lighting, climate, security and the other summaries of the Home dashboard, in Home Assistant's order."
 msgstr ""
 
 msgctxt "#30047"
-msgid "One page per room, grouped by floor, in Home Assistant's order"
+msgid "One page per room, grouped by floor, in Home Assistant's order."
 msgstr ""
 
 msgctxt "#30048"
-msgid "Rooms with nothing to show are left out"
+msgid "Rooms with nothing to show are left out."
 msgstr ""
 
 msgctxt "#30111"
