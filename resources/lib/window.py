@@ -18,13 +18,14 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, formatting, icons, kodi, mediadialog, model, sections,
-               sliderdialog)
+from . import (cameras, formatting, icons, kodi, mediadialog, model, ptzdialog,
+               sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
 MEDIA_XML = "script.homeassistant-media.xml"
 SLIDER_XML = "script.homeassistant-slider.xml"
+PTZ_XML = "script.homeassistant-ptz.xml"
 
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
@@ -33,6 +34,11 @@ _SWITCH_FADE = 0.12
 # How long the wait for a live picture is shown before the dialog gives up
 # and leaves the player to it.
 _LIVE_PATIENCE = 30.0
+
+# How fast a camera is panned and tilted from the remote, out of Reolink's 64.
+# Home Assistant's own suggestion for the service; a button alone moves at
+# the camera's own speed, which is far too much for a single press.
+_PTZ_SPEED = 10
 
 # Home Assistant renews the token for brand images every thirty minutes and
 # honours the one before as well; fetched this often, the one in hand always
@@ -57,25 +63,27 @@ ACTION_CONTEXT_MENU = 117
 
 
 class _LivePlayer(xbmc.Player):
-    """Says when the live picture is up, or will not come."""
+    """Says when the live picture is up, or will not come, or has ended."""
 
     def __init__(self):
         super().__init__()
         self.settled = False
+        self.playing = False
+        self.ended = False
         self.pending = None
         self.ready = None
 
     def onAVStarted(self):
-        self.settled = True
+        self.settled = self.playing = True
 
     def onPlayBackError(self):
-        self.settled = True
+        self.settled = self.ended = True
 
     def onPlayBackStopped(self):
-        self.settled = True
+        self.settled = self.ended = True
 
     def onPlayBackEnded(self):
-        self.settled = True
+        self.settled = self.ended = True
 
 
 class Dashboard(xbmcgui.WindowXML):
@@ -119,6 +127,7 @@ class Dashboard(xbmcgui.WindowXML):
         self._camera_due = 0.0
         self._overlay = None
         self._live = None
+        self._ptz = None
         self._window_id = 0
         self._landed = False
         self._started = False
@@ -226,6 +235,9 @@ class Dashboard(xbmcgui.WindowXML):
         if self._live is not None:
             self._live[0].close()
             self._live = None
+        if self._ptz is not None:
+            self._ptz[0].finish()
+            self._ptz = None
         self._store.cancel_pending_reload()
         self._session.stop()
         self._snapshots.clean_up()
@@ -272,6 +284,7 @@ class Dashboard(xbmcgui.WindowXML):
         self._renew_brands_token()
         self._tick_overlay()
         self._tick_live()
+        self._tick_ptz()
 
     def _tick_live(self):
         """Start the player once the stream is running, and take the waiting
@@ -281,7 +294,7 @@ class Dashboard(xbmcgui.WindowXML):
         """
         if self._live is None:
             return
-        dialog, player, due = self._live
+        dialog, player, due, entity_id = self._live
         if dialog.iscanceled():
             if player.pending is None:
                 player.stop()
@@ -298,6 +311,45 @@ class Dashboard(xbmcgui.WindowXML):
             return
         dialog.close()
         self._live = None
+        if player.playing and not player.ended:
+            self._open_ptz(entity_id, player)
+
+    def _open_ptz(self, entity_id, player):
+        """Lay the steering over the live picture, where the camera can be steered.
+
+        Where it cannot, nothing is laid over it and Kodi's player keeps
+        every key of its own.
+        """
+        buttons = ha_actions.ptz_buttons(self._store, entity_id)
+        if buttons is None:
+            return
+
+        def press(button):
+            return self._send("button", "press", button, None)
+
+        def move(button):
+            return self._send("reolink", "ptz_move", button, {"speed": _PTZ_SPEED})
+
+        dialog = ptzdialog.PtzDialog(
+            PTZ_XML, kodi.ADDON_PATH, "Default", "1080i", buttons=buttons,
+            press=press,
+            move=move if ha_actions.ptz_takes_speed(self._store, buttons) else press,
+            end=player.stop)
+        dialog.show()
+        self._ptz = (dialog, player)
+
+    def _tick_ptz(self):
+        if self._ptz is None:
+            return
+        dialog, player = self._ptz
+        if dialog.closed:
+            self._ptz = None
+        elif player.ended:
+            # Stopped some other way - the stop key, or the stream giving out.
+            dialog.finish()
+            self._ptz = None
+        else:
+            dialog.tick()
 
     def _tick_overlay(self):
         """Let a shown dialog redraw or send. Window thread, like everything here.
@@ -839,7 +891,7 @@ class Dashboard(xbmcgui.WindowXML):
             player.ready = cameras.stream_ready(url, verify_ssl)
 
         threading.Thread(target=warm_up, daemon=True).start()
-        self._live = (dialog, player, time.time() + _LIVE_PATIENCE)
+        self._live = (dialog, player, time.time() + _LIVE_PATIENCE, entity_id)
 
     def _open_slider(self, entity_id, action):
         self._overlay = sliderdialog.SliderDialog(
@@ -855,15 +907,18 @@ class Dashboard(xbmcgui.WindowXML):
             self._send("media_player", service, entity_id, data)
 
     def _send(self, domain, service, entity_id, data):
+        """Carry a service out; True once Home Assistant reports it done."""
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
-            return
+            return False
         try:
             client.call_service(domain, service, data=data,
                                 target={"entity_id": entity_id})
         except ha_client.HomeAssistantError as error:
             kodi.notify(kodi.tr("error_service") % error, error=True)
+            return False
+        return True
 
     def _browse_media(self, entity_id, content_type=None, content_id=None):
         """One level of a player's media tree, or None if it cannot be had.

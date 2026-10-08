@@ -38,6 +38,7 @@ archive-lock-open
 archive-lock-open-outline
 archive-lock-outline
 arrow-bottom-right-thick
+arrow-down
 arrow-expand-horizontal
 arrow-expand-vertical
 arrow-horizontal-lock

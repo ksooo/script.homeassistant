@@ -522,6 +522,51 @@ class Camera(unittest.TestCase):
                          actions.LIVE)
 
 
+class Ptz(unittest.TestCase):
+    ROLES = (("ptz_left", "left"), ("ptz_right", "right"), ("ptz_up", "up"),
+             ("ptz_down", "down"), ("ptz_stop", "stop"), ("guard_go_to", "home"))
+
+    def store(self, platform="reolink", leave_out=(), disabled=()):
+        entities = [support.entity("camera.a", "Kamera", device_id="dev_cam",
+                                   platform=platform)]
+        states = [support.state("camera.a", "idle", supported_features=2)]
+        for key, role in self.ROLES:
+            if key in leave_out:
+                continue
+            entity_id = "button.%s" % role
+            entities.append(support.entity(entity_id, role, device_id="dev_cam",
+                                           platform=platform, translation_key=key))
+            if key not in disabled:
+                states.append(support.state(entity_id, "unknown"))
+        entities.append(support.entity("button.other_left", "left", device_id="dev_other",
+                                       platform="reolink", translation_key="ptz_left"))
+        states.append(support.state("button.other_left", "unknown"))
+        return support.build(entities=entities, states=states)
+
+    def test_a_reolink_camera_is_steered_by_the_buttons_on_its_own_device(self):
+        self.assertEqual(actions.ptz_buttons(self.store(), "camera.a"),
+                         {role: "button.%s" % role for _, role in self.ROLES})
+
+    def test_the_home_position_is_not_needed(self):
+        self.assertNotIn("home", actions.ptz_buttons(self.store(leave_out=("guard_go_to",)),
+                                                     "camera.a"))
+
+    def test_without_every_direction_and_stop_it_is_not_steerable(self):
+        self.assertIsNone(actions.ptz_buttons(self.store(leave_out=("ptz_stop",)), "camera.a"))
+        self.assertIsNone(actions.ptz_buttons(self.store(disabled=("ptz_up",)), "camera.a"))
+
+    def test_directions_take_a_speed_where_every_one_is_marked_for_it(self):
+        store = self.store()
+        buttons = actions.ptz_buttons(store, "camera.a")
+        self.assertFalse(actions.ptz_takes_speed(store, buttons))
+        for direction in ("left", "right", "up", "down"):
+            store.states["button.%s" % direction].attributes["supported_features"] = 2
+        self.assertTrue(actions.ptz_takes_speed(store, buttons))
+
+    def test_only_reolink_is_known(self):
+        self.assertIsNone(actions.ptz_buttons(self.store(platform="onvif"), "camera.a"))
+
+
 class Script(unittest.TestCase):
     def offered(self, value, **attributes):
         return [label for label in menu("script.a", value, **attributes)

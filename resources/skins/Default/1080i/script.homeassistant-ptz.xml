@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <!-- A steering cross over the video, where Home Assistant's camera
+         dashboards put theirs. The arrow the camera is moving towards lights
+         up in the colour ptzdialog.py gives it, long before the picture
+         shows the move. -->
+    <controls>
+        <control type="group">
+            <left>90</left><top>780</top>
+            <control type="image">
+                <width>210</width><height>210</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="66000000">circle.png</texture>
+            </control>
+            <control type="image">
+                <left>81</left><top>18</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="FFF0F0F0">icons/arrow-up.png</texture>
+                <visible>!String.IsEqual(Window.Property(ptz_move),up)</visible>
+            </control>
+            <control type="image">
+                <left>81</left><top>18</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <colordiffuse>$INFO[Window.Property(ptz_colour)]</colordiffuse>
+                <texture>icons/arrow-up.png</texture>
+                <visible>String.IsEqual(Window.Property(ptz_move),up)</visible>
+            </control>
+            <control type="image">
+                <left>81</left><top>144</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="FFF0F0F0">icons/arrow-down.png</texture>
+                <visible>!String.IsEqual(Window.Property(ptz_move),down)</visible>
+            </control>
+            <control type="image">
+                <left>81</left><top>144</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <colordiffuse>$INFO[Window.Property(ptz_colour)]</colordiffuse>
+                <texture>icons/arrow-down.png</texture>
+                <visible>String.IsEqual(Window.Property(ptz_move),down)</visible>
+            </control>
+            <control type="image">
+                <left>18</left><top>81</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="FFF0F0F0">icons/arrow-left.png</texture>
+                <visible>!String.IsEqual(Window.Property(ptz_move),left)</visible>
+            </control>
+            <control type="image">
+                <left>18</left><top>81</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <colordiffuse>$INFO[Window.Property(ptz_colour)]</colordiffuse>
+                <texture>icons/arrow-left.png</texture>
+                <visible>String.IsEqual(Window.Property(ptz_move),left)</visible>
+            </control>
+            <control type="image">
+                <left>144</left><top>81</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="FFF0F0F0">icons/arrow-right.png</texture>
+                <visible>!String.IsEqual(Window.Property(ptz_move),right)</visible>
+            </control>
+            <control type="image">
+                <left>144</left><top>81</top><width>48</width><height>48</height>
+                <aspectratio>keep</aspectratio>
+                <colordiffuse>$INFO[Window.Property(ptz_colour)]</colordiffuse>
+                <texture>icons/arrow-right.png</texture>
+                <visible>String.IsEqual(Window.Property(ptz_move),right)</visible>
+            </control>
+        </control>
+    </controls>
+</window>

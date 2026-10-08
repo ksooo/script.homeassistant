@@ -712,6 +712,41 @@ def _live_action(store, state):
     return Action("action_live", LIVE)
 
 
+# Home Assistant has no pan and tilt of its own. Reolink offers it as buttons
+# on the camera's device, known by these keys; each moves until stopped.
+_REOLINK_PTZ = {"ptz_left": "left", "ptz_right": "right", "ptz_up": "up",
+                "ptz_down": "down", "ptz_stop": "stop", "guard_go_to": "home"}
+_PTZ_NEEDED = {"left", "right", "up", "down", "stop"}
+# Reolink marks a direction button that takes a speed with the bit camera
+# streams are marked with; its ptz_move service is offered for those alone.
+_REOLINK_PTZ_SPEED = 2
+
+
+def ptz_buttons(store, camera_entity_id):
+    """The buttons a camera is steered with, by what they do, or None.
+
+    A camera counts as steerable where its device carries all four directions
+    and stop; going to the home position is offered where it is there too.
+    """
+    camera = store.entities.get(camera_entity_id)
+    if camera is None or camera.platform != "reolink" or not camera.device_id:
+        return None
+    buttons = {}
+    for entity_id, entity in store.entities.items():
+        role = _REOLINK_PTZ.get(entity.translation_key)
+        if (role and entity.domain == "button" and entity.platform == "reolink"
+                and entity.device_id == camera.device_id
+                and entity_id in store.states):
+            buttons[role] = entity_id
+    return buttons if _PTZ_NEEDED <= set(buttons) else None
+
+
+def ptz_takes_speed(store, buttons):
+    """Whether every direction can be moved at a speed of the addon's choosing."""
+    return all(features_of(store.states[buttons[direction]]) & _REOLINK_PTZ_SPEED
+               for direction in ("left", "right", "up", "down"))
+
+
 _LIGHT_EFFECT = 4
 
 _SIREN_ON_OFF = 1 | 2
