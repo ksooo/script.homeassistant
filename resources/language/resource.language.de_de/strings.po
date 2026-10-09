@@ -21,16 +21,16 @@ msgid "Connection"
 msgstr "Verbindung"
 
 msgctxt "#30011"
-msgid "Home Assistant address"
-msgstr "Adresse von Home Assistant"
+msgid "Home Assistant URL"
+msgstr "URL von Home Assistant"
 
 msgctxt "#30012"
 msgid "Verify SSL certificate"
 msgstr "SSL-Zertifikat prüfen"
 
 msgctxt "#30013"
-msgid "For example https://homeassistant.local:8123 or the Nabu Casa address."
-msgstr "Zum Beispiel https://homeassistant.local:8123 oder die Nabu-Casa-Adresse."
+msgid "For example https://homeassistant.local:8123 or the Nabu Casa URL"
+msgstr "Zum Beispiel https://homeassistant.local:8123 oder die Nabu-Casa-URL"
 
 msgctxt "#30014"
 msgid "Turn off only for a self-signed certificate on the local network."
@@ -533,8 +533,8 @@ msgid "Fetching the live view ..."
 msgstr "Livebild wird abgerufen ..."
 
 msgctxt "#30400"
-msgid "No Home Assistant address configured"
-msgstr "Keine Adresse von Home Assistant eingetragen"
+msgid "No Home Assistant URL configured"
+msgstr "Keine URL von Home Assistant eingetragen"
 
 msgctxt "#30401"
 msgid "User name or password missing"

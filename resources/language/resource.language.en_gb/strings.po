@@ -21,7 +21,7 @@ msgid "Connection"
 msgstr ""
 
 msgctxt "#30011"
-msgid "Home Assistant address"
+msgid "Home Assistant URL"
 msgstr ""
 
 msgctxt "#30012"
@@ -29,7 +29,7 @@ msgid "Verify SSL certificate"
 msgstr ""
 
 msgctxt "#30013"
-msgid "For example https://homeassistant.local:8123 or the Nabu Casa address."
+msgid "For example https://homeassistant.local:8123 or the Nabu Casa URL"
 msgstr ""
 
 msgctxt "#30014"
@@ -533,7 +533,7 @@ msgid "Fetching the live view ..."
 msgstr ""
 
 msgctxt "#30400"
-msgid "No Home Assistant address configured"
+msgid "No Home Assistant URL configured"
 msgstr ""
 
 msgctxt "#30401"
