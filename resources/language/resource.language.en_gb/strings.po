@@ -152,6 +152,18 @@ msgctxt "#30048"
 msgid "Rooms with nothing to show are left out."
 msgstr ""
 
+msgctxt "#30049"
+msgid "Camera URLs"
+msgstr ""
+
+msgctxt "#30050"
+msgid "A list of cameras and their stream URLs, for a live picture playable by Kodi. RTSP, MJPEG and FLV usually have low latency, HLS is slower. The URLs are stored unencrypted in the addon's data."
+msgstr ""
+
+msgctxt "#30051"
+msgid "Cameras"
+msgstr ""
+
 msgctxt "#30111"
 msgid "Unavailable"
 msgstr ""
@@ -532,6 +544,18 @@ msgctxt "#30385"
 msgid "Fetching the live view ..."
 msgstr ""
 
+msgctxt "#30386"
+msgid "Not set"
+msgstr ""
+
+msgctxt "#30387"
+msgid "URL of %s"
+msgstr ""
+
+msgctxt "#30388"
+msgid "Remove the URL of %s?"
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant URL configured"
 msgstr ""
@@ -582,4 +606,12 @@ msgstr ""
 
 msgctxt "#30412"
 msgid "No long-lived access token configured"
+msgstr ""
+
+msgctxt "#30413"
+msgid "Not an RTSP, RTSPS, HTTP or HTTPS URL"
+msgstr ""
+
+msgctxt "#30414"
+msgid "Home Assistant has no cameras"
 msgstr ""

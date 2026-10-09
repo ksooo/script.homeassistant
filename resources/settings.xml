@@ -109,19 +109,6 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="camera_refresh" type="integer" label="30035" help="30036">
-                    <level>0</level>
-                    <default>10</default>
-                    <constraints>
-                        <minimum>0</minimum>
-                        <step>5</step>
-                        <maximum>60</maximum>
-                    </constraints>
-                    <control type="slider" format="integer">
-                        <popup>false</popup>
-                        <formatlabel>14045</formatlabel>
-                    </control>
-                </setting>
                 <setting id="confirm_off" type="boolean" label="30037" help="30038">
                     <level>0</level>
                     <default>true</default>
@@ -139,6 +126,30 @@
                         <dependency type="enable" setting="confirm_off" operator="is">true</dependency>
                     </dependencies>
                     <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+        <category id="cameras" label="30051">
+            <group id="1">
+                <setting id="camera_refresh" type="integer" label="30035" help="30036">
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>5</step>
+                        <maximum>60</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                        <formatlabel>14045</formatlabel>
+                    </control>
+                </setting>
+                <setting id="direct" type="action" label="30049" help="30050">
+                    <level>0</level>
+                    <data>RunScript(script.homeassistant,action=direct)</data>
+                    <control type="button" format="action">
+                        <close>false</close>
+                    </control>
                 </setting>
             </group>
         </category>

@@ -18,8 +18,8 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, formatting, icons, kodi, mediadialog, model, ptzdialog,
-               sections, sliderdialog)
+from . import (cameras, direct, formatting, icons, kodi, mediadialog, model,
+               ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
@@ -63,27 +63,52 @@ ACTION_CONTEXT_MENU = 117
 
 
 class _LivePlayer(xbmc.Player):
-    """Says when the live picture is up, or will not come, or has ended."""
+    """Where the live picture comes from, and how far it has got."""
 
-    def __init__(self):
+    def __init__(self, name):
         super().__init__()
-        self.settled = False
+        self.name = name
+        self.source = None
+        self.failure = ""
+        self.started = False
+        self.direct = False
+        self.via_ha = False
         self.playing = False
         self.ended = False
-        self.pending = None
-        self.ready = None
+
+    @property
+    def settled(self):
+        return self.playing or self.ended
+
+    def start(self):
+        url, item, self.direct = self.source
+        self.started = True
+        self.play(url, item)
+
+    def fall_back(self):
+        """Forget the direct stream that would not play, to look again."""
+        self.source = None
+        self.started = self.direct = self.playing = self.ended = False
 
     def onAVStarted(self):
-        self.settled = self.playing = True
+        self.playing = True
 
     def onPlayBackError(self):
-        self.settled = self.ended = True
+        self.ended = True
 
     def onPlayBackStopped(self):
-        self.settled = self.ended = True
+        self.ended = True
 
     def onPlayBackEnded(self):
-        self.settled = self.ended = True
+        self.ended = True
+
+
+def _waiting_dialog(name):
+    dialog = xbmcgui.DialogProgress()
+    dialog.create(name, kodi.tr("live_fetching"))
+    # Nothing says how far along the stream is, so no bar to fill.
+    dialog.update(-1)
+    return dialog
 
 
 class Dashboard(xbmcgui.WindowXML):
@@ -233,7 +258,8 @@ class Dashboard(xbmcgui.WindowXML):
             self._overlay.close()
             self._overlay = None
         if self._live is not None:
-            self._live[0].close()
+            if self._live[0] is not None:
+                self._live[0].close()
             self._live = None
         if self._ptz is not None:
             self._ptz[0].finish()
@@ -287,29 +313,41 @@ class Dashboard(xbmcgui.WindowXML):
         self._tick_ptz()
 
     def _tick_live(self):
-        """Start the player once the stream is running, and take the waiting
+        """Start the player once a source is found, and take the waiting
         dialog down once the picture is up, or will not be.
 
-        Cancelling it stops the player too, which may still be buffering.
+        The dialog only comes up for Home Assistant's stream - the camera's
+        own starts too quickly to need one. Cancelling it stops the player
+        too, which may still be buffering. A camera that answered on its own
+        address but would not play there is tried once more through Home
+        Assistant.
         """
         if self._live is None:
             return
         dialog, player, due, entity_id = self._live
-        if dialog.iscanceled():
-            if player.pending is None:
+        if dialog is None and player.via_ha:
+            dialog = self._live[0] = _waiting_dialog(player.name)
+        client = self._session.client
+        if dialog is not None and dialog.iscanceled():
+            if player.started:
                 player.stop()
-        elif player.pending is not None:
-            if player.ready is None and time.time() < due:
+        elif player.failure:
+            kodi.notify(kodi.tr("error_service") % player.failure, error=True)
+        elif not player.started:
+            if player.source is None and time.time() < due:
                 return
-            # Played even where the stream did not answer the addon: Kodi
-            # has its own way of saying why it cannot play.
-            url, item = player.pending
-            player.pending = None
-            player.play(url, item)
+            if player.source is not None:
+                player.start()
+                return
+        elif player.direct and player.ended and not player.playing and client:
+            player.fall_back()
+            threading.Thread(target=self._find_hls, args=(client, entity_id, player),
+                             name="ha-live", daemon=True).start()
             return
         elif not player.settled and time.time() < due:
             return
-        dialog.close()
+        if dialog is not None:
+            dialog.close()
         self._live = None
         if player.playing and not player.ended:
             self._open_ptz(entity_id, player)
@@ -859,39 +897,53 @@ class Dashboard(xbmcgui.WindowXML):
             kodi.tr(text) % self._store.display_name_of(entity_id))
 
     def _play_live(self, entity_id):
-        """Hand the camera's stream to Kodi's own player.
+        """Hand the camera's live picture to Kodi's own player.
 
-        Home Assistant answers with an HLS playlist whose address carries a
-        token of its own, so the player needs no credentials from the addon.
+        Where the camera has an address of its own and answers on it, the
+        picture comes straight from the camera - over RTSP a second or two
+        behind.
+        Otherwise Home Assistant streams it as HLS, many seconds behind, from
+        an address that carries a token of its own - so neither way needs
+        credentials from the addon's sign-in.
         """
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
-        name = self._store.display_name_of(entity_id)
-        dialog = xbmcgui.DialogProgress()
-        dialog.create(name, kodi.tr("live_fetching"))
-        # Nothing says how far along the stream is, so no bar to fill.
-        dialog.update(-1)
+        player = _LivePlayer(self._store.display_name_of(entity_id))
+        address = direct.load(kodi.profile_directory()).get(entity_id)
+        threading.Thread(target=self._find_live_source,
+                         args=(client, entity_id, address, player),
+                         name="ha-live", daemon=True).start()
+        self._live = [None, player, time.time() + _LIVE_PATIENCE, entity_id]
+
+    def _find_live_source(self, client, entity_id, address, player):
+        """Off the window thread: the camera itself where it answers, else HLS."""
+        if address and direct.reachable(address):
+            item = xbmcgui.ListItem(player.name)
+            item.setContentLookup(False)
+            # Over TCP: a home network may drop the UDP RTSP would use first.
+            item.setProperty("rtsp_transport", "tcp")
+            player.source = (address, item, True)
+            return
+        self._find_hls(client, entity_id, player)
+
+    def _find_hls(self, client, entity_id, player):
+        """Off the window thread: Home Assistant's HLS stream, once it runs."""
+        player.via_ha = True
         try:
             path = client.command("camera/stream", entity_id=entity_id)["url"]
         except ha_client.HomeAssistantError as error:
-            dialog.close()
-            kodi.notify(kodi.tr("error_service") % error, error=True)
+            player.failure = str(error)
             return
-        item = xbmcgui.ListItem(name)
+        url = self._settings.url.rstrip("/") + path
+        # Played even where the stream did not answer the addon: Kodi has its
+        # own way of saying why it cannot play.
+        cameras.stream_ready(url, self._settings.verify_ssl)
+        item = xbmcgui.ListItem(player.name)
         item.setMimeType("application/vnd.apple.mpegurl")
         item.setContentLookup(False)
-        player = _LivePlayer()
-        url = self._settings.url.rstrip("/") + path
-        player.pending = (url, item)
-        verify_ssl = self._settings.verify_ssl
-
-        def warm_up():
-            player.ready = cameras.stream_ready(url, verify_ssl)
-
-        threading.Thread(target=warm_up, daemon=True).start()
-        self._live = (dialog, player, time.time() + _LIVE_PATIENCE, entity_id)
+        player.source = (url, item, False)
 
     def _open_slider(self, entity_id, action):
         self._overlay = sliderdialog.SliderDialog(

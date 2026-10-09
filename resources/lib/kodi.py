@@ -116,6 +116,11 @@ def prompt_login_field(field, step_id, errors):
     return value or None
 
 
+def profile_directory():
+    """The addon's own place in the profile, for what the settings cannot hold."""
+    return xbmcvfs.translatePath(ADDON.getAddonInfo("profile"))
+
+
 def temp_directory():
     """A writable place for camera stills and drawn images, created on first use."""
     path = xbmcvfs.translatePath("special://temp/%s/" % ADDON_ID)
