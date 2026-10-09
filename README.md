@@ -15,15 +15,15 @@ switched with the remote.
 * Kodi 19 (Matrix) or newer
 * Home Assistant 2026.4 or newer, reachable from the Kodi machine
 
-No Python modules besides Kodi's own are needed. The addon speaks the Home
+No Python modules besides Kodi's own are needed. The add-on speaks the Home
 Assistant WebSocket API through a small RFC 6455 client of its own, because
 Kodi ships none and the registries are not available over REST.
 
 ## Setup
 
-1. Install the addon and enable it.
+1. Install the add-on and enable it.
 2. Open its settings.
-3. Enter the address of your Home Assistant instance, for example
+3. Enter the URL of your Home Assistant instance, for example
    `http://homeassistant.local:8123` or your Nabu Casa URL.
 4. Enter user name and password, or paste a long-lived access token under
    *Advanced*. A token takes precedence when both are set.
@@ -34,7 +34,7 @@ as Kodi stores all settings. A long-lived token is the safer choice where the
 Kodi machine is not fully under your control: it can be revoked on its own in
 Home Assistant under *Profile -> Security*.
 
-If two-factor authentication is enabled, the addon asks for the code during
+If two-factor authentication is enabled, the add-on asks for the code during
 login; it walks whatever steps Home Assistant declares.
 
 ## Usage
@@ -91,7 +91,7 @@ Home is not a Lovelace dashboard. `get_panels` reports it as a panel of its
 own - `component_name: "home"`, with a panel each for its summaries - so there
 are no views, no cards and no configuration to fetch. Nor is it a Lovelace
 strategy, which would at least leave a declaration behind to read. What is
-stored is the input the panel works from, and that is what this addon reads:
+stored is the input the panel works from, and that is what this add-on reads:
 
 | Section | Source |
 |---|---|
@@ -109,7 +109,7 @@ hiding it shows up in Kodi without a restart.
 ## Cameras
 
 A camera row carries a still from `/api/camera_proxy`, refreshed on the
-interval set in the addon settings and only for the section on screen. The
+interval set in the add-on settings and only for the section on screen. The
 still is written to a file under `special://temp` rather than handed to Kodi
 as a URL: Kodi caches images by URL, and a picture that changes every ten
 seconds would fill its texture database. Two file names per camera alternate,
@@ -132,18 +132,18 @@ that pans and tilts can be steered with the arrow keys while it plays.
 
 ## Limits
 
-* **The summary rules live in the addon.** Which device class counts as
+* **The summary rules live in the add-on.** Which device class counts as
   "security" and what belongs under "maintenance" is decided in Home
   Assistant's frontend code, and no API exposes it. `resources/lib/sections.py`
-  reimplements those rules; if Home Assistant changes them, this addon needs
+  reimplements those rules; if Home Assistant changes them, this add-on needs
   an update to follow.
 * **Icons are shipped, not fetched.** Kodi renders no SVG, so the icons are
   rasterised to PNG at build time: every Material Design icon tagged Home
-  Automation, Weather, Battery or Lock, plus everything the addon's rules and
+  Automation, Weather, Battery or Lock, plus everything the add-on's rules and
   the integrations name - 1272 in all and 844 KB together. An entity whose
   icon is outside that set shows the plain circle; running
   `tools/make_icons.py` after adding the name to `tools/icons.txt` fixes that.
-* **Only the last icon rule lives in the addon.** An explicit `icon`
+* **Only the last icon rule lives in the add-on.** An explicit `icon`
   attribute and the icons an integration declares both come from Home
   Assistant, over `frontend/get_icons`. Just the fallback by domain and device
   class is decided in the frontend with no API to ask, so
@@ -155,7 +155,7 @@ that pans and tilts can be steered with the arrow keys while it plays.
 ## Development
 
 Everything these scripts produce is checked in, so nothing here needs running
-to use the addon. Each has one occasion to be run:
+to use the add-on. Each has one occasion to be run:
 
 | Run | After changing |
 |---|---|
@@ -166,7 +166,7 @@ Both are deterministic, so a rerun without changes produces no diff.
 `make_icons.py` fetches the Material Design path data once and rasterises with
 `rsvg-convert`, falling back to macOS QuickLook.
 
-The addon icon is the Home Assistant logo from
+The add-on icon is the Home Assistant logo from
 https://thesvg.org/icon/home-assistant, kept as `tools/icon.svg` with a margin
 so Kodi cannot clip it. No script turns it into `resources/icon.png` - that was
 done once by hand.
@@ -174,7 +174,7 @@ done once by hand.
 The fanart is a photograph by Jarosław Ceborski, taken from Wikimedia Commons
 under CC0, cropped to sixteen to nine and dimmed so that it sits behind a dark
 skin: https://commons.wikimedia.org/wiki/File:Living_room_(Unsplash).jpg. CC0
-asks for nothing, but the addon should be able to say where its pictures came
+asks for nothing, but the add-on should be able to say where its pictures came
 from.
 
 The modules under `resources/lib` that build the dashboard - `model`, `sections`,

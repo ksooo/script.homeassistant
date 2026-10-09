@@ -1,6 +1,6 @@
 # Keeping up with Home Assistant
 
-The addon reads as much as it can from Home Assistant and reimplements only
+The add-on reads as much as it can from Home Assistant and reimplements only
 what Home Assistant keeps in its frontend, where a script cannot reach it. This
 note lists the second part, because that is what a Home Assistant release can
 quietly invalidate.
@@ -66,7 +66,7 @@ Almost no wording is decided here any more. What a row says about a state, and
 what the values in an option list are called, both come from Home Assistant
 over `frontend/get_translations` - down to the device class of a binary sensor,
 so that a window reads as open rather than as on. Only two words are the
-addon's own, because Home Assistant has no state for them: a row it cannot
+add-on's own, because Home Assistant has no state for them: a row it cannot
 reach, and one that is there to be run.
 
 The media window's buttons are named here as well, for a different reason.
@@ -77,13 +77,13 @@ into further down.
 
 The price is a dependency. Before the first connection there is no wording, and
 in a language Home Assistant does not ship, a row falls back to the state as it
-arrived while the rest of the addon still speaks Kodi's language. A state that
+arrived while the rest of the add-on still speaks Kodi's language. A state that
 Home Assistant does not translate at all is shown as it arrived, tidied only
 where it is a plain slug.
 
 ## Tried against one installation only
 
-The addon was written against a single Home Assistant installation, and that
+The add-on was written against a single Home Assistant installation, and that
 one has no cover, fan, humidifier, valve, water heater, alarm panel or lawn
 mower. Everything below therefore rests on Home Assistant's documentation
 rather than on a device that answered back.
@@ -108,7 +108,7 @@ off in the installation this was written against; it is implemented and covered
 by a test, but has never been seen on a screen.
 
 The summary titles are Home Assistant's own German wording, taken from its
-settings page. The English ones are this addon's rendering of the same, not
+settings page. The English ones are this add-on's rendering of the same, not
 verified against an English Home Assistant - the frontend keeps those strings
 in its own bundle, out of reach of both the WebSocket API and
 `frontend/get_translations`.
@@ -217,7 +217,7 @@ thumb.
 ## Checking a real install
 
 `tools/unknown_features.py` compares the `supported_features` of every entity
-against the bits the addon acts on, and names what is left over:
+against the bits the add-on acts on, and names what is left over:
 
 ```
 python3 tools/unknown_features.py https://homeassistant.example.com <token>

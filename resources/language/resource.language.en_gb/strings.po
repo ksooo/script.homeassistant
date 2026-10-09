@@ -53,7 +53,7 @@ msgid "Long-lived access token"
 msgstr ""
 
 msgctxt "#30024"
-msgid "Create one in Home Assistant under your profile, Security. It is valid for ten years and stored unencrypted in the addon settings."
+msgid "Create one in Home Assistant under your profile, Security. It is valid for ten years and stored unencrypted in the add-on settings."
 msgstr ""
 
 msgctxt "#30025"
@@ -61,7 +61,7 @@ msgid "Test connection"
 msgstr ""
 
 msgctxt "#30026"
-msgid "Stored unencrypted in the addon settings."
+msgid "Stored unencrypted in the add-on settings."
 msgstr ""
 
 msgctxt "#30027"
@@ -157,7 +157,7 @@ msgid "Camera URLs"
 msgstr ""
 
 msgctxt "#30050"
-msgid "A list of cameras and their stream URLs, for a live picture playable by Kodi. RTSP, MJPEG and FLV usually have low latency, HLS is slower. The URLs are stored unencrypted in the addon's data."
+msgid "A list of cameras and their stream URLs, for a live picture playable by Kodi. RTSP, MJPEG and FLV usually have low latency, HLS is slower. The URLs are stored unencrypted in the add-on's data."
 msgstr ""
 
 msgctxt "#30051"
