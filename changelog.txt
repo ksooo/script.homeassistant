@@ -1,3 +1,7 @@
+v1.9.0
+- A camera can be given a stream URL of its own (RTSP, RTSPS, HTTP or HTTPS) on a new settings page "Cameras", which also holds the camera preview interval now, and its live picture then plays from there. Where the camera does not answer on it, the live picture comes through Home Assistant as before
+- On a steered Reolink camera, pressing OK to send it to its home position now briefly lights up all four arrows of the steering cross
+
 v1.8.0
 - Reolink cameras that pan and tilt can now be steered with the arrow keys while their live picture plays, with OK going to the home position. It needs the camera's pan, tilt and stop buttons enabled in Home Assistant
 - Fixed: cameras that Home Assistant shows only by WebRTC were offered a live picture that then failed
