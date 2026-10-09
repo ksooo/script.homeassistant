@@ -615,3 +615,15 @@ msgstr ""
 msgctxt "#30414"
 msgid "Home Assistant has no cameras"
 msgstr ""
+
+msgctxt "#30415"
+msgid "No live picture available"
+msgstr ""
+
+msgctxt "#30416"
+msgid "To play the live picture, please install inputstream.webrtc."
+msgstr ""
+
+msgctxt "#30417"
+msgid "To play the live picture, please enable inputstream.webrtc."
+msgstr ""

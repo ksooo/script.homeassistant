@@ -90,6 +90,8 @@ class Store:
         self.translations = {}
         # How Home Assistant can show each camera: "hls", "web_rtc" or both.
         self.camera_streams = {}
+        # Cameras given a stream URL of their own, set by whoever plays them.
+        self.cameras_with_own_url = set()
 
         self.on_states_changed = None
         self.on_structure_changed = None
@@ -146,8 +148,7 @@ class Store:
     def _fetch_camera_streams(self, client, states):
         """Ask Home Assistant how it can show each camera.
 
-        A camera with a WebRTC of its own is shown only that way, which Kodi
-        cannot play. A camera that cannot be asked is left out of the answer.
+        A camera that cannot be asked is left out of the answer.
         """
         streams = {}
         for entity_id, state in states.items():

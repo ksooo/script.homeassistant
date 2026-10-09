@@ -697,17 +697,36 @@ def _tilt_actions(features, tilt, assumed):
 _CAMERA_ON_OFF = 1
 _CAMERA_STREAM = 2
 
+# The ways a live picture comes, in the order they are tried.
+LIVE_OWN_URL = "own_url"
+LIVE_WEBRTC = "web_rtc"
+LIVE_HLS = "hls"
+
+
+def live_ways(store, entity_id):
+    """How a camera's live picture can come, in the order to try them.
+
+    The camera's own stream URL first, where one is set. Then Home
+    Assistant's streams, WebRTC before HLS as in its own frontend. A camera
+    Home Assistant has not been asked about is taken to stream HLS, as most
+    do.
+    """
+    state = store.states.get(entity_id)
+    if state is None:
+        return []
+    ways = [LIVE_OWN_URL] if entity_id in store.cameras_with_own_url else []
+    if state.state != "unavailable" and features_of(state) & _CAMERA_STREAM:
+        streams = store.camera_streams.get(entity_id)
+        if streams and LIVE_WEBRTC in streams:
+            ways.append(LIVE_WEBRTC)
+        if streams is None or LIVE_HLS in streams:
+            ways.append(LIVE_HLS)
+    return ways
+
 
 def _live_action(store, state):
-    """The live picture, where Home Assistant can stream the camera as HLS.
-
-    A camera Home Assistant has not been asked about is offered it, since it
-    streams and most cameras stream HLS.
-    """
-    if state.state == "unavailable" or not features_of(state) & _CAMERA_STREAM:
-        return None
-    streams = store.camera_streams.get(state.entity_id)
-    if streams is not None and "hls" not in streams:
+    """The live picture, wherever there is a way to play it."""
+    if not live_ways(store, state.entity_id):
         return None
     return Action("action_live", LIVE)
 

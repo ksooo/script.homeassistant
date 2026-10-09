@@ -615,3 +615,15 @@ msgstr "Keine RTSP-, RTSPS-, HTTP- oder HTTPS-URL"
 msgctxt "#30414"
 msgid "Home Assistant has no cameras"
 msgstr "Home Assistant hat keine Kameras"
+
+msgctxt "#30415"
+msgid "No live picture available"
+msgstr "Kein Livebild verfügbar"
+
+msgctxt "#30416"
+msgid "To play the live picture, please install inputstream.webrtc."
+msgstr "Für die Wiedergabe des Livebildes bitte inputstream.webrtc installieren."
+
+msgctxt "#30417"
+msgid "To play the live picture, please enable inputstream.webrtc."
+msgstr "Für die Wiedergabe des Livebildes bitte inputstream.webrtc aktivieren."

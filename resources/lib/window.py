@@ -35,6 +35,8 @@ _SWITCH_FADE = 0.12
 # and leaves the player to it.
 _LIVE_PATIENCE = 30.0
 
+_WEBRTC_INPUTSTREAM = "inputstream.webrtc"
+
 # How fast a camera is panned and tilted from the remote, out of Reolink's 64.
 # Home Assistant's own suggestion for the service; a button alone moves at
 # the camera's own speed, which is far too much for a single press.
@@ -65,14 +67,17 @@ ACTION_CONTEXT_MENU = 117
 class _LivePlayer(xbmc.Player):
     """Where the live picture comes from, and how far it has got."""
 
-    def __init__(self, name):
+    def __init__(self, name, ways):
         super().__init__()
         self.name = name
+        # The ways still to try, the one being tried taken off the front.
+        self.ways = list(ways)
         self.source = None
         self.failure = ""
+        # What the viewer has to do before this camera can play.
+        self.notice = ""
         self.started = False
-        self.direct = False
-        self.via_ha = False
+        self.via_hls = False
         self.playing = False
         self.ended = False
 
@@ -81,14 +86,14 @@ class _LivePlayer(xbmc.Player):
         return self.playing or self.ended
 
     def start(self):
-        url, item, self.direct = self.source
+        url, item = self.source
         self.started = True
         self.play(url, item)
 
     def fall_back(self):
-        """Forget the direct stream that would not play, to look again."""
+        """Forget the stream that would not play, to try the next way."""
         self.source = None
-        self.started = self.direct = self.playing = self.ended = False
+        self.started = self.playing = self.ended = False
 
     def onAVStarted(self):
         self.playing = True
@@ -116,6 +121,7 @@ class Dashboard(xbmcgui.WindowXML):
         super().__init__()
         self._settings = kwargs["settings"]
         self._store = model.Store(log=kodi.log, language=kodi.LANGUAGE)
+        self._store.cameras_with_own_url = set(direct.load(kodi.profile_directory()))
         self._auth = ha_auth.Authenticator(
             self._settings.url,
             token=self._settings.token,
@@ -316,32 +322,34 @@ class Dashboard(xbmcgui.WindowXML):
         """Start the player once a source is found, and take the waiting
         dialog down once the picture is up, or will not be.
 
-        The dialog only comes up for Home Assistant's stream - the camera's
-        own starts too quickly to need one. Cancelling it stops the player
-        too, which may still be buffering. A camera that answered on its own
-        address but would not play there is tried once more through Home
-        Assistant.
+        The dialog only comes up for HLS, which takes many seconds to start -
+        the other ways are too quick to need one. Cancelling it stops the
+        player too, which may still be buffering. A way that was found but
+        would not play gives way to the next.
         """
         if self._live is None:
             return
         dialog, player, due, entity_id = self._live
-        if dialog is None and player.via_ha:
+        if dialog is None and player.via_hls:
             dialog = self._live[0] = _waiting_dialog(player.name)
         client = self._session.client
         if dialog is not None and dialog.iscanceled():
             if player.started:
                 player.stop()
         elif player.failure:
-            kodi.notify(kodi.tr("error_service") % player.failure, error=True)
+            kodi.notify(player.failure, error=True)
+        elif player.notice:
+            xbmcgui.Dialog().ok(player.name, player.notice)
         elif not player.started:
             if player.source is None and time.time() < due:
                 return
             if player.source is not None:
                 player.start()
                 return
-        elif player.direct and player.ended and not player.playing and client:
+        elif player.ended and not player.playing and player.ways and client:
             player.fall_back()
-            threading.Thread(target=self._find_hls, args=(client, entity_id, player),
+            threading.Thread(target=self._find_live_source,
+                             args=(client, entity_id, player),
                              name="ha-live", daemon=True).start()
             return
         elif not player.settled and time.time() < due:
@@ -899,43 +907,85 @@ class Dashboard(xbmcgui.WindowXML):
     def _play_live(self, entity_id):
         """Hand the camera's live picture to Kodi's own player.
 
-        Where the camera has an address of its own and answers on it, the
-        picture comes straight from the camera - over RTSP a second or two
-        behind.
-        Otherwise Home Assistant streams it as HLS, many seconds behind, from
-        an address that carries a token of its own - so neither way needs
-        credentials from the addon's sign-in.
+        The ways are tried in turn: the camera's own stream URL where it
+        answers, a second or two behind over RTSP; Home Assistant's WebRTC
+        through Kodi's WebRTC inputstream; Home Assistant's HLS, many seconds
+        behind, from an address that carries a token of its own.
         """
         client = self._session.client
         if client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
-        player = _LivePlayer(self._store.display_name_of(entity_id))
-        address = direct.load(kodi.profile_directory()).get(entity_id)
+        player = _LivePlayer(self._store.display_name_of(entity_id),
+                             ha_actions.live_ways(self._store, entity_id))
         threading.Thread(target=self._find_live_source,
-                         args=(client, entity_id, address, player),
+                         args=(client, entity_id, player),
                          name="ha-live", daemon=True).start()
         self._live = [None, player, time.time() + _LIVE_PATIENCE, entity_id]
 
-    def _find_live_source(self, client, entity_id, address, player):
-        """Off the window thread: the camera itself where it answers, else HLS."""
-        if address and direct.reachable(address):
-            item = xbmcgui.ListItem(player.name)
-            item.setContentLookup(False)
-            # Over TCP: a home network may drop the UDP RTSP would use first.
-            item.setProperty("rtsp_transport", "tcp")
-            player.source = (address, item, True)
-            return
-        self._find_hls(client, entity_id, player)
+    def _find_live_source(self, client, entity_id, player):
+        """Off the window thread: the first of the ways left that is there."""
+        while player.ways:
+            way = player.ways.pop(0)
+            if way == ha_actions.LIVE_OWN_URL:
+                source = self._own_url_source(entity_id, player)
+            elif way == ha_actions.LIVE_WEBRTC:
+                source = self._webrtc_source(entity_id, player)
+            else:
+                source = self._hls_source(client, entity_id, player)
+            if source is not None:
+                player.source = source
+                return
+            if player.failure or player.notice:
+                return
+        player.failure = kodi.tr("live_unavailable")
 
-    def _find_hls(self, client, entity_id, player):
-        """Off the window thread: Home Assistant's HLS stream, once it runs."""
-        player.via_ha = True
+    def _own_url_source(self, entity_id, player):
+        url = direct.load(kodi.profile_directory()).get(entity_id)
+        if not url or not direct.reachable(url):
+            return None
+        item = xbmcgui.ListItem(player.name)
+        item.setContentLookup(False)
+        # Over TCP: a home network may drop the UDP RTSP would use first.
+        item.setProperty("rtsp_transport", "tcp")
+        return url, item
+
+    def _webrtc_source(self, entity_id, player):
+        """Home Assistant's WebRTC, which the inputstream negotiates itself.
+
+        Without the inputstream nothing is played, and the notice says what is
+        missing: WebRTC is the best way there is, and a camera that offers it
+        is not left to a worse one. The inputstream signs in to Home Assistant
+        once, as the session is set up, so the short-lived token of a sign-in
+        with user name and password will do.
+        """
+        if not xbmc.getCondVisibility("System.HasAddon(%s)" % _WEBRTC_INPUTSTREAM):
+            player.notice = kodi.tr("webrtc_install")
+            return None
+        if not xbmc.getCondVisibility("System.AddonIsEnabled(%s)" % _WEBRTC_INPUTSTREAM):
+            player.notice = kodi.tr("webrtc_enable")
+            return None
+        try:
+            token = self._auth.access_token()
+        except Exception as error:
+            kodi.log("no token for WebRTC: %s" % error, xbmc.LOGWARNING)
+            return None
+        item = xbmcgui.ListItem(player.name)
+        item.setContentLookup(False)
+        item.setProperty("inputstream", _WEBRTC_INPUTSTREAM)
+        item.setProperty(_WEBRTC_INPUTSTREAM + ".signaling", "homeassistant")
+        item.setProperty(_WEBRTC_INPUTSTREAM + ".entity_id", entity_id)
+        item.setProperty(_WEBRTC_INPUTSTREAM + ".bearer_token", token)
+        return self._settings.url, item
+
+    def _hls_source(self, client, entity_id, player):
+        """Home Assistant's HLS stream, once it runs."""
+        player.via_hls = True
         try:
             path = client.command("camera/stream", entity_id=entity_id)["url"]
         except ha_client.HomeAssistantError as error:
-            player.failure = str(error)
-            return
+            player.failure = kodi.tr("error_service") % error
+            return None
         url = self._settings.url.rstrip("/") + path
         # Played even where the stream did not answer the addon: Kodi has its
         # own way of saying why it cannot play.
@@ -943,7 +993,7 @@ class Dashboard(xbmcgui.WindowXML):
         item = xbmcgui.ListItem(player.name)
         item.setMimeType("application/vnd.apple.mpegurl")
         item.setContentLookup(False)
-        player.source = (url, item, False)
+        return url, item
 
     def _open_slider(self, entity_id, action):
         self._overlay = sliderdialog.SliderDialog(

@@ -5,6 +5,7 @@
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="inputstream.webrtc" version="22.0.0" optional="true"/>
   </requires>
   <extension point="xbmc.python.script" library="default.py">
     <provides>executable</provides>

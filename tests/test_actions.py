@@ -513,11 +513,28 @@ class Camera(unittest.TestCase):
         store = one("camera.a", "unavailable", supported_features=2)
         self.assertIsNone(actions.default_action(store, "camera.a"))
 
-    def test_not_where_home_assistant_shows_it_only_by_webrtc(self):
+    def test_a_camera_that_streams_only_by_webrtc_is_offered_it(self):
         store = one("camera.a", "idle", supported_features=2)
         store.camera_streams = {"camera.a": {"web_rtc"}}
-        self.assertIsNone(actions.default_action(store, "camera.a"))
+        self.assertEqual(actions.live_ways(store, "camera.a"), [actions.LIVE_WEBRTC])
+        self.assertEqual(actions.default_action(store, "camera.a").kind,
+                         actions.LIVE)
+
+    def test_the_ways_in_the_order_they_are_tried(self):
+        store = one("camera.a", "idle", supported_features=2)
         store.camera_streams = {"camera.a": {"hls", "web_rtc"}}
+        store.cameras_with_own_url = {"camera.a"}
+        self.assertEqual(actions.live_ways(store, "camera.a"),
+                         [actions.LIVE_OWN_URL, actions.LIVE_WEBRTC, actions.LIVE_HLS])
+
+    def test_a_camera_not_asked_about_is_taken_to_stream_hls(self):
+        store = one("camera.a", "idle", supported_features=2)
+        self.assertEqual(actions.live_ways(store, "camera.a"), [actions.LIVE_HLS])
+
+    def test_an_own_url_needs_nothing_from_home_assistant(self):
+        store = one("camera.a", "unavailable", supported_features=0)
+        store.cameras_with_own_url = {"camera.a"}
+        self.assertEqual(actions.live_ways(store, "camera.a"), [actions.LIVE_OWN_URL])
         self.assertEqual(actions.default_action(store, "camera.a").kind,
                          actions.LIVE)
 

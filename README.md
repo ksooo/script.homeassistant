@@ -115,10 +115,20 @@ as a URL: Kodi caches images by URL, and a picture that changes every ten
 seconds would fill its texture database. Two file names per camera alternate,
 because Kodi holds on to a file it has already read under the same path.
 
-There is no live video. Kodi's own cURL reaches Home Assistant fine, but the
-player hands an HLS URL to ffmpeg, which opens the segments itself and fails
-its TLS handshake against a Nabu Casa address - a property of the ffmpeg the
-Kodi build carries, not something an addon can reach into.
+OK on a camera plays its live picture in Kodi's own player, by the first of
+three ways that is there:
+
+1. The camera's own stream URL - RTSP, RTSPS, HTTP or HTTPS - entered per
+   camera on the settings page "Cameras", where the camera answers on it.
+2. Home Assistant's WebRTC, through the
+   [WebRTC inputstream](https://github.com/ksooo/inputstream.webrtc), where
+   Home Assistant offers it for the camera. Without the inputstream add-on
+   installed and enabled, such a camera plays nothing and a notice says what
+   is missing.
+3. Home Assistant's HLS stream.
+
+A way that is found but will not play gives way to the next. A Reolink camera
+that pans and tilts can be steered with the arrow keys while it plays.
 
 ## Limits
 
