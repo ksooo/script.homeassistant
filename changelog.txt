@@ -1,3 +1,6 @@
+v1.10.0
+- Where Home Assistant offers WebRTC for a camera, its live picture now comes that way, ahead of HLS, through the WebRTC inputstream add-on, which has to be installed and enabled for it. A camera's own stream URL still comes first
+
 v1.9.0
 - A camera can be given a stream URL of its own (RTSP, RTSPS, HTTP or HTTPS) on a new settings page "Cameras", which also holds the camera preview interval now, and its live picture then plays from there. Where the camera does not answer on it, the live picture comes through Home Assistant as before
 - On a steered Reolink camera, pressing OK to send it to its home position now briefly lights up all four arrows of the steering cross
