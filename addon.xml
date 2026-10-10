@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.10.0"
+       version="1.11.0"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -20,8 +20,10 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.10.0
-- Where Home Assistant offers WebRTC for a camera, its live picture now comes that way, ahead of HLS, through the WebRTC inputstream add-on, which has to be installed and enabled for it. A camera's own stream URL still comes first
+    <news>v1.11.0
+- Any entity that OK acts on can be added to Kodi's favourites from its context menu. The favourite carries the entity's icon and device name, and choosing it does what OK does on the dashboard (a camera's live picture, a lock, a switch …) without opening the dashboard
+- An entity's details open in a dialog of their own, laid out as in Home Assistant: icon, name, place and state on top, then the entity's id and times and every attribute under Home Assistant's name for it, with its value formatted
+- Fixed: entities whose state is a point in time, such as a phone's notification entity or a timestamp sensor, showed a raw date. They now say how long ago, as in Home Assistant
 </news>
     <assets>
       <icon>resources/icon.png</icon>

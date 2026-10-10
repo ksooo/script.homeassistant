@@ -1,3 +1,8 @@
+v1.11.0
+- Any entity that OK acts on can be added to Kodi's favourites from its context menu. The favourite carries the entity's icon and device name, and choosing it does what OK does on the dashboard (a camera's live picture, a lock, a switch …) without opening the dashboard
+- An entity's details open in a dialog of their own, laid out as in Home Assistant: icon, name, place and state on top, then the entity's id and times and every attribute under Home Assistant's name for it, with its value formatted
+- Fixed: entities whose state is a point in time, such as a phone's notification entity or a timestamp sensor, showed a raw date. They now say how long ago, as in Home Assistant
+
 v1.10.0
 - Where Home Assistant offers WebRTC for a camera, its live picture now comes that way, ahead of HLS, through the WebRTC inputstream add-on, which has to be installed and enabled for it. A camera's own stream URL still comes first
 
