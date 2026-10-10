@@ -3,7 +3,7 @@
 import unittest
 
 from . import support  # noqa: F401  (puts the addon on the path)
-from resources.lib import details
+from resources.lib import details, formatting
 
 NOW = 1791009600.0  # 2026-10-03 06:40:00 UTC
 
@@ -91,14 +91,14 @@ class Values(unittest.TestCase):
 
 class RelativeTime(unittest.TestCase):
     def test_each_unit_holds_until_the_next_takes_over(self):
-        self.assertEqual(details.relative_time("2026-10-03T06:39:30+00:00", NOW, tr),
+        self.assertEqual(formatting.relative_time("2026-10-03T06:39:30+00:00", NOW, tr),
                          "30 seconds ago")
-        self.assertEqual(details.relative_time("2026-10-03T06:39:10+00:00", NOW, tr),
+        self.assertEqual(formatting.relative_time("2026-10-03T06:39:10+00:00", NOW, tr),
                          "1 minute ago")
-        self.assertEqual(details.relative_time("2026-10-03T06:35:00+00:00", NOW, tr),
+        self.assertEqual(formatting.relative_time("2026-10-03T06:35:00+00:00", NOW, tr),
                          "5 minutes ago")
-        self.assertEqual(details.relative_time("2026-10-03T03:40:00+00:00", NOW, tr),
+        self.assertEqual(formatting.relative_time("2026-10-03T03:40:00+00:00", NOW, tr),
                          "3 hours ago")
 
     def test_a_time_that_cannot_be_read_says_nothing(self):
-        self.assertEqual(details.relative_time("", NOW, tr), "")
+        self.assertEqual(formatting.relative_time("", NOW, tr), "")

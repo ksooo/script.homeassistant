@@ -1,5 +1,8 @@
 """Turns a Home Assistant state into what a Kodi tile shows."""
 
+import datetime
+import time
+
 from . import strings
 
 # Home Assistant's state colours. It picks these in the frontend, so the
@@ -45,6 +48,23 @@ _ACTIVE_STATES = ("on", "open", "opening", "closing", "unlocked", "home",
 
 _RUNNABLE_DOMAINS = ("scene", "script", "button", "input_button")
 
+# Domains whose state is a time - when the entity last did its thing - and
+# sensors that hold one (TIMESTAMP_STATE_DOMAINS, SENSOR_TIMESTAMP_DEVICE_CLASSES).
+_TIMESTAMP_DOMAINS = ("ai_task", "button", "conversation", "event", "image",
+                      "infrared", "input_button", "notify", "radio_frequency",
+                      "scene", "stt", "tag", "tts", "wake_word", "datetime")
+_TIMESTAMP_CLASSES = ("timestamp", "uptime")
+
+# selectUnit's thresholds: a unit holds until the count reaches the limit,
+# then the next takes over - 44 seconds, but 1 minute rather than 45 seconds.
+_RELATIVE = ((45, 1, "ago_second", "ago_seconds"),
+             (45, 60, "ago_minute", "ago_minutes"),
+             (22, 3600, "ago_hour", "ago_hours"),
+             (5, 86400, "ago_day", "ago_days"),
+             (4, 7 * 86400, "ago_week", "ago_weeks"),
+             (11, 30.44 * 86400, "ago_month", "ago_months"),
+             (None, 365.25 * 86400, "ago_year", "ago_years"))
+
 
 def state_text(store, entity_id, translate=None):
     """The value line of a tile.
@@ -64,6 +84,10 @@ def state_text(store, entity_id, translate=None):
 
     if domain in _RUNNABLE_DOMAINS:
         return tr("run")
+
+    if is_timestamp(store, entity_id):
+        # Home Assistant's tiles say how long ago, not when.
+        return relative_time(state.state, time.time(), tr) or state.state
 
     word = _word(store, entity_id, state.state)
 
@@ -285,3 +309,36 @@ def _number(value):
     if number == int(number):
         return str(int(number))
     return ("%.2f" % number).rstrip("0").rstrip(".")
+
+
+def is_timestamp(store, entity_id):
+    """Whether the entity's state is a point in time."""
+    state = store.states.get(entity_id)
+    if state is None:
+        return False
+    return (state.domain in _TIMESTAMP_DOMAINS
+            or (state.domain == "sensor"
+                and store.device_class_of(entity_id) in _TIMESTAMP_CLASSES))
+
+
+def relative_time(iso, now, tr):
+    """How long ago, as Home Assistant puts it: "5 minutes ago"."""
+    moment = parse_time(iso)
+    if moment is None:
+        return ""
+    seconds = max(0.0, now - moment.timestamp())
+    for limit, size, one, many in _RELATIVE:
+        count = int(round(seconds / size))
+        if limit is None or count < limit:
+            return tr(one) if count == 1 else tr(many) % count
+    return ""
+
+
+def parse_time(iso):
+    try:
+        moment = datetime.datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except (AttributeError, ValueError):
+        return None
+    if moment.tzinfo is None:
+        return None
+    return moment

@@ -39,6 +39,9 @@ _LIVE_PATIENCE = 30.0
 
 _WEBRTC_INPUTSTREAM = "inputstream.webrtc"
 
+# How often rows that say how long ago are redrawn.
+_CLOCK_INTERVAL = 30.0
+
 # How long a favourite waits for Home Assistant before it gives up, rather
 # than leave Kodi's busy spinner up.
 _SHORTCUT_PATIENCE = 30.0
@@ -166,6 +169,7 @@ class _Dashboard:
             verify_ssl=self._settings.verify_ssl, log=kodi.log)
         self._camera_worker = None
         self._camera_due = 0.0
+        self._clock_due = 0.0
         self._overlay = None
         self._live = None
         self._ptz = None
@@ -326,6 +330,7 @@ class _Dashboard:
                 self._wanted_focus = 0
         self._take_camera_stills()
         self._renew_brands_token()
+        self._tick_clock()
         self._tick_overlay()
         self._tick_live()
         self._tick_ptz()
@@ -726,6 +731,15 @@ class _Dashboard:
         icon = icons.icon_for(self._store, entity_id)
         item.setProperty("icon", "icons/%s.png" % icon if icon in self._icons else "")
 
+    def _tick_clock(self):
+        """Keep "5 minutes ago" true: a state that is a time does not change
+        as the time passes, so nothing else would redraw it."""
+        if time.time() < self._clock_due:
+            return
+        self._clock_due = time.time() + _CLOCK_INTERVAL
+        self._refresh_rows([entity_id for entity_id in self._row_positions
+                            if formatting.is_timestamp(self._store, entity_id)])
+
     def _refresh_rows(self, entity_ids):
         try:
             rows = self.getControl(ROW_LIST)
@@ -1077,7 +1091,7 @@ class _Dashboard:
             "name": self._store.name_of(entity_id),
             "place": self._place_of(entity_id),
             "state": formatting.state_text(self._store, entity_id, kodi.tr),
-            "changed": details.relative_time(state.last_changed, time.time(), kodi.tr),
+            "changed": formatting.relative_time(state.last_changed, time.time(), kodi.tr),
             "icon": self._favourite_icon(entity_id),
             "colour": formatting.colour(self._store, entity_id),
         }
@@ -1207,6 +1221,7 @@ class Shortcut(_Dashboard, xbmcgui.WindowXMLDialog):
 
     def _set_label(self, control_id, text):
         pass
+
 
 def _is_entity_row(rows, position):
     try:

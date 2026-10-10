@@ -1,5 +1,6 @@
 """What a row says and which colour it says it in."""
 
+import datetime
 import unittest
 
 from . import support
@@ -78,6 +79,26 @@ class StateText(unittest.TestCase):
                          "Heating")
         self.assertEqual(self.text("climate.a", "heat"), "Heat")
 
+
+
+class Timestamps(unittest.TestCase):
+    """A state that is a time reads as how long ago, as a tile has it."""
+
+    def text(self, entity_id, value, device_class=None):
+        moment = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=5)
+        state = moment.isoformat() if value is None else value
+        return formatting.state_text(one(entity_id, state, device_class), entity_id,
+                                     lambda name: {"ago_minutes": "%d minutes ago"}.get(name, name))
+
+    def test_a_notify_entity_and_a_timestamp_sensor_say_how_long_ago(self):
+        self.assertEqual(self.text("notify.phone", None), "5 minutes ago")
+        self.assertEqual(self.text("sensor.replaced", None, "timestamp"), "5 minutes ago")
+
+    def test_a_runnable_entity_still_says_run(self):
+        self.assertEqual(self.text("scene.evening", None), "run")
+
+    def test_a_time_that_cannot_be_read_is_shown_as_it_is(self):
+        self.assertEqual(self.text("notify.phone", "unknown-ish"), "unknown-ish")
 
 class Colour(unittest.TestCase):
     def colour(self, *args, **kwargs):

@@ -8,7 +8,6 @@ the frontend, so the tables below mirror it - the same maintenance caveat as
 the summaries.
 """
 
-import datetime
 import json
 import re
 
@@ -88,16 +87,6 @@ _COMMON_NAMES = {
 }
 
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}")
-
-# selectUnit's thresholds: a unit holds until the count reaches the limit,
-# then the next takes over - 44 seconds, but 1 minute rather than 45 seconds.
-_RELATIVE = ((45, 1, "ago_second", "ago_seconds"),
-             (45, 60, "ago_minute", "ago_minutes"),
-             (22, 3600, "ago_hour", "ago_hours"),
-             (5, 86400, "ago_day", "ago_days"),
-             (4, 7 * 86400, "ago_week", "ago_weeks"),
-             (11, 30.44 * 86400, "ago_month", "ago_months"),
-             (None, 365.25 * 86400, "ago_year", "ago_years"))
 
 
 def groups(store, entity_id, tr, timestamp):
@@ -201,26 +190,3 @@ def _unit(store, entity_id, attribute):
     if attribute in _TEMPERATURES:
         return store.unit_of_temperature
     return _UNITS.get(domain, {}).get(attribute, "")
-
-
-def relative_time(iso, now, tr):
-    """How long ago, as Home Assistant puts it under a state: "5 minutes ago"."""
-    moment = parse_time(iso)
-    if moment is None:
-        return ""
-    seconds = max(0.0, now - moment.timestamp())
-    for limit, size, one, many in _RELATIVE:
-        count = int(round(seconds / size))
-        if limit is None or count < limit:
-            return tr(one) if count == 1 else tr(many) % count
-    return ""
-
-
-def parse_time(iso):
-    try:
-        moment = datetime.datetime.fromisoformat(iso.replace("Z", "+00:00"))
-    except (AttributeError, ValueError):
-        return None
-    if moment.tzinfo is None:
-        return None
-    return moment
