@@ -311,6 +311,17 @@ class Store:
             return state.name
         return self.name_of(entity_id)
 
+    def name_with_device(self, entity_id):
+        """The name with its device in front, for where nothing around it
+        names the device - as Home Assistant writes a friendly name, unless
+        the name already starts with the device."""
+        name = self.display_name_of(entity_id)
+        entity = self.entities.get(entity_id)
+        device = self.device_name(entity.device_id) if entity and entity.device_id else ""
+        if device and not name.startswith(device):
+            return "%s %s" % (device, name)
+        return name
+
     def device_class_of(self, entity_id):
         state = self.states.get(entity_id)
         if state is not None and state.device_class:

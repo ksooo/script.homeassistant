@@ -9,7 +9,7 @@ import xbmcgui
 from . import direct, kodi
 from .ha import auth as ha_auth
 from .ha import client as ha_client
-from .window import Dashboard
+from .window import SHORTCUT_XML, Dashboard, Shortcut
 
 _WINDOW_XML = "script.homeassistant-dashboard.xml"
 
@@ -26,10 +26,13 @@ def run(argv):
     elif "action=direct" in argv[1:]:
         edit_direct_addresses()
     else:
-        show_dashboard()
+        entity_ids = [arg.split("=", 1)[1] for arg in argv[1:]
+                      if arg.startswith("entity_id=")]
+        show_dashboard(entity_ids[0] if entity_ids else None)
 
 
-def show_dashboard():
+def show_dashboard(entity_id=None):
+    """The dashboard, or for a Kodi favourite just that entity's OK action."""
     settings = kodi.Settings()
     error = settings.validate()
     if error:
@@ -40,8 +43,12 @@ def show_dashboard():
     # Shown rather than run modally: doModal() blocks, and the live updates
     # need a thread of their own to be applied on - the window's, not the
     # session's.
-    window = Dashboard(_WINDOW_XML, kodi.ADDON_PATH, "Default", "1080i",
-                       settings=settings)
+    if entity_id:
+        window = Shortcut(SHORTCUT_XML, kodi.ADDON_PATH, "Default", "1080i",
+                          settings=settings, entity_id=entity_id)
+    else:
+        window = Dashboard(_WINDOW_XML, kodi.ADDON_PATH, "Default", "1080i",
+                           settings=settings)
     monitor = xbmc.Monitor()
     try:
         window.show()

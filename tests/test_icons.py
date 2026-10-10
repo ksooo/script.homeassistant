@@ -92,6 +92,17 @@ class Coverage(unittest.TestCase):
                       if line.strip() and not line.startswith("#")}
         self.assertEqual(icons.names_in_use() - listed, set())
 
+    def test_every_shipped_icon_comes_in_favourite_size(self):
+        import os
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+        def names(*path):
+            return {name[:-4] for name in os.listdir(os.path.join(root, *path))
+                    if name.endswith(".png")}
+
+        self.assertEqual(names("resources", "media", "icons"),
+                         names("resources", "skins", "Default", "media", "icons"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -159,7 +159,7 @@ to use the add-on. Each has one occasion to be run:
 
 | Run | After changing |
 |---|---|
-| `python3 tools/make_icons.py` | `tools/icons.txt`, when an entity icon joins the shipped set |
+| `python3 tools/make_icons.py` and `python3 tools/make_icons.py --large` | `tools/icons.txt`, when an entity icon joins the shipped set; the second renders the 256 pixel icons for Kodi favourites |
 | `python3 tools/make_textures.py` | the colours or geometry in that script, when a skin texture should look different |
 
 Both are deterministic, so a rerun without changes produces no diff.

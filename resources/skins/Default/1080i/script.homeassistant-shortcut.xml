@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <!-- Behind a Kodi favourite of an entity: a dialog with nothing to show,
+         so the window the favourite was chosen in stays in view. -->
+    <controls/>
+</window>

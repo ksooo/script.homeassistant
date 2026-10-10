@@ -10,6 +10,10 @@ Needs a rasteriser: ``rsvg-convert`` where available, otherwise macOS
 QuickLook. Pass ``--source mdi.js`` to work from a local copy instead of
 downloading.
 
+``--large`` renders the same icons at 256 pixels instead, under
+``resources/media/icons``: a Kodi favourite of an entity shows its icon far
+larger than a dashboard row does. The 64 pixel set is left as it is.
+
 QuickLook renders thumbnails onto opaque white, so with it the glyph is drawn
 black and its brightness is turned back into an alpha mask afterwards.
 """
@@ -32,9 +36,11 @@ from make_textures import write_png
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIST = os.path.join(ROOT, "tools", "icons.txt")
 OUT = os.path.join(ROOT, "resources", "skins", "Default", "media", "icons")
+OUT_LARGE = os.path.join(ROOT, "resources", "media", "icons")
 SOURCE_URL = "https://cdn.jsdelivr.net/npm/@mdi/js@latest/mdi.js"
 
 SIZE = 64
+SIZE_LARGE = 256
 BATCH = 200
 
 _DEFINITION = re.compile(r'export var mdi([A-Za-z0-9]+)\s*=\s*"([^"]+)"')
@@ -73,16 +79,16 @@ def rasteriser():
     sys.exit("no rasteriser found: install rsvg-convert")
 
 
-def render(tool, svg_files, out_dir):
+def render(tool, svg_files, out_dir, size):
     if tool == "rsvg-convert":
         for path in svg_files:
             target = os.path.join(out_dir, os.path.basename(path)[:-4] + ".png")
-            subprocess.run([tool, "-w", str(SIZE), "-h", str(SIZE),
+            subprocess.run([tool, "-w", str(size), "-h", str(size),
                             "-o", target, path], check=True)
         return
 
     for start in range(0, len(svg_files), BATCH):
-        subprocess.run([tool, "-t", "-s", str(SIZE), "-o", out_dir]
+        subprocess.run([tool, "-t", "-s", str(size), "-o", out_dir]
                        + svg_files[start:start + BATCH],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                        check=False)
@@ -162,19 +168,22 @@ def to_alpha_mask(path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", help="local copy of mdi.js")
+    parser.add_argument("--large", action="store_true",
+                        help="the icons at %d pixels, for Kodi favourites" % SIZE_LARGE)
     arguments = parser.parse_args()
 
     wanted = [line.strip() for line in open(LIST, encoding="utf-8")
               if line.strip() and not line.startswith("#")]
+    out, size = (OUT_LARGE, SIZE_LARGE) if arguments.large else (OUT, SIZE)
     paths = load_paths(arguments.source)
 
     missing = [name for name in wanted if camel_case(name) not in paths]
     if missing:
         print("not in this MDI release, skipped: %s" % ", ".join(missing))
 
-    if os.path.isdir(OUT):
-        shutil.rmtree(OUT)
-    os.makedirs(OUT)
+    if os.path.isdir(out):
+        shutil.rmtree(out)
+    os.makedirs(out)
 
     tool = rasteriser()
     colour = "#FFFFFF" if tool == "rsvg-convert" else "#000000"
@@ -190,10 +199,10 @@ def main():
             svg_files.append(svg_file)
 
         print("rasterising %d icons with %s ..." % (len(svg_files), tool))
-        render(tool, svg_files, OUT)
+        render(tool, svg_files, out, size)
 
-    written = sorted(name for name in os.listdir(OUT) if name.endswith(".png"))
-    total = sum(os.path.getsize(os.path.join(OUT, name)) for name in written)
+    written = sorted(name for name in os.listdir(out) if name.endswith(".png"))
+    total = sum(os.path.getsize(os.path.join(out, name)) for name in written)
     print("%d icons, %.0f KB total, average %.0f bytes"
           % (len(written), total / 1024.0, total / max(len(written), 1)))
 

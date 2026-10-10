@@ -556,6 +556,14 @@ msgctxt "#30388"
 msgid "Remove the URL of %s?"
 msgstr "URL von %s entfernen?"
 
+msgctxt "#30389"
+msgid "Add to Kodi favourites"
+msgstr "Zu Kodi-Favoriten hinzufügen"
+
+msgctxt "#30390"
+msgid "Remove from Kodi favourites"
+msgstr "Aus Kodi-Favoriten entfernen"
+
 msgctxt "#30400"
 msgid "No Home Assistant URL configured"
 msgstr "Keine URL von Home Assistant eingetragen"

@@ -107,6 +107,8 @@ IDS = {
     "action_install": 30382,
     "action_cancel": 30383,
     "action_live": 30384,
+    "favourite_add": 30389,
+    "favourite_remove": 30390,
     "confirm_off_title": 30408,
     "confirm_off_text": 30409,
     "confirm_open_title": 30410,

@@ -96,6 +96,27 @@ class DisplayNames(unittest.TestCase):
         self.assertEqual(store.display_name_of("sensor.a"), "Wert")
 
 
+
+class NamesWithDevice(unittest.TestCase):
+    def store(self, friendly_name, device_name="Außenkamera Garten"):
+        return support.build(
+            entities=[support.entity("camera.a", "Objektiv 1", device_id="dev")],
+            states=[support.state("camera.a", "idle", friendly_name=friendly_name)],
+            devices=[{"id": "dev", "name": "Reolink", "name_by_user": device_name}])
+
+    def test_the_device_goes_in_front(self):
+        self.assertEqual(self.store("Objektiv 1").name_with_device("camera.a"),
+                         "Außenkamera Garten Objektiv 1")
+
+    def test_a_name_that_starts_with_the_device_is_left_as_it_is(self):
+        self.assertEqual(
+            self.store("Außenkamera Garten Objektiv 1").name_with_device("camera.a"),
+            "Außenkamera Garten Objektiv 1")
+
+    def test_an_entity_without_a_device_keeps_its_name(self):
+        store = support.build(states=[support.state("sensor.a", "1", friendly_name="Wert")])
+        self.assertEqual(store.name_with_device("sensor.a"), "Wert")
+
 class Names(unittest.TestCase):
     def test_a_state_change_replaces_what_the_cache_holds(self):
         store = support.build(entities=[support.entity("light.a", "Decke")],

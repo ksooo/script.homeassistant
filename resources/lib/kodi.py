@@ -1,6 +1,8 @@
 """Everything that talks to Kodi: settings, localisation, logging, dialogs."""
 
+import json
 import os
+import urllib.parse
 
 import xbmc
 import xbmcaddon
@@ -21,6 +23,8 @@ LANGUAGE = xbmc.getLanguage(xbmc.ISO_639_1) or "en"
 # dialog of Kodi's own draws from no skin of ours.
 ICON_DIR = os.path.join(ADDON_PATH, "resources", "skins", "Default", "media",
                         "icons")
+# The same icons at favourite size; tools/make_icons.py --large.
+LARGE_ICON_DIR = os.path.join(ADDON_PATH, "resources", "media", "icons")
 
 
 def tr(key):
@@ -142,3 +146,29 @@ def image_url(base_url, path, brands_token=""):
     if brands_token and "/api/brands/" in url:
         url += ("&" if "?" in url else "?") + "token=" + brands_token
     return url
+
+
+def favourite_url(entity_id):
+    """Where a Kodi favourite of the entity points: the addon's plugin, which
+    hands the entity on to the script."""
+    return "plugin://%s/?%s" % (ADDON_ID, urllib.parse.urlencode({"entity_id": entity_id}))
+
+
+def is_favourite(url):
+    favourites = _json_rpc("Favourites.GetFavourites", type="media",
+                           properties=["path"]).get("favourites") or []
+    return any(favourite.get("path") == url for favourite in favourites)
+
+
+def toggle_favourite(url, title, thumbnail):
+    """Kodi adds a favourite that is not there yet and removes one that is."""
+    _json_rpc("Favourites.AddFavourite", type="media", path=url, title=title,
+              thumbnail=thumbnail)
+
+
+def _json_rpc(method, **params):
+    answer = json.loads(xbmc.executeJSONRPC(json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": method, "params": params})))
+    if "error" in answer:
+        raise RuntimeError("%s: %s" % (method, answer["error"].get("message")))
+    return answer.get("result") or {}

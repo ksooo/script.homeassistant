@@ -26,6 +26,7 @@ from .ha import client as ha_client
 MEDIA_XML = "script.homeassistant-media.xml"
 SLIDER_XML = "script.homeassistant-slider.xml"
 PTZ_XML = "script.homeassistant-ptz.xml"
+SHORTCUT_XML = "script.homeassistant-shortcut.xml"
 
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
@@ -36,6 +37,10 @@ _SWITCH_FADE = 0.12
 _LIVE_PATIENCE = 30.0
 
 _WEBRTC_INPUTSTREAM = "inputstream.webrtc"
+
+# How long a favourite waits for Home Assistant before it gives up, rather
+# than leave Kodi's busy spinner up.
+_SHORTCUT_PATIENCE = 30.0
 
 # How fast a camera is panned and tilted from the remote, out of Reolink's 64.
 # Home Assistant's own suggestion for the service; a button alone moves at
@@ -116,7 +121,11 @@ def _waiting_dialog(name):
     return dialog
 
 
-class Dashboard(xbmcgui.WindowXML):
+class _Dashboard:
+    """The dashboard's workings, for a window and a dialog alike: Python
+    makes the Kodi object from the first Kodi base a class has, so the two
+    cannot be had by deriving one from the other."""
+
     def __init__(self, xml_file, resource_path, theme_skin, theme_res, *args, **kwargs):
         super().__init__()
         self._settings = kwargs["settings"]
@@ -255,8 +264,10 @@ class Dashboard(xbmcgui.WindowXML):
                 return
 
     def close(self):
-        self.closed = True
-        super().close()
+        # Kodi goes back a window for every close, closed or not.
+        if not self.closed:
+            self.closed = True
+            super().close()
 
     def shutdown(self):
         self.closed = True
@@ -753,10 +764,25 @@ class Dashboard(xbmcgui.WindowXML):
         if not entity_id:
             return
         menu = ha_actions.menu_actions(self._store, entity_id)
+        url = kodi.favourite_url(entity_id)
+        favourite = kodi.is_favourite(url)
+        # Only what OK does something with: a favourite opens that.
+        offered = favourite or ha_actions.default_action(self._store, entity_id) is not None
         choice = xbmcgui.Dialog().contextmenu(
-            [kodi.tr(action.label_key) for action in menu])
-        if choice >= 0:
+            [kodi.tr(action.label_key) for action in menu]
+            + ([kodi.tr("favourite_remove" if favourite else "favourite_add")]
+               if offered else []))
+        if offered and choice == len(menu):
+            kodi.toggle_favourite(url, self._store.name_with_device(entity_id),
+                                  self._favourite_icon(entity_id))
+        elif choice >= 0:
             self._execute(entity_id, menu[choice])
+
+    def _favourite_icon(self, entity_id):
+        """The entity's icon in favourite size, else the addon's."""
+        path = os.path.join(kodi.LARGE_ICON_DIR,
+                            icons.icon_for(self._store, entity_id) + ".png")
+        return path if os.path.isfile(path) else kodi.ADDON_ICON
 
     def _execute(self, entity_id, action):
         if action.kind == ha_actions.DETAILS:
@@ -1099,6 +1125,71 @@ class Dashboard(xbmcgui.WindowXML):
         except RuntimeError:
             pass
 
+
+
+class Dashboard(_Dashboard, xbmcgui.WindowXML):
+    pass
+
+
+class Shortcut(_Dashboard, xbmcgui.WindowXMLDialog):
+    """What a Kodi favourite of an entity opens: that entity's OK action, as
+    if pressed on the dashboard, with no dashboard to be seen.
+
+    A dialog lies over the window the favourite was chosen in rather than
+    taking its place, so that window is what stays in view and what Kodi
+    comes back to. Its skin file has nothing in it.
+    """
+
+    def __init__(self, xml_file, resource_path, theme_skin, theme_res, *args, **kwargs):
+        super().__init__(xml_file, resource_path, theme_skin, theme_res, *args, **kwargs)
+        self._entity_id = kwargs["entity_id"]
+        self._acted = False
+        self._busy = False
+        self._due = time.time() + _SHORTCUT_PATIENCE
+
+    def onInit(self):
+        if not self._started:
+            self._busy = True
+            xbmc.executebuiltin("ActivateWindow(busydialognocancel)")
+        super().onInit()
+
+    def pump(self):
+        super().pump()
+        if not self._acted:
+            if self._store.states:
+                self._act()
+            elif time.time() >= self._due:
+                kodi.notify(kodi.tr("disconnected"), error=True)
+                self.close()
+        elif self._overlay is None and self._live is None and self._ptz is None:
+            self.close()
+
+    def close(self):
+        self._end_busy()
+        super().close()
+
+    def _act(self):
+        self._acted = True
+        self._end_busy()
+        if self._entity_id not in self._store.states:
+            return
+        action = ha_actions.default_action(self._store, self._entity_id)
+        if action is not None:
+            self._execute(self._entity_id, action)
+
+    def _end_busy(self):
+        if self._busy:
+            self._busy = False
+            xbmc.executebuiltin("Dialog.Close(busydialognocancel)")
+
+    def _rebuild(self):
+        pass
+
+    def _refresh_rows(self, entity_ids):
+        pass
+
+    def _set_label(self, control_id, text):
+        pass
 
 def _is_entity_row(rows, position):
     try:
