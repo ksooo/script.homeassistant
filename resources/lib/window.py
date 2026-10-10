@@ -18,8 +18,8 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, direct, formatting, icons, kodi, mediadialog, model,
-               ptzdialog, sections, sliderdialog)
+from . import (cameras, details, detailsdialog, direct, formatting, icons, kodi,
+               mediadialog, model, ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
@@ -27,6 +27,7 @@ MEDIA_XML = "script.homeassistant-media.xml"
 SLIDER_XML = "script.homeassistant-slider.xml"
 PTZ_XML = "script.homeassistant-ptz.xml"
 SHORTCUT_XML = "script.homeassistant-shortcut.xml"
+DETAILS_XML = "script.homeassistant-details.xml"
 
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
@@ -1072,12 +1073,28 @@ class _Dashboard:
         state = self._store.states.get(entity_id)
         if state is None:
             return
-        lines = ["%s: %s" % (entity_id, state.state), ""]
-        for key in sorted(state.attributes):
-            lines.append("%s: %s" % (key, state.attributes[key]))
-        xbmcgui.Dialog().textviewer("%s - %s" % (kodi.tr("details_title"),
-                                                 self._store.name_of(entity_id)),
-                                    "\n".join(lines))
+        header = {
+            "name": self._store.name_of(entity_id),
+            "place": self._place_of(entity_id),
+            "state": formatting.state_text(self._store, entity_id, kodi.tr),
+            "changed": details.relative_time(state.last_changed, time.time(), kodi.tr),
+            "icon": self._favourite_icon(entity_id),
+            "colour": formatting.colour(self._store, entity_id),
+        }
+        dialog = detailsdialog.DetailsDialog(
+            DETAILS_XML, kodi.ADDON_PATH, "Default", "1080i", header=header,
+            groups=details.groups(self._store, entity_id, kodi.tr, kodi.timestamp_text))
+        dialog.doModal()
+        del dialog
+
+    def _place_of(self, entity_id):
+        """Room and device, as Home Assistant's dialog names them over the
+        entity: "Kellervorraum · Deckenlampe"."""
+        parts = [formatting.room_text(self._store, entity_id)]
+        entity = self._store.entities.get(entity_id)
+        if entity is not None and entity.device_id:
+            parts.append(self._store.device_name(entity.device_id))
+        return "  ·  ".join(part for part in parts if part)
 
     # -- control helpers -------------------------------------------------
 

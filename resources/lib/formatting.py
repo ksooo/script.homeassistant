@@ -196,6 +196,11 @@ def state_word(store, entity_id, state):
     return _translated(store, _state_keys(store, entity_id, state))
 
 
+def attribute_word(store, entity_id, attribute, value):
+    """Home Assistant's own word for an attribute's value, or "" where it has none."""
+    return _translated(store, _attribute_keys(store, entity_id, attribute, value))
+
+
 def _attribute_keys(store, entity_id, attribute, value):
     if not attribute:
         return []
@@ -206,6 +211,10 @@ def _attribute_keys(store, entity_id, attribute, value):
         keys.append("component.%s.entity.%s.%s.state_attributes.%s.state.%s"
                     % (entity.platform, domain, entity.translation_key,
                        attribute, value))
+    device_class = store.device_class_of(entity_id)
+    if device_class:
+        keys.append("component.%s.entity_component.%s.state_attributes.%s.state.%s"
+                    % (domain, device_class, attribute, value))
     keys.append("component.%s.entity_component._.state_attributes.%s.state.%s"
                 % (domain, attribute, value))
     return keys
@@ -260,6 +269,12 @@ def _is_number(value):
         return True
     except (TypeError, ValueError):
         return False
+
+
+def number_text(value):
+    """A number as the tiles show it: whole where it is whole, else at most
+    two places."""
+    return _number(value)
 
 
 def _number(value):

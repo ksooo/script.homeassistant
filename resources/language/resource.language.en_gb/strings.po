@@ -332,10 +332,6 @@ msgctxt "#30327"
 msgid "Details"
 msgstr ""
 
-msgctxt "#30329"
-msgid "Details"
-msgstr ""
-
 msgctxt "#30331"
 msgid "Command"
 msgstr ""
@@ -634,4 +630,120 @@ msgstr ""
 
 msgctxt "#30417"
 msgid "To play the live picture, please enable inputstream.webrtc."
+msgstr ""
+
+msgctxt "#30418"
+msgid "Entity"
+msgstr ""
+
+msgctxt "#30419"
+msgid "ID"
+msgstr ""
+
+msgctxt "#30421"
+msgid "Last changed"
+msgstr ""
+
+msgctxt "#30422"
+msgid "Last updated"
+msgstr ""
+
+msgctxt "#30423"
+msgid "Attributes"
+msgstr ""
+
+msgctxt "#30424"
+msgid "None"
+msgstr ""
+
+msgctxt "#30425"
+msgid "Unknown"
+msgstr ""
+
+msgctxt "#30426"
+msgid "1 second ago"
+msgstr ""
+
+msgctxt "#30427"
+msgid "%d seconds ago"
+msgstr ""
+
+msgctxt "#30428"
+msgid "1 minute ago"
+msgstr ""
+
+msgctxt "#30429"
+msgid "%d minutes ago"
+msgstr ""
+
+msgctxt "#30430"
+msgid "1 hour ago"
+msgstr ""
+
+msgctxt "#30431"
+msgid "%d hours ago"
+msgstr ""
+
+msgctxt "#30432"
+msgid "1 day ago"
+msgstr ""
+
+msgctxt "#30433"
+msgid "%d days ago"
+msgstr ""
+
+msgctxt "#30434"
+msgid "1 week ago"
+msgstr ""
+
+msgctxt "#30435"
+msgid "%d weeks ago"
+msgstr ""
+
+msgctxt "#30436"
+msgid "1 month ago"
+msgstr ""
+
+msgctxt "#30437"
+msgid "%d months ago"
+msgstr ""
+
+msgctxt "#30438"
+msgid "1 year ago"
+msgstr ""
+
+msgctxt "#30439"
+msgid "%d years ago"
+msgstr ""
+
+msgctxt "#30440"
+msgid "Assumed state"
+msgstr ""
+
+msgctxt "#30441"
+msgid "Attribution"
+msgstr ""
+
+msgctxt "#30442"
+msgid "Device class"
+msgstr ""
+
+msgctxt "#30443"
+msgid "Entity picture"
+msgstr ""
+
+msgctxt "#30444"
+msgid "Friendly name"
+msgstr ""
+
+msgctxt "#30445"
+msgid "Icon"
+msgstr ""
+
+msgctxt "#30446"
+msgid "Supported features"
+msgstr ""
+
+msgctxt "#30447"
+msgid "Unit of measurement"
 msgstr ""

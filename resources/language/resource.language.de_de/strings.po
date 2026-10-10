@@ -332,10 +332,6 @@ msgctxt "#30327"
 msgid "Details"
 msgstr "Details"
 
-msgctxt "#30329"
-msgid "Details"
-msgstr "Details"
-
 msgctxt "#30331"
 msgid "Command"
 msgstr "Befehl"
@@ -635,3 +631,119 @@ msgstr "Für die Wiedergabe des Livebildes bitte inputstream.webrtc installieren
 msgctxt "#30417"
 msgid "To play the live picture, please enable inputstream.webrtc."
 msgstr "Für die Wiedergabe des Livebildes bitte inputstream.webrtc aktivieren."
+
+msgctxt "#30418"
+msgid "Entity"
+msgstr "Entität"
+
+msgctxt "#30419"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "#30421"
+msgid "Last changed"
+msgstr "Zuletzt geändert"
+
+msgctxt "#30422"
+msgid "Last updated"
+msgstr "Zuletzt aktualisiert"
+
+msgctxt "#30423"
+msgid "Attributes"
+msgstr "Attribute"
+
+msgctxt "#30424"
+msgid "None"
+msgstr "Keine"
+
+msgctxt "#30425"
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgctxt "#30426"
+msgid "1 second ago"
+msgstr "Vor 1 Sekunde"
+
+msgctxt "#30427"
+msgid "%d seconds ago"
+msgstr "Vor %d Sekunden"
+
+msgctxt "#30428"
+msgid "1 minute ago"
+msgstr "Vor 1 Minute"
+
+msgctxt "#30429"
+msgid "%d minutes ago"
+msgstr "Vor %d Minuten"
+
+msgctxt "#30430"
+msgid "1 hour ago"
+msgstr "Vor 1 Stunde"
+
+msgctxt "#30431"
+msgid "%d hours ago"
+msgstr "Vor %d Stunden"
+
+msgctxt "#30432"
+msgid "1 day ago"
+msgstr "Vor 1 Tag"
+
+msgctxt "#30433"
+msgid "%d days ago"
+msgstr "Vor %d Tagen"
+
+msgctxt "#30434"
+msgid "1 week ago"
+msgstr "Vor 1 Woche"
+
+msgctxt "#30435"
+msgid "%d weeks ago"
+msgstr "Vor %d Wochen"
+
+msgctxt "#30436"
+msgid "1 month ago"
+msgstr "Vor 1 Monat"
+
+msgctxt "#30437"
+msgid "%d months ago"
+msgstr "Vor %d Monaten"
+
+msgctxt "#30438"
+msgid "1 year ago"
+msgstr "Vor 1 Jahr"
+
+msgctxt "#30439"
+msgid "%d years ago"
+msgstr "Vor %d Jahren"
+
+msgctxt "#30440"
+msgid "Assumed state"
+msgstr "Angenommener Zustand"
+
+msgctxt "#30441"
+msgid "Attribution"
+msgstr "Quellenangabe"
+
+msgctxt "#30442"
+msgid "Device class"
+msgstr "Geräteklasse"
+
+msgctxt "#30443"
+msgid "Entity picture"
+msgstr "Entitätsbild"
+
+msgctxt "#30444"
+msgid "Friendly name"
+msgstr "Anzeigename"
+
+msgctxt "#30445"
+msgid "Icon"
+msgstr "Symbol"
+
+msgctxt "#30446"
+msgid "Supported features"
+msgstr "Unterstützte Funktionen"
+
+msgctxt "#30447"
+msgid "Unit of measurement"
+msgstr "Maßeinheit"

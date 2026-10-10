@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <defaultcontrol>50</defaultcontrol>
+    <controls>
+        <control type="image">
+            <left>360</left><top>90</top><width>1200</width><height>900</height>
+            <texture border="24">panel.png</texture>
+        </control>
+
+        <!-- The head, as Home Assistant's own dialog has it: the entity with
+             its place, then its state large, and how long it has been. -->
+        <control type="image">
+            <left>420</left><top>141</top><width>96</width><height>96</height>
+            <aspectratio>keep</aspectratio>
+            <texture colordiffuse="29FFFFFF">circle.png</texture>
+        </control>
+        <control type="image" id="104">
+            <left>444</left><top>165</top><width>48</width><height>48</height>
+            <aspectratio>keep</aspectratio>
+            <colordiffuse>$INFO[Window.Property(colour)]</colordiffuse>
+        </control>
+        <control type="label" id="100">
+            <left>546</left><top>147</top><width>954</width><height>51</height>
+            <scroll>true</scroll><font>font14</font>
+            <textcolor>FFF0F0F0</textcolor><label></label>
+        </control>
+        <control type="label" id="101">
+            <left>546</left><top>198</top><width>954</width><height>36</height>
+            <font>font10</font><textcolor>FFA0A0A0</textcolor><label></label>
+        </control>
+        <control type="label" id="102">
+            <left>420</left><top>270</top><width>1080</width><height>72</height>
+            <align>center</align><font>font37</font>
+            <textcolor>FFF0F0F0</textcolor><label></label>
+        </control>
+        <control type="label" id="103">
+            <left>420</left><top>342</top><width>1080</width><height>39</height>
+            <align>center</align><font>font12</font>
+            <textcolor>FFA0A0A0</textcolor><label></label>
+        </control>
+
+        <control type="list" id="50">
+            <left>405</left><top>411</top><width>1092</width><height>540</height>
+            <onright>60</onright>
+            <pagecontrol>60</pagecontrol>
+            <scrolltime>200</scrolltime>
+            <itemlayout height="60" width="1092">
+                <control type="label">
+                    <left>18</left><top>15</top><width>1056</width><height>36</height>
+                    <font>font13</font><textcolor>FF6FC7EE</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
+                </control>
+                <control type="image">
+                    <left>18</left><top>54</top><width>1056</width><height>3</height>
+                    <texture border="1">separator.png</texture>
+                    <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
+                </control>
+                <control type="label">
+                    <left>18</left><top>12</top><width>450</width><height>36</height>
+                    <font>font12</font><textcolor>FFA0A0A0</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEqual(ListItem.Property(kind),row)</visible>
+                </control>
+                <control type="label">
+                    <left>486</left><top>12</top><width>588</width><height>36</height>
+                    <align>right</align><font>font12</font><textcolor>FFF0F0F0</textcolor>
+                    <label>$INFO[ListItem.Label2]</label>
+                    <visible>String.IsEqual(ListItem.Property(kind),row)</visible>
+                </control>
+            </itemlayout>
+            <focusedlayout height="60" width="1092">
+                <control type="label">
+                    <left>18</left><top>15</top><width>1056</width><height>36</height>
+                    <font>font13</font><textcolor>FF6FC7EE</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
+                </control>
+                <control type="image">
+                    <left>18</left><top>54</top><width>1056</width><height>3</height>
+                    <texture border="1">separator.png</texture>
+                    <visible>String.IsEqual(ListItem.Property(kind),header)</visible>
+                </control>
+                <control type="image">
+                    <left>0</left><top>3</top><width>1092</width><height>54</height>
+                    <texture border="21">tile_focus.png</texture>
+                    <visible>String.IsEqual(ListItem.Property(kind),row) + Control.HasFocus(50)</visible>
+                </control>
+                <control type="label">
+                    <left>18</left><top>12</top><width>450</width><height>36</height>
+                    <font>font12</font><textcolor>FFA0A0A0</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEqual(ListItem.Property(kind),row)</visible>
+                </control>
+                <!-- A long value scrolls where it is stood on. -->
+                <control type="label">
+                    <left>486</left><top>12</top><width>588</width><height>36</height>
+                    <align>right</align><scroll>true</scroll><font>font12</font>
+                    <textcolor>FFF0F0F0</textcolor>
+                    <label>$INFO[ListItem.Label2]</label>
+                    <visible>String.IsEqual(ListItem.Property(kind),row)</visible>
+                </control>
+            </focusedlayout>
+        </control>
+
+        <control type="scrollbar" id="60">
+            <left>1509</left><top>411</top><width>18</width><height>540</height>
+            <orientation>vertical</orientation>
+            <showonepage>false</showonepage>
+            <texturesliderbackground border="0,9,0,9" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
+            <texturesliderbar border="0,9,0,9" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
+            <texturesliderbarfocus border="0,9,0,9" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
+            <textureslidernib />
+            <textureslidernibfocus />
+            <onleft>50</onleft>
+        </control>
+    </controls>
+</window>

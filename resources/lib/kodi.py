@@ -1,5 +1,6 @@
 """Everything that talks to Kodi: settings, localisation, logging, dialogs."""
 
+import datetime
 import json
 import os
 import urllib.parse
@@ -172,3 +173,22 @@ def _json_rpc(method, **params):
     if "error" in answer:
         raise RuntimeError("%s: %s" % (method, answer["error"].get("message")))
     return answer.get("result") or {}
+
+
+def timestamp_text(iso):
+    """An ISO time in the reader's date and time format, in local time; a
+    bare date as a date. "" where it is neither."""
+    date_format = xbmc.getRegion("dateshort")
+    if len(iso) == 10:
+        try:
+            return datetime.date.fromisoformat(iso).strftime(date_format)
+        except ValueError:
+            return ""
+    try:
+        moment = datetime.datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except ValueError:
+        return ""
+    if moment.tzinfo is not None:
+        moment = moment.astimezone()
+    return moment.strftime("%s %s" % (date_format, xbmc.getRegion("time")))
+

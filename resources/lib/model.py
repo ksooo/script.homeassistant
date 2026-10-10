@@ -46,13 +46,16 @@ class Entity:
 
 
 class State:
-    __slots__ = ("entity_id", "domain", "state", "attributes")
+    __slots__ = ("entity_id", "domain", "state", "attributes", "last_changed",
+                 "last_updated")
 
     def __init__(self, payload):
         self.entity_id = payload["entity_id"]
         self.domain = self.entity_id.split(".", 1)[0]
         self.state = payload.get("state", "unknown")
         self.attributes = payload.get("attributes") or {}
+        self.last_changed = payload.get("last_changed", "")
+        self.last_updated = payload.get("last_updated", "")
 
     @property
     def name(self):
@@ -164,11 +167,12 @@ class Store:
 
     def _fetch_translations(self, client):
         """Home Assistant's wording for the values in an option list: a sound
-        field, a preset, a select's options.
+        field, a preset, a select's options - and, for the details dialog,
+        for attributes and device classes.
 
-        Only the keys that carry a value are kept - well under half of them -
-        and a raw value reads well enough that a failure here is worth no more
-        than a log line.
+        Only the keys that carry a value or such a name are kept - well under
+        half of them - and a raw value reads well enough that a failure here
+        is worth no more than a log line.
         """
         translations = {}
         for category in ("entity", "entity_component"):
@@ -179,8 +183,8 @@ class Store:
             except Exception as error:
                 self._log("%s translations unavailable: %s" % (category, error), 2)
                 continue
-            translations.update({key: text for key, text
-                                 in resources.items() if ".state." in key})
+            translations.update({key: text for key, text in resources.items()
+                                 if ".state." in key or _names_a_kind(key)})
         return translations
 
     def _apply_registries(self, registries):
@@ -370,6 +374,13 @@ class Store:
     def areas_without_floor(self):
         return [area for area in self.areas.values() if not area.get("floor_id")]
 
+
+
+def _names_a_kind(key):
+    """An attribute's name, or a device class's: what the details dialog
+    words its rows with."""
+    return key.endswith(".name") and (".state_attributes." in key
+                                      or ".entity_component." in key)
 
 def _registries(client):
     """The four registries, fetched but not yet installed."""
