@@ -15,6 +15,7 @@ quietly invalidate.
 | `energy/get_prefs` | which statistics the energy summary is made of |
 | `frontend/get_icons`, category `entity` | the icons an integration declares per state |
 | `get_config` | temperature unit, version |
+| `camera/capabilities` | which ways Home Assistant streams a camera: HLS, WebRTC or both |
 
 A renamed entity, a moved room, a reordered favourite or a changed energy
 configuration needs no code change.
@@ -31,6 +32,7 @@ configuration needs no code change.
 | Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
 | `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
 | `media_player.join` and `unjoin` with `group_members` | `resources/lib/mediadialog.py` | connecting players reports an error |
+| `camera/stream` for HLS, and the WebRTC inputstream's own signalling through Home Assistant | `resources/lib/window.py` | a camera's live picture fails |
 | The rest of the player's services and their fields: `media_seek` with `seek_position`, `shuffle_set` with `shuffle`, `repeat_set` with `repeat`, `select_source` with `source`, `select_sound_mode` with `sound_mode` | `resources/lib/mediadialog.py` | that one button or slider reports an error |
 
 ### Breaks quietly
@@ -46,7 +48,12 @@ This is the group that needs looking after.
 | How a row is named: `friendly_name` for rows, the registry name under a device heading, `name_by_user or name` for a device | `resources/lib/model.py` | rows are named differently from Home Assistant |
 | What OK does per domain, and which domains are read only | `resources/lib/actions.py` (`default_action`) | a new domain is treated as display only |
 | `frontend/get_translations` and the four key shapes an option value is looked up under | `resources/lib/formatting.py` (`option_text`) | option lists read as raw values again |
-| Kodi's own action ids, written as numbers: the context menu, info, back, and the five transport actions. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | an action does the wrong thing, or nothing |
+| Kodi's own action ids, written as numbers: the context menu, info, back, the five transport actions, and for the steering cross the arrows, page up and down and zoom in and out. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py`, `resources/lib/ptzdialog.py`, `resources/lib/detailsdialog.py` | an action does the wrong thing, or nothing |
+| How a live picture is had: the camera's own URL, then WebRTC before HLS as the frontend prefers them | `resources/lib/actions.py` (`live_ways`) | a camera plays a worse way than Home Assistant would |
+| Reolink's steering: the button translation keys `ptz_left` to `ptz_zoom_out` and `guard_go_to`, `reolink.ptz_move` with `speed` where a button's feature bit says so, and the lens a zoom belongs to, read from the channel in Reolink's unique ids (`<device>_<channel>_<key>`) | `resources/lib/actions.py` (`ptz_buttons`) | the steering cross or the lenses no longer appear |
+| Which states are a point in time and say how long ago - `TIMESTAMP_STATE_DOMAINS` and `SENSOR_TIMESTAMP_DEVICE_CLASSES` - and when the wording moves from seconds to minutes and on, `selectUnit`'s thresholds | `resources/lib/formatting.py` | a row shows a raw date again |
+| How the details dialog words an attribute: the name and value key shapes of `compute_attribute_display.ts`, `DOMAIN_ATTRIBUTES_UNITS`, `DOMAIN_ATTRIBUTES_FORMATERS`, `TEMPERATURE_ATTRIBUTES`, `DOMAIN_OPTIONS_ATTRIBUTES` and `getWeatherUnit` | `resources/lib/details.py` | an attribute reads raw, or without its unit |
+| When a number is a slider: `showNumberSlider` and its `AUTO_MODE_MAX_STEPS` | `resources/lib/actions.py` (`_number_action`) | a number opens the pad where Home Assistant shows a slider, or the reverse |
 | What the media window draws: which buttons a state and a feature mask earn, which icon each of them carries, which attribute the description line is taken from, and how a reported title is tidied - `computeMediaControls`, `computeMediaDescription` and `cleanupMediaTitle`, all three in the frontend | `resources/lib/media.py` | the window offers buttons Home Assistant would not, or says the wrong thing about what is playing |
 
 ### Cosmetic
@@ -58,6 +65,7 @@ This is the group that needs looking after.
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
 | The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
 | The media window's button labels, and the hint each of them puts at the foot of the dialog | `resources/language/*/strings.po` |
+| The details dialog's labels, the relative times, and the names of the eight attributes every entity can have, which the frontend words itself (`ui.components.attributes.names`) | `resources/language/*/strings.po` |
 
 A new or renamed icon in Home Assistant ends as an empty square here, not as an
 error.
@@ -213,6 +221,26 @@ times across one drag; the volume slider sends what it was left at a few times
 a second instead, volume being cheap to set. The cost is that a long drag of
 the position slider lands in one jump at the end rather than following the
 thumb.
+
+A script cannot claim an action either. Kodi acts on it first and tells the
+script afterwards, and the answer that decides whether it goes further comes
+from the native window, not from Python. A dialog without controls of its
+own handles nothing natively, so Kodi hands every action on: volume up and
+down would zoom the camera and change the volume along with it. That is why
+the steering cross zooms on page up and down, and on a remote without them
+switches the arrows over on the context menu action, which Kodi's player
+does nothing with.
+
+A Kodi favourite of a script keeps only the script's id: `CFavouritesURL`
+takes the first parameter of `RunScript` as the target, so `AddOrRemove`
+holds every entity's favourite for the same one and `Favourites.GetFavourites`
+returns no more than the id. A plugin URL is kept whole, which is what the
+plugin entry point is for.
+
+And a Python window's class makes its Kodi object from the first Kodi base it
+has. A dialog cannot be had by deriving one from the dashboard's window, so
+the dashboard's workings sit in a class of their own that the window and the
+favourite's dialog each put on their Kodi base.
 
 ## Checking a real install
 

@@ -46,8 +46,8 @@ login; it walks whatever steps Home Assistant declares.
 | Left / right | Walk between the two lists and the scrollbar each of them has |
 | Select on a section | Move on to the rows |
 | Select on a row | Act on the entity, offer the commands it understands, or open its window |
-| Info on a row | The entity's state and every attribute it reports |
-| Context menu | All other actions, entity details |
+| Info on a row | The entity's details: its state, its times and every attribute it reports |
+| Context menu | All other actions, the entity's details, and adding it to Kodi's favourites or removing it there |
 | Back | Close |
 
 Select does what the entity's domain suggests - toggling a light, opening a
@@ -127,8 +127,30 @@ three ways that is there:
    is missing.
 3. Home Assistant's HLS stream.
 
-A way that is found but will not play gives way to the next. A Reolink camera
-that pans and tilts can be steered with the arrow keys while it plays.
+A way that is found but will not play gives way to the next.
+
+A Reolink camera that pans and tilts can be steered with the arrow keys while
+it plays, and OK sends it to its home position. Where it zooms, page up and
+down - channel up and down on most remotes - or Kodi's zoom actions zoom it,
+shown as two lenses beside the steering cross; on a camera with two lenses,
+such as a TrackMix, only on the lens that zooms. On a remote without page
+keys, holding OK switches the arrows between steering and zooming.
+
+## Kodi favourites
+
+An entity that OK acts on can be added to Kodi's favourites from its context
+menu, and removed there again. Choosing the favourite does what OK does on
+the dashboard, without the dashboard coming into view: a dialog with nothing
+in it lies over the window the favourite was chosen in, Kodi's busy spinner
+shows while Home Assistant is reached, and Kodi comes back to that window
+afterwards. The favourite is named with the entity's device in front and
+carries the entity's icon, from a second set of the icons at 256 pixels.
+
+A favourite points at `plugin://script.homeassistant/?entity_id=...`, which
+is why the add-on has a plugin entry point beside its script: Kodi keeps only
+the script's id of a `RunScript` favourite, so every entity would count as
+the same one. Kodi therefore labels the favourite "Play media", whatever the
+entity is.
 
 ## Limits
 
