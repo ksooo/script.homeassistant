@@ -81,7 +81,7 @@ def default_action(store, entity_id):
         return Action("action_commands", COMMANDS)
 
     if domain in ("number", "input_number"):
-        return Action("action_set_value", NUMBER, domain, "set_value")
+        return _number_action(state)
 
     if domain in ("select", "input_select"):
         return Action("action_select_option", PICK, domain, "select_option",
@@ -122,7 +122,7 @@ def menu_actions(store, entity_id):
         actions.extend(_cover_actions(state))
 
     if domain in ("number", "input_number"):
-        actions.append(Action("action_set_value", NUMBER, domain, "set_value"))
+        actions.append(_number_action(state))
 
     if domain in ("select", "input_select"):
         actions.append(Action("action_select_option", PICK, domain,
@@ -423,6 +423,41 @@ def _light_commands(store, state):
     return commands
 
 
+# Home Assistant's AUTO_MODE_MAX_STEPS: an "auto" number is a slider up to
+# this many steps, a box beyond.
+_AUTO_SLIDER_STEPS = 256
+# A press moves a Kodi slider one step, where Home Assistant's is dragged, so
+# a long range is crossed in at most this many presses.
+_SLIDER_PRESSES = 100
+
+
+def _number_action(state):
+    """Setting a number: a slider where Home Assistant shows one
+    (showNumberSlider), the number pad otherwise.
+
+    A Kodi slider counts in whole numbers, so a number with a fractional
+    range or step keeps the pad.
+    """
+    domain = state.domain
+    attributes = state.attributes
+    try:
+        low, high = float(attributes["min"]), float(attributes["max"])
+        step = float(attributes.get("step") or 1)
+    except (KeyError, TypeError, ValueError):
+        return Action("action_set_value", NUMBER, domain, "set_value")
+    mode = attributes.get("mode")
+    slider = mode == "slider" or (
+        mode == "auto" and (high - low) / step <= _AUTO_SLIDER_STEPS)
+    whole = all(value == int(value) for value in (low, high, step))
+    if not slider or not whole or high <= low or step <= 0:
+        return Action("action_set_value", NUMBER, domain, "set_value")
+    presses = -(-int((high - low) / step) // _SLIDER_PRESSES)
+    return Action("action_set_value", SLIDER, domain, "set_value",
+                  {"as": "value", "min": int(low), "max": int(high),
+                   "step": int(step) * max(presses, 1),
+                   "unit": attributes.get("unit_of_measurement") or ""})
+
+
 def _kelvin_range(state):
     if "color_temp" not in (state.attributes.get("supported_color_modes") or []):
         return None
@@ -440,6 +475,11 @@ def slider_start(state, action):
     """
     data = action.data
     attributes = state.attributes if state is not None else {}
+    if data["as"] == "value":
+        try:
+            return min(max(int(round(float(state.state))), data["min"]), data["max"])
+        except (AttributeError, TypeError, ValueError):
+            return data["min"]
     if data["as"] == "brightness_pct":
         brightness = attributes.get("brightness")
         if brightness is None:

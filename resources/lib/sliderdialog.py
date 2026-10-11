@@ -1,4 +1,5 @@
-"""The slider a lamp's brightness or colour temperature is set with.
+"""The slider a lamp's brightness or colour temperature, or a number, is
+set with.
 
 Shown rather than run modally, like the media dialog, so the dashboard's loop
 can send where the slider stands while it moves - at most twice a second.
@@ -93,7 +94,7 @@ class SliderDialog(xbmcgui.WindowXMLDialog):
                                            data["max"])
         except RuntimeError:
             pass
-        self._set(LABEL_VALUE, "%d %s" % (value, data["unit"]))
+        self._set(LABEL_VALUE, ("%d %s" % (value, data["unit"])).strip())
 
     def _set(self, control_id, text):
         try:

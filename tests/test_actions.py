@@ -540,6 +540,38 @@ class Camera(unittest.TestCase):
 
 
 
+class NumberSlider(unittest.TestCase):
+    """A number is a slider where Home Assistant shows one (showNumberSlider)."""
+
+    def action(self, value="1000", **attributes):
+        store = one("number.zoom", value, **attributes)
+        return actions.default_action(store, "number.zoom"), store.states["number.zoom"]
+
+    def test_a_slider_number_gets_a_slider_crossed_in_a_hundred_presses(self):
+        action, state = self.action(min=1000, max=6000, step=1, mode="slider")
+        self.assertEqual(action.kind, actions.SLIDER)
+        self.assertEqual((action.data["min"], action.data["max"], action.data["step"]),
+                         (1000, 6000, 50))
+        self.assertEqual(actions.slider_start(state, action), 1000)
+
+    def test_auto_is_a_slider_only_for_a_short_range(self):
+        self.assertEqual(self.action(min=0, max=100, step=1, mode="auto")[0].kind,
+                         actions.SLIDER)
+        self.assertEqual(self.action(min=0, max=1000, step=1, mode="auto")[0].kind,
+                         actions.NUMBER)
+
+    def test_a_box_or_a_fraction_keeps_the_number_pad(self):
+        self.assertEqual(self.action(min=0, max=100, step=1, mode="box")[0].kind,
+                         actions.NUMBER)
+        self.assertEqual(self.action(min=0, max=10, step=0.5, mode="slider")[0].kind,
+                         actions.NUMBER)
+
+    def test_the_slider_starts_at_the_value_within_its_range(self):
+        action, state = self.action("2499.6", min=1000, max=6000, step=1, mode="slider")
+        self.assertEqual(actions.slider_start(state, action), 2500)
+        action, state = self.action("unknown", min=1000, max=6000, step=1, mode="slider")
+        self.assertEqual(actions.slider_start(state, action), 1000)
+
 class Ptz(unittest.TestCase):
     ROLES = (("ptz_left", "left"), ("ptz_right", "right"), ("ptz_up", "up"),
              ("ptz_down", "down"), ("ptz_stop", "stop"), ("guard_go_to", "home"),
