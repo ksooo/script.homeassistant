@@ -26,7 +26,7 @@ _RELOAD_DELAY = 1.0
 class Entity:
     __slots__ = ("entity_id", "domain", "name", "area_id", "device_id",
                  "device_class", "entity_category", "hidden", "disabled", "platform",
-                 "translation_key", "options")
+                 "translation_key", "unique_id", "options")
 
     def __init__(self, entry):
         self.entity_id = entry["entity_id"]
@@ -40,6 +40,7 @@ class Entity:
         self.disabled = bool(entry.get("disabled_by"))
         self.platform = entry.get("platform", "")
         self.translation_key = entry.get("translation_key") or ""
+        self.unique_id = entry.get("unique_id") or ""
         # Per-integration settings. Home Assistant keeps things here that are
         # neither state nor attribute, such as which rooms a vacuum has mapped.
         self.options = entry.get("options") or {}

@@ -539,20 +539,28 @@ class Camera(unittest.TestCase):
                          actions.LIVE)
 
 
+
 class Ptz(unittest.TestCase):
     ROLES = (("ptz_left", "left"), ("ptz_right", "right"), ("ptz_up", "up"),
-             ("ptz_down", "down"), ("ptz_stop", "stop"), ("guard_go_to", "home"))
+             ("ptz_down", "down"), ("ptz_stop", "stop"), ("guard_go_to", "home"),
+             ("ptz_zoom_in", "zoom_in"), ("ptz_zoom_out", "zoom_out"))
 
-    def store(self, platform="reolink", leave_out=(), disabled=()):
-        entities = [support.entity("camera.a", "Kamera", device_id="dev_cam",
-                                   platform=platform)]
+    def store(self, platform="reolink", leave_out=(), disabled=(), lens=1):
+        camera = support.entity("camera.a", "Kamera", device_id="dev_cam",
+                                platform=platform)
+        camera["unique_id"] = "SERIAL_%d_main" % lens
+        entities = [camera]
         states = [support.state("camera.a", "idle", supported_features=2)]
         for key, role in self.ROLES:
             if key in leave_out:
                 continue
             entity_id = "button.%s" % role
-            entities.append(support.entity(entity_id, role, device_id="dev_cam",
-                                           platform=platform, translation_key=key))
+            entity = support.entity(entity_id, role, device_id="dev_cam",
+                                    platform=platform, translation_key=key)
+            # As on a TrackMix: the head moves on the first channel, the
+            # telephoto lens zooms on the second.
+            entity["unique_id"] = "SERIAL_%d_%s" % (1 if "zoom" in key else 0, key)
+            entities.append(entity)
             if key not in disabled:
                 states.append(support.state(entity_id, "unknown"))
         entities.append(support.entity("button.other_left", "left", device_id="dev_other",
@@ -564,9 +572,16 @@ class Ptz(unittest.TestCase):
         self.assertEqual(actions.ptz_buttons(self.store(), "camera.a"),
                          {role: "button.%s" % role for _, role in self.ROLES})
 
-    def test_the_home_position_is_not_needed(self):
-        self.assertNotIn("home", actions.ptz_buttons(self.store(leave_out=("guard_go_to",)),
-                                                     "camera.a"))
+    def test_the_zoom_only_for_the_lens_it_zooms(self):
+        self.assertIn("zoom_in", actions.ptz_buttons(self.store(lens=1), "camera.a"))
+        buttons = actions.ptz_buttons(self.store(lens=0), "camera.a")
+        self.assertNotIn("zoom_in", buttons)
+        self.assertIn("left", buttons)
+
+    def test_the_home_position_and_the_zoom_are_not_needed(self):
+        buttons = actions.ptz_buttons(
+            self.store(leave_out=("guard_go_to", "ptz_zoom_in", "ptz_zoom_out")), "camera.a")
+        self.assertEqual(set(buttons), {"left", "right", "up", "down", "stop"})
 
     def test_without_every_direction_and_stop_it_is_not_steerable(self):
         self.assertIsNone(actions.ptz_buttons(self.store(leave_out=("ptz_stop",)), "camera.a"))
@@ -579,6 +594,14 @@ class Ptz(unittest.TestCase):
         for direction in ("left", "right", "up", "down"):
             store.states["button.%s" % direction].attributes["supported_features"] = 2
         self.assertTrue(actions.ptz_takes_speed(store, buttons))
+
+    def test_the_zoom_takes_a_speed_on_its_own_marks(self):
+        store = self.store()
+        buttons = actions.ptz_buttons(store, "camera.a")
+        store.states["button.zoom_in"].attributes["supported_features"] = 2
+        self.assertFalse(actions.ptz_takes_speed(store, buttons, actions.PTZ_ZOOMS))
+        store.states["button.zoom_out"].attributes["supported_features"] = 2
+        self.assertTrue(actions.ptz_takes_speed(store, buttons, actions.PTZ_ZOOMS))
 
     def test_only_reolink_is_known(self):
         self.assertIsNone(actions.ptz_buttons(self.store(platform="onvif"), "camera.a"))

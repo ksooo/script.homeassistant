@@ -393,11 +393,16 @@ class _Dashboard:
         def move(button):
             return self._send("reolink", "ptz_move", button, {"speed": _PTZ_SPEED})
 
+        def moving(roles):
+            if all(role in buttons for role in roles) and ha_actions.ptz_takes_speed(
+                    self._store, buttons, roles):
+                return move
+            return press
+
         dialog = ptzdialog.PtzDialog(
             PTZ_XML, kodi.ADDON_PATH, "Default", "1080i", buttons=buttons,
-            press=press,
-            move=move if ha_actions.ptz_takes_speed(self._store, buttons) else press,
-            end=player.stop)
+            press=press, move=moving(ha_actions.PTZ_DIRECTIONS),
+            zoom=moving(ha_actions.PTZ_ZOOMS), end=player.stop)
         dialog.show()
         self._ptz = (dialog, player)
 

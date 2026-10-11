@@ -92,6 +92,19 @@ def circle(size, colour):
     return render(size, size, shader)
 
 
+def pill(width, height, colour):
+    """A bar with round ends, as wide as the ends are round."""
+    radius = width / 2.0
+
+    def shader(x, y):
+        centre = min(max(y, radius), height - radius)
+        dx, dy = x - radius, y - centre
+        if (dx * dx + dy * dy) ** 0.5 > radius:
+            return None
+        return (colour[0], colour[1], colour[2], 1.0)
+    return render(width, height, shader)
+
+
 def horizontal_band(width, height, thickness, colour, opacity):
     """A line of the given thickness, centred in a taller transparent strip."""
     top = (height - thickness) / 2.0
@@ -192,6 +205,12 @@ def main():
     # One white circle, tinted per entity by the skin.
     made.append(write_png(os.path.join(MEDIA, "circle.png"), 128,
                           128, circle(128, (0xFF, 0xFF, 0xFF))))
+    # The zoom's ground beside the steering cross, in the proportions it is
+    # drawn in: kept to them as the cross's circle is kept round, it shrinks
+    # with the circle where Kodi stretches the skin to the screen. A tenth
+    # shorter than the circle, which it would otherwise look taller than.
+    made.append(write_png(os.path.join(MEDIA, "pill.png"), 192, 380,
+                          pill(192, 380, (0xFF, 0xFF, 0xFF))))
 
     for path in made:
         print("%7d  %s" % (os.path.getsize(path), os.path.relpath(path, ROOT)))
