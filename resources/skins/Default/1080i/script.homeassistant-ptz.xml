@@ -2,7 +2,7 @@
 <window>
     <!-- A steering cross over the video, where Home Assistant's camera
          dashboards put theirs, and the zoom beside it where the camera has
-         one. The arrow the camera is moving towards lights up in the colour
+         one, lit up while the arrows zoom. The arrow the camera is moving towards lights up in the colour
          ptzdialog.py gives it, the whole cross on the way home, and a lens
          while it zooms - long before the picture shows the move. -->
     <controls>
@@ -16,7 +16,8 @@
             <control type="image">
                 <left>81</left><top>18</top><width>48</width><height>48</height>
                 <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FFF0F0F0">icons/arrow-up.png</texture>
+                <colordiffuse>$INFO[Window.Property(ptz_arrows)]</colordiffuse>
+                <texture>icons/arrow-up.png</texture>
                 <visible>![String.IsEqual(Window.Property(ptz_move),up) | String.IsEqual(Window.Property(ptz_move),home)]</visible>
             </control>
             <control type="image">
@@ -29,7 +30,8 @@
             <control type="image">
                 <left>81</left><top>144</top><width>48</width><height>48</height>
                 <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FFF0F0F0">icons/arrow-down.png</texture>
+                <colordiffuse>$INFO[Window.Property(ptz_arrows)]</colordiffuse>
+                <texture>icons/arrow-down.png</texture>
                 <visible>![String.IsEqual(Window.Property(ptz_move),down) | String.IsEqual(Window.Property(ptz_move),home)]</visible>
             </control>
             <control type="image">
@@ -42,7 +44,8 @@
             <control type="image">
                 <left>18</left><top>81</top><width>48</width><height>48</height>
                 <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FFF0F0F0">icons/arrow-left.png</texture>
+                <colordiffuse>$INFO[Window.Property(ptz_arrows)]</colordiffuse>
+                <texture>icons/arrow-left.png</texture>
                 <visible>![String.IsEqual(Window.Property(ptz_move),left) | String.IsEqual(Window.Property(ptz_move),home)]</visible>
             </control>
             <control type="image">
@@ -55,7 +58,8 @@
             <control type="image">
                 <left>144</left><top>81</top><width>48</width><height>48</height>
                 <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FFF0F0F0">icons/arrow-right.png</texture>
+                <colordiffuse>$INFO[Window.Property(ptz_arrows)]</colordiffuse>
+                <texture>icons/arrow-right.png</texture>
                 <visible>![String.IsEqual(Window.Property(ptz_move),right) | String.IsEqual(Window.Property(ptz_move),home)]</visible>
             </control>
             <control type="image">
@@ -74,10 +78,18 @@
                 <aspectratio>keep</aspectratio>
                 <texture colordiffuse="66000000">pill.png</texture>
             </control>
+            <!-- Lighter while up and down zoom, the arrows dimmed meanwhile. -->
+            <control type="image">
+                <top>10</top><width>96</width><height>190</height>
+                <aspectratio>keep</aspectratio>
+                <texture colordiffuse="33FFFFFF">pill.png</texture>
+                <visible>String.IsEqual(Window.Property(ptz_mode),zoom)</visible>
+            </control>
             <control type="image">
                 <left>24</left><top>34</top><width>48</width><height>48</height>
                 <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FFF0F0F0">icons/magnify-plus.png</texture>
+                <colordiffuse>$INFO[Window.Property(ptz_lenses)]</colordiffuse>
+                <texture>icons/magnify-plus.png</texture>
                 <visible>!String.IsEqual(Window.Property(ptz_move),zoom_in)</visible>
             </control>
             <control type="image">
@@ -90,7 +102,8 @@
             <control type="image">
                 <left>24</left><top>128</top><width>48</width><height>48</height>
                 <aspectratio>keep</aspectratio>
-                <texture colordiffuse="FFF0F0F0">icons/magnify-minus.png</texture>
+                <colordiffuse>$INFO[Window.Property(ptz_lenses)]</colordiffuse>
+                <texture>icons/magnify-minus.png</texture>
                 <visible>!String.IsEqual(Window.Property(ptz_move),zoom_out)</visible>
             </control>
             <control type="image">

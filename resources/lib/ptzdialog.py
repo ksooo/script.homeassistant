@@ -17,6 +17,11 @@ volume. Volume up and down cannot be taken for the zoom: Kodi tells a
 script of an action only after acting on it itself, so the volume would
 change along with it.
 
+A remote with neither page keys nor zoom keys, such as the Shield's, zooms
+with the arrows instead: the context menu action - OK held, or the menu
+key - switches up and down between steering and zooming. Kodi's player
+does nothing with that action, so it is free to take.
+
 Reolink moves and zooms until it is told to stop, and Kodi never says that
 a key was let go. So a press is a short step: the move, and a stop a moment
 after the last press - which a held key, repeating, keeps putting off.
@@ -46,6 +51,9 @@ _HOME_LIT = 1.0
 
 _MOVING = "FF41BDF5"
 _FAILED = formatting.RED
+# The arrows, or the lenses, while the arrow keys work the other.
+_ARROWS = "FFF0F0F0"
+_ARROWS_ASIDE = "4DF0F0F0"
 
 ACTION_MOVE_LEFT = 1
 ACTION_MOVE_RIGHT = 2
@@ -58,11 +66,15 @@ ACTION_PREVIOUS_MENU = 10
 ACTION_ZOOM_OUT = 30
 ACTION_ZOOM_IN = 31
 ACTION_NAV_BACK = 92
+ACTION_CONTEXT_MENU = 117
 
 _MOVES = {ACTION_MOVE_LEFT: "left", ACTION_MOVE_RIGHT: "right",
           ACTION_MOVE_UP: "up", ACTION_MOVE_DOWN: "down"}
 _ZOOMS = {ACTION_ZOOM_IN: "zoom_in", ACTION_PAGE_UP: "zoom_in",
           ACTION_ZOOM_OUT: "zoom_out", ACTION_PAGE_DOWN: "zoom_out"}
+# The arrows in zoom mode: up and down zoom, left and right rest.
+_ZOOM_MODE = {ACTION_MOVE_UP: "zoom_in", ACTION_MOVE_DOWN: "zoom_out",
+              ACTION_MOVE_LEFT: None, ACTION_MOVE_RIGHT: None}
 
 
 class PtzDialog(xbmcgui.WindowXMLDialog):
@@ -73,6 +85,10 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
         self._send_move = {**{role: kwargs["move"] for role in _MOVES.values()},
                            **{role: kwargs["zoom"] for role in _ZOOMS.values()}}
         self._zooms = "zoom_in" in self._buttons and "zoom_out" in self._buttons
+        self._zoom_mode = False
+        # The modes show only once switched: a remote with page keys never
+        # needs them, and then nothing is dimmed.
+        self._modes_used = False
         self._end = kwargs["end"]
         self._moving = None
         self._sent_at = 0.0
@@ -84,6 +100,7 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
     def onInit(self):
         if self._zooms:
             self.setProperty("ptz_zoom", "yes")
+        self._show_mode()
 
     def onAction(self, action):
         code = action.getId()
@@ -91,7 +108,17 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
             self.finish()
             self._end()
             return
-        move = _MOVES.get(code) or (_ZOOMS.get(code) if self._zooms else None)
+        if code == ACTION_CONTEXT_MENU and self._zooms:
+            if self._moving is not None:
+                self._stop()
+            self._zoom_mode = not self._zoom_mode
+            self._modes_used = True
+            self._show_mode()
+            return
+        if self._zoom_mode and code in _ZOOM_MODE:
+            move = _ZOOM_MODE[code]
+        else:
+            move = _MOVES.get(code) or (_ZOOMS.get(code) if self._zooms else None)
         if move is not None:
             if time.time() < self._refused_until:
                 return
@@ -140,6 +167,12 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
         self._moving = None
         self.clearProperty("ptz_move")
         self._press(self._buttons["stop"])
+
+    def _show_mode(self):
+        aside = _ARROWS_ASIDE if self._modes_used else _ARROWS
+        self.setProperty("ptz_mode", "zoom" if self._zoom_mode else "steer")
+        self.setProperty("ptz_arrows", aside if self._zoom_mode else _ARROWS)
+        self.setProperty("ptz_lenses", _ARROWS if self._zoom_mode else aside)
 
     def _light(self, move, colour):
         self.setProperty("ptz_colour", colour)
