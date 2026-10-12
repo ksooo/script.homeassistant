@@ -5,7 +5,7 @@ favourites, the light, climate, security, maintenance, weather and energy
 summaries, and every area grouped by floor, floors in the order Home Assistant
 lists them. Inside an area the entities sit under their device. Every entity
 carries its Material Design icon in a tinted circle, coloured by state the way
-Home Assistant colours it - a locked lock green, an unlocked one red. States update live, and devices can be
+Home Assistant colours it - a locked lock green, an unlocked one red, a lit lamp in its own colour. States update live, and devices can be
 switched with the remote.
 
 ![icon](resources/icon.png)

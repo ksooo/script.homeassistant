@@ -161,6 +161,20 @@ class Colour(unittest.TestCase):
         self.assertEqual(self.colour("person.a", "home"), formatting.GREEN)
         self.assertEqual(self.colour("person.a", "not_home"), formatting.GREY)
 
+    def test_a_lit_lamp_shows_its_own_colour(self):
+        self.assertEqual(self.colour("light.a", "on", rgb_color=[255, 137, 14]),
+                         "FFFF890E")
+
+    def test_a_pale_lamp_is_strengthened_and_a_white_one_greyed(self):
+        self.assertEqual(self.colour("light.a", "on", rgb_color=[255, 200, 200]),
+                         "FFFF9999")
+        self.assertEqual(self.colour("light.a", "on", rgb_color=[255, 255, 255]),
+                         "FFE1E1E1")
+
+    def test_a_lamp_without_a_colour_keeps_the_state_colour(self):
+        self.assertEqual(self.colour("light.a", "on"), formatting.AMBER)
+        self.assertEqual(self.colour("light.a", "off"), formatting.GREY)
+
     def test_anything_unreachable_is_dimmed(self):
         self.assertEqual(self.colour("light.a", "unavailable"), formatting.DIM)
 

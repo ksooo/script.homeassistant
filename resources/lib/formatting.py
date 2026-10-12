@@ -161,6 +161,10 @@ def colour(store, entity_id):
     state = store.states.get(entity_id)
     if state is None or state.state in _UNAVAILABLE_STATES:
         return DIM
+    if state.domain == "light" and state.attributes.get("rgb_color"):
+        tint = _lamp_colour(state.attributes["rgb_color"])
+        if tint:
+            return tint
 
     by_state = _BY_DOMAIN_STATE.get(state.domain)
     if by_state and state.state in by_state:
@@ -181,6 +185,21 @@ def colour(store, entity_id):
     if state.state in _ACTIVE_STATES:
         return _ACTIVE_COLOUR
     return GREY
+
+
+def _lamp_colour(rgb):
+    """A lit lamp's own colour, as the tile card draws it: a pale colour
+    strengthened and white turned light grey, so that either stands out."""
+    try:
+        red, green, blue = (float(channel) for channel in rgb)
+    except (TypeError, ValueError):
+        return None
+    hue, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
+    if saturation < 0.1:
+        value = 225
+    elif saturation < 0.4:
+        saturation = 0.4
+    return _argb(colorsys.hsv_to_rgb(hue, saturation, value))
 
 
 def _as_number(value):

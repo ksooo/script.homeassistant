@@ -63,6 +63,7 @@ This is the group that needs looking after.
 | --- | --- |
 | The icon fallback chain: state pairs, device class table, domain table, and the battery ladder in ten percent steps | `resources/lib/icons.py` |
 | State colours, the active and unavailable state lists, the alarming device classes | `resources/lib/formatting.py` |
+| A lit lamp's own colour, from `rgb_color` and strengthened as the tile card's `_computeStateColor` does it | `resources/lib/formatting.py` (`_lamp_colour`) |
 | The colour picker: hue and saturation as Home Assistant's `ha-hs-color-picker` takes them, the colour modes it is offered for, and `hsv2rgb` at full value for the swatch | `resources/lib/actions.py`, `resources/lib/formatting.py` |
 | A favourite's swatch: `ha-favorite-color-button` and the conversions it uses, `temperature2rgb`, `rgbw2rgb` and `rgbww2rgb` | `resources/lib/formatting.py` (`favourite_swatch`), `resources/lib/kelvin.py` |
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
