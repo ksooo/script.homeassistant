@@ -1,3 +1,6 @@
+v1.12.1
+- Fixed: the live picture over WebRTC needs the WebRTC inputstream add-on 22.1.0 or later, which names the camera in the stream's URL
+
 v1.12.0
 - A steered Reolink camera that zooms can be zoomed from the remote too: page up and down - channel up and down on most remotes - or Kodi's zoom actions, shown as two lenses beside the steering cross. On a camera with two lenses, such as a TrackMix, only on the lens that zooms
 - On a remote without page keys, such as the Shield's, holding OK switches the arrows between steering and zooming
