@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <defaultcontrol>50</defaultcontrol>
+    <!-- Laid out for a panel at the top of the screen; dialogs.py sizes the
+         panel to the rows in use and moves the group down to centre it. -->
+    <controls>
+        <!-- In a group, as Kodi's Python cannot fetch a scrollbar to move it. -->
+        <control type="group" id="80">
+            <left>0</left><top>0</top>
+            <control type="image" id="90">
+                <left>510</left><top>0</top><width>900</width><height>300</height>
+                <texture border="24">panel.png</texture>
+            </control>
+
+            <control type="label" id="100">
+                <left>570</left><top>42</top><width>780</width><height>33</height>
+                <font>font10</font><textcolor>FFA0A0A0</textcolor><label></label>
+            </control>
+            <control type="label" id="101">
+                <left>570</left><top>75</top><width>780</width><height>54</height>
+                <scroll>true</scroll><font>font14</font>
+                <textcolor>FFF0F0F0</textcolor><label></label>
+            </control>
+
+            <!-- Room for eight rows; a shorter list leaves the rest empty, below
+                 the panel. -->
+            <control type="list" id="50">
+                <left>570</left><top>147</top><width>780</width><height>768</height>
+                <onright>60</onright>
+                <!-- Only a multiple choice goes down to OK; without a down that
+                     applies, the list wraps to the top. -->
+                <ondown condition="String.IsEqual(Window.Property(multi),true)">121</ondown>
+                <pagecontrol>60</pagecontrol>
+                <scrolltime>200</scrolltime>
+                <itemlayout height="96" width="780">
+                    <control type="image">
+                        <left>3</left><top>3</top><width>774</width><height>90</height>
+                        <texture border="15">item.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>18</left><top>15</top><width>66</width><height>66</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture>$INFO[ListItem.Art(thumb)]</texture>
+                        <visible>String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>27</left><top>0</top><width>666</width><height>96</height>
+                        <aligny>center</aligny><font>font13</font>
+                        <textcolor>FFF0F0F0</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>String.IsEmpty(ListItem.Label2) + !String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>27</left><top>12</top><width>666</width><height>42</height>
+                        <font>font13</font>
+                        <textcolor>FFF0F0F0</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2) + !String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>27</left><top>48</top><width>666</width><height>36</height>
+                        <font>font10</font>
+                        <textcolor>FFA0A0A0</textcolor><label>$INFO[ListItem.Label2]</label>
+                        <visible>!String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>117</left><top>0</top><width>576</width><height>96</height>
+                        <aligny>center</aligny><font>font13</font>
+                        <textcolor>FFF0F0F0</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>String.IsEmpty(ListItem.Label2) + String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>117</left><top>12</top><width>576</width><height>42</height>
+                        <font>font13</font>
+                        <textcolor>FFF0F0F0</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2) + String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>117</left><top>48</top><width>576</width><height>36</height>
+                        <font>font10</font>
+                        <textcolor>FFA0A0A0</textcolor><label>$INFO[ListItem.Label2]</label>
+                        <visible>String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="image">
+                        <left>711</left><top>27</top><width>42</width><height>42</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture colordiffuse="FF9CA3AF">icons/checkbox-blank-circle-outline.png</texture>
+                        <visible>String.IsEqual(Window.Property(multi),true) + !String.IsEqual(ListItem.Property(chosen),true)</visible>
+                    </control>
+                    <control type="image">
+                        <left>711</left><top>27</top><width>42</width><height>42</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture colordiffuse="FF41BDF5">icons/check-circle.png</texture>
+                        <visible>String.IsEqual(ListItem.Property(chosen),true)</visible>
+                    </control>
+                </itemlayout>
+                <focusedlayout height="96" width="780">
+                    <control type="image">
+                        <left>3</left><top>3</top><width>774</width><height>90</height>
+                        <texture border="15">item_focus.png</texture>
+                        <visible>Control.HasFocus(50)</visible>
+                    </control>
+                    <control type="image">
+                        <left>3</left><top>3</top><width>774</width><height>90</height>
+                        <texture border="15">item.png</texture>
+                        <visible>!Control.HasFocus(50)</visible>
+                    </control>
+                    <control type="image">
+                        <left>18</left><top>15</top><width>66</width><height>66</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture>$INFO[ListItem.Art(thumb)]</texture>
+                        <visible>String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>27</left><top>0</top><width>666</width><height>96</height>
+                        <aligny>center</aligny><scroll>true</scroll><font>font13</font>
+                        <textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>String.IsEmpty(ListItem.Label2) + !String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>27</left><top>12</top><width>666</width><height>42</height>
+                        <scroll>true</scroll><font>font13</font>
+                        <textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2) + !String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>27</left><top>48</top><width>666</width><height>36</height>
+                        <font>font10</font>
+                        <textcolor>FFE2EAF2</textcolor><label>$INFO[ListItem.Label2]</label>
+                        <visible>!String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>117</left><top>0</top><width>576</width><height>96</height>
+                        <aligny>center</aligny><scroll>true</scroll><font>font13</font>
+                        <textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>String.IsEmpty(ListItem.Label2) + String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>117</left><top>12</top><width>576</width><height>42</height>
+                        <scroll>true</scroll><font>font13</font>
+                        <textcolor>FFFFFFFF</textcolor><label>$INFO[ListItem.Label]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2) + String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="label">
+                        <left>117</left><top>48</top><width>576</width><height>36</height>
+                        <font>font10</font>
+                        <textcolor>FFE2EAF2</textcolor><label>$INFO[ListItem.Label2]</label>
+                        <visible>String.IsEqual(Window.Property(pictures),true)</visible>
+                    </control>
+                    <control type="image">
+                        <left>711</left><top>27</top><width>42</width><height>42</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture colordiffuse="FF9CA3AF">icons/checkbox-blank-circle-outline.png</texture>
+                        <visible>String.IsEqual(Window.Property(multi),true) + !String.IsEqual(ListItem.Property(chosen),true)</visible>
+                    </control>
+                    <control type="image">
+                        <left>711</left><top>27</top><width>42</width><height>42</height>
+                        <aspectratio>keep</aspectratio>
+                        <texture colordiffuse="FF41BDF5">icons/check-circle.png</texture>
+                        <visible>String.IsEqual(ListItem.Property(chosen),true)</visible>
+                    </control>
+                </focusedlayout>
+            </control>
+
+            <control type="scrollbar" id="60">
+                <left>1365</left><top>147</top><width>18</width><height>768</height>
+                <orientation>vertical</orientation>
+                <showonepage>false</showonepage>
+                <texturesliderbackground border="0,9,0,9" colordiffuse="29FFFFFF">scroll.png</texturesliderbackground>
+                <texturesliderbar border="0,9,0,9" colordiffuse="FFAAAAAA">scroll.png</texturesliderbar>
+                <texturesliderbarfocus border="0,9,0,9" colordiffuse="FF41BDF5">scroll.png</texturesliderbarfocus>
+                <textureslidernib />
+                <textureslidernibfocus />
+                <onleft>50</onleft>
+            </control>
+        </control>
+
+        <!-- OK under a multiple choice. Outside the group, where setPosition
+             does not move a button. -->
+        <control type="button" id="121">
+            <left>1110</left><top>0</top><width>240</width><height>84</height>
+            <onup>50</onup>
+            <texturefocus border="15">item_focus.png</texturefocus>
+            <texturenofocus border="15">item.png</texturenofocus>
+            <align>center</align><aligny>center</aligny><font>font13</font>
+            <textcolor>FFF0F0F0</textcolor><focusedcolor>FFFFFFFF</focusedcolor>
+            <label></label>
+        </control>
+    </controls>
+</window>

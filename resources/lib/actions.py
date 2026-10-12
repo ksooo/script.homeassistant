@@ -533,6 +533,19 @@ def _kelvin_range(state):
     return (low, high) if low < high else None
 
 
+# The picks whose current value is the state itself; every other one keeps
+# it in the attribute named like its service field.
+_PICKED_IN_STATE = ("option", "hvac_mode")
+
+
+def pick_current(state, action):
+    """The value a pick stands at, for the dialog to mark."""
+    field = action.data.get("as")
+    if field in _PICKED_IN_STATE:
+        return state.state
+    return state.attributes.get(field)
+
+
 def slider_start(state, action):
     """Where a slider opens: at the lamp's own value where it has one.
 

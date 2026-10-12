@@ -13,7 +13,7 @@ import time
 import xbmcgui
 
 from . import actions as ha_actions
-from . import browse, formatting, kodi, media
+from . import browse, dialogs, formatting, kodi, media
 
 LABEL_ROOM = 100
 LABEL_NAME = 101
@@ -512,11 +512,14 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         except RuntimeError:
             pass
 
+    def _name(self):
+        return self._store.display_name_of(self._entity_id)
+
     def _choose_source(self, state):
         names = media.sources(state)
         if not names:
             return
-        choice = xbmcgui.Dialog().select(kodi.tr("action_source"), names)
+        choice = dialogs.select(kodi.tr("action_source"), self._name(), names)
         if choice >= 0:
             self._call(self._entity_id, "select_source", {"source": names[choice]})
 
@@ -528,8 +531,8 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         labels = formatting.option_texts(self._store, self._entity_id,
                                          "sound_mode", names)
         current = str(state.attributes.get("sound_mode") or "")
-        choice = xbmcgui.Dialog().select(
-            kodi.tr("action_sound_mode"), labels,
+        choice = dialogs.select(
+            kodi.tr("action_sound_mode"), self._name(), labels,
             preselect=names.index(current) if current in names else -1)
         if choice >= 0:
             self._call(self._entity_id, "select_sound_mode",
@@ -545,8 +548,8 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
         choices = media.group_choices(self._store, self._entity_id)
         if not choices:
             return
-        picked = xbmcgui.Dialog().multiselect(
-            kodi.tr("action_group"), [name for _, name, _ in choices],
+        picked = dialogs.multiselect(
+            kodi.tr("action_group"), self._name(), [name for _, name, _ in choices],
             preselect=[index for index, choice in enumerate(choices) if choice[2]])
         if picked is None:
             return
@@ -580,9 +583,9 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
                 kodi.notify(kodi.tr("browse_empty"))
                 trail.pop()
                 continue
-            choice = xbmcgui.Dialog().select(
-                title or str(node.get("title") or ""),
-                [self._item(row) for row in listing], useDetails=True)
+            choice = dialogs.select(
+                self._name(), title or str(node.get("title") or ""),
+                [self._item(row) for row in listing])
             if choice < 0:
                 trail.pop()
                 continue
@@ -600,8 +603,7 @@ class MediaDialog(xbmcgui.WindowXMLDialog):
 
         Home Assistant's thumbnails are absolute for a station's own logo and
         relative for an integration's brand, which image_url tells apart. A
-        line that brings none falls back to a shipped icon, and that needs its
-        full path: the select dialog is a dialog of Kodi's, not this skin.
+        line that brings none falls back to a shipped icon.
         """
         item = xbmcgui.ListItem(row.title)
         picture = self._art_url(row.thumbnail) if row.thumbnail else os.path.join(

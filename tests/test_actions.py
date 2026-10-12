@@ -373,6 +373,16 @@ class Light(unittest.TestCase):
         self.assertEqual(
             actions.favourite_colours(store, store.states["light.a"]), [])
 
+    def test_a_pick_stands_at_the_state_or_the_attribute_named_like_its_field(self):
+        store = one("select.a", "eco", options=["eco", "comfort"])
+        action = actions.default_action(store, "select.a")
+        self.assertEqual(actions.pick_current(store.states["select.a"], action), "eco")
+        store = one("vacuum.a", "docked", supported_features=1 << 5,
+                    fan_speed_list=["quiet", "turbo"], fan_speed="turbo")
+        action = [a for a in actions.commands_for(store, store.states["vacuum.a"])
+                  if a.label_key == "action_fan_speed"][0]
+        self.assertEqual(actions.pick_current(store.states["vacuum.a"], action), "turbo")
+
     def test_a_lamp_that_names_no_range_gets_home_assistants(self):
         store = one("light.a", "on", supported_color_modes=["color_temp"])
         action = actions.commands_for(store, store.states["light.a"])[1]

@@ -57,6 +57,11 @@ thermostat, an alarm panel and a water heater all do that. A media player gets
 a window of its own instead, see below. Anything that could surprise is in the
 context menu only: installing an update, triggering an automation.
 
+Lists to choose from, the context menu and questions come up in dialogs of
+the add-on's own look rather than Kodi's, each naming the entity it is
+about and ticking the current choice where there is one. Only the keyboard,
+the number pad and the settings stay Kodi's.
+
 A lamp's menu sets its brightness and colour temperature on a slider, and
 its colour on two: hue and saturation, the two values Home Assistant's
 colour wheel picks, which a remote steers more easily than a wheel. Its

@@ -48,7 +48,7 @@ This is the group that needs looking after.
 | How a row is named: `friendly_name` for rows, the registry name under a device heading, `name_by_user or name` for a device | `resources/lib/model.py` | rows are named differently from Home Assistant |
 | What OK does per domain, and which domains are read only | `resources/lib/actions.py` (`default_action`) | a new domain is treated as display only |
 | `frontend/get_translations` and the four key shapes an option value is looked up under | `resources/lib/formatting.py` (`option_text`) | option lists read as raw values again |
-| Kodi's own action ids, written as numbers: the context menu, info, back, the five transport actions, and for the steering cross the arrows, page up and down and zoom in and out. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py`, `resources/lib/ptzdialog.py`, `resources/lib/detailsdialog.py` | an action does the wrong thing, or nothing |
+| Kodi's own action ids, written as numbers: the context menu, info, back, the five transport actions, and for the steering cross the arrows, page up and down and zoom in and out. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py`, `resources/lib/ptzdialog.py`, `resources/lib/detailsdialog.py`, `resources/lib/dialogs.py` | an action does the wrong thing, or nothing |
 | How a live picture is had: the camera's own URL, then WebRTC before HLS as the frontend prefers them | `resources/lib/actions.py` (`live_ways`) | a camera plays a worse way than Home Assistant would |
 | Reolink's steering: the button translation keys `ptz_left` to `ptz_zoom_out` and `guard_go_to`, `reolink.ptz_move` with `speed` where a button's feature bit says so, and the lens a zoom belongs to, read from the channel in Reolink's unique ids (`<device>_<channel>_<key>`) | `resources/lib/actions.py` (`ptz_buttons`) | the steering cross or the lenses no longer appear |
 | Which states are a point in time and say how long ago - `TIMESTAMP_STATE_DOMAINS` and `SENSOR_TIMESTAMP_DEVICE_CLASSES` - and when the wording moves from seconds to minutes and on, `selectUnit`'s thresholds | `resources/lib/formatting.py` | a row shows a raw date again |
@@ -69,6 +69,7 @@ This is the group that needs looking after.
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
 | The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
 | The media window's button labels, and the hint each of them puts at the foot of the dialog | `resources/language/*/strings.po` |
+| The words on the dialogs' buttons, Kodi's own strings 106, 107 and 186 (No, Yes, OK) | `resources/lib/dialogs.py` |
 | The details dialog's labels, the relative times, and the names of the eight attributes every entity can have, which the frontend words itself (`ui.components.attributes.names`) | `resources/language/*/strings.po` |
 
 A new or renamed icon in Home Assistant ends as an empty square here, not as an
@@ -225,6 +226,17 @@ times across one drag; the volume slider sends what it was left at a few times
 a second instead, volume being cheap to set. The cost is that a long drag of
 the position slider lands in one jump at the end rather than following the
 thumb.
+
+Nor can a script fetch a scrollbar: the control factory that refuses
+`sliderex` has no case for it either. The select dialog, which moves its
+rows to centre itself, therefore moves the group they sit in, scrollbar and
+all. Its OK button stays outside the group: inside it, `setPosition` left the
+button where the skin put it.
+
+`Control.HasFocus` in a list layout is not asked of the window the list is
+in: without a window to go by, Kodi asks the topmost modal dialog. Behind a
+dialog of the add-on's own, the dashboard therefore names those dialogs to
+keep its row marked.
 
 A script cannot claim an action either. Kodi acts on it first and tells the
 script afterwards, and the answer that decides whether it goes further comes

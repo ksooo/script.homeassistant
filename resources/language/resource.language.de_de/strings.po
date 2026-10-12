@@ -333,8 +333,8 @@ msgid "Details"
 msgstr "Details"
 
 msgctxt "#30331"
-msgid "Command"
-msgstr "Befehl"
+msgid "Actions"
+msgstr "Aktionen"
 
 msgctxt "#30332"
 msgid "Pause"

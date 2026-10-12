@@ -19,7 +19,7 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, colourdialog, details, detailsdialog, direct,
+from . import (cameras, colourdialog, details, detailsdialog, dialogs, direct,
                favouritesdialog, formatting, icons, kodi, mediadialog, model,
                ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
@@ -360,7 +360,7 @@ class _Dashboard:
         elif player.failure:
             kodi.notify(player.failure, error=True)
         elif player.notice:
-            xbmcgui.Dialog().ok(player.name, player.notice)
+            dialogs.ok(player.name, player.notice)
         elif not player.started:
             if player.source is None and time.time() < due:
                 return
@@ -792,7 +792,9 @@ class _Dashboard:
         favourite = kodi.is_favourite(url)
         # Only what OK does something with: a favourite opens that.
         offered = favourite or ha_actions.default_action(self._store, entity_id) is not None
-        choice = xbmcgui.Dialog().contextmenu(
+        choice = dialogs.select(
+            formatting.room_text(self._store, entity_id),
+            self._store.display_name_of(entity_id),
             [kodi.tr(action.label_key) for action in menu]
             + ([kodi.tr("favourite_remove" if favourite else "favourite_add")]
                if offered else []))
@@ -857,8 +859,8 @@ class _Dashboard:
         commands = ha_actions.commands_for(self._store, state)
         if not commands:
             return
-        choice = xbmcgui.Dialog().select(
-            kodi.tr("action_commands"),
+        choice = dialogs.select(
+            kodi.tr("action_commands"), self._store.display_name_of(entity_id),
             [kodi.tr(command.label_key) for command in commands])
         if choice >= 0:
             self._execute(entity_id, commands[choice])
@@ -892,15 +894,19 @@ class _Dashboard:
                                       attributes)
             if not values:
                 return None
-            choice = dialog.select(kodi.tr(action.label_key), labels)
+            current = ha_actions.pick_current(state, action) if state else None
+            choice = dialogs.select(
+                kodi.tr(action.label_key), self._store.display_name_of(entity_id),
+                labels, preselect=values.index(current) if current in values else -1)
             return None if choice < 0 else {action.data["as"]: values[choice]}
 
         if action.kind == ha_actions.AREAS:
             rooms = self._clean_areas(entity_id)
             if not rooms:
                 return None
-            chosen = xbmcgui.Dialog().multiselect(
-                kodi.tr(action.label_key), [name for name, _ in rooms])
+            chosen = dialogs.multiselect(
+                kodi.tr(action.label_key), self._store.display_name_of(entity_id),
+                [name for name, _ in rooms])
             if not chosen:
                 return None
             return {action.data["as"]: [rooms[index][1] for index in chosen]}
@@ -958,7 +964,7 @@ class _Dashboard:
         if asking is None:
             return True
         title, text = asking
-        return xbmcgui.Dialog().yesno(
+        return dialogs.yesno(
             kodi.tr(title),
             kodi.tr(text) % self._store.display_name_of(entity_id))
 
