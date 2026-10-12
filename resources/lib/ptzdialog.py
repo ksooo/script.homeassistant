@@ -170,7 +170,6 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
 
     def _show_mode(self):
         aside = _ARROWS_ASIDE if self._modes_used else _ARROWS
-        self.setProperty("ptz_mode", "zoom" if self._zoom_mode else "steer")
         self.setProperty("ptz_arrows", aside if self._zoom_mode else _ARROWS)
         self.setProperty("ptz_lenses", _ARROWS if self._zoom_mode else aside)
 

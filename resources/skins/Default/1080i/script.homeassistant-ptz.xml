@@ -2,7 +2,7 @@
 <window>
     <!-- A steering cross over the video, where Home Assistant's camera
          dashboards put theirs, and the zoom beside it where the camera has
-         one, lit up while the arrows zoom. The arrow the camera is moving towards lights up in the colour
+         one. The arrow the camera is moving towards lights up in the colour
          ptzdialog.py gives it, the whole cross on the way home, and a lens
          while it zooms - long before the picture shows the move. -->
     <controls>
@@ -77,13 +77,6 @@
                 <top>10</top><width>96</width><height>190</height>
                 <aspectratio>keep</aspectratio>
                 <texture colordiffuse="66000000">pill.png</texture>
-            </control>
-            <!-- Lighter while up and down zoom, the arrows dimmed meanwhile. -->
-            <control type="image">
-                <top>10</top><width>96</width><height>190</height>
-                <aspectratio>keep</aspectratio>
-                <texture colordiffuse="33FFFFFF">pill.png</texture>
-                <visible>String.IsEqual(Window.Property(ptz_mode),zoom)</visible>
             </control>
             <control type="image">
                 <left>24</left><top>34</top><width>48</width><height>48</height>
