@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.12.1"
+       version="1.13.0"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -20,8 +20,10 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.12.1
-- Fixed: the live picture over WebRTC needs the WebRTC inputstream add-on 22.1.0 or later, which names the camera in the stream's URL
+    <news>v1.13.0
+- A lamp that takes a colour can be set to one from its menu, on two sliders for hue and saturation
+- A lamp's favourite colours, as Home Assistant keeps them, open from its menu as swatches. OK sets the one in focus and leaves them open to try the next
+- A lit lamp's icon shows the lamp's own colour, as in Home Assistant
 </news>
     <assets>
       <icon>resources/icon.png</icon>

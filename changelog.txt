@@ -1,3 +1,8 @@
+v1.13.0
+- A lamp that takes a colour can be set to one from its menu, on two sliders for hue and saturation
+- A lamp's favourite colours, as Home Assistant keeps them, open from its menu as swatches. OK sets the one in focus and leaves them open to try the next
+- A lit lamp's icon shows the lamp's own colour, as in Home Assistant
+
 v1.12.1
 - Fixed: the live picture over WebRTC needs the WebRTC inputstream add-on 22.1.0 or later, which names the camera in the stream's URL
 
