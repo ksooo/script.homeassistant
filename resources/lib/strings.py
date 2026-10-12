@@ -83,6 +83,7 @@ IDS = {
     "action_colour": 30391,
     "colour_hue": 30392,
     "colour_saturation": 30393,
+    "action_favourite_colours": 30394,
     "action_effect": 30348,
     "action_clean_areas": 30349,
     "action_arm_home": 30350,

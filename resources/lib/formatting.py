@@ -4,7 +4,7 @@ import colorsys
 import datetime
 import time
 
-from . import strings
+from . import kelvin, strings
 
 # Home Assistant's state colours. It picks these in the frontend, so the
 # mapping is mirrored here - the same maintenance caveat as the summaries.
@@ -348,6 +348,73 @@ def parse_time(iso):
 def hs_colour(hue, saturation):
     """A hue and saturation at full brightness, as an ARGB string for the
     skin - hsv2rgb with the value at its top, as Home Assistant draws it."""
+    return _argb(_hs_rgb(hue, saturation))
+
+
+def favourite_swatch(favourite, attributes):
+    """The ARGB colour a favourite is drawn in, converted as Home
+    Assistant's ha-favorite-color-button does; white for what it cannot
+    read."""
+    try:
+        if "hs_color" in favourite:
+            hue, saturation = favourite["hs_color"]
+            return _argb(_hs_rgb(float(hue), float(saturation)))
+        if "color_temp_kelvin" in favourite:
+            return _argb(kelvin.rgb(float(favourite["color_temp_kelvin"])))
+        if "rgb_color" in favourite:
+            red, green, blue = favourite["rgb_color"]
+            return _argb((float(red), float(green), float(blue)))
+        if "rgbw_color" in favourite:
+            return _argb(_rgbw_rgb(*(float(c) for c in favourite["rgbw_color"])))
+        if "rgbww_color" in favourite:
+            return _argb(_rgbww_rgb(
+                [float(c) for c in favourite["rgbww_color"]],
+                attributes.get("min_color_temp_kelvin") or 2700,
+                attributes.get("max_color_temp_kelvin") or 6500))
+    except (TypeError, ValueError, ZeroDivisionError):
+        pass
+    return "FFFFFFFF"
+
+
+def favourite_note(favourite):
+    """The words under a favourite in focus: its colour temperature, if it
+    is one."""
+    try:
+        return "%d K" % int(favourite["color_temp_kelvin"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+
+
+def _hs_rgb(hue, saturation):
     red, green, blue = colorsys.hsv_to_rgb(hue / 360.0, saturation / 100.0, 1.0)
-    return "FF%02X%02X%02X" % tuple(int(round(channel * 255))
-                                    for channel in (red, green, blue))
+    return red * 255, green * 255, blue * 255
+
+
+def _rgbw_rgb(red, green, blue, white):
+    return _match_max_scale((red, green, blue, white),
+                            (red + white, green + white, blue + white))
+
+
+def _rgbww_rgb(rgbww, low_kelvin, high_kelvin):
+    red, green, blue, cold, warm = rgbww
+    white = (0, 0, 0)
+    if cold + warm:
+        high_mireds = 1000000 // low_kelvin
+        low_mireds = 1000000 // high_kelvin
+        mireds = low_mireds + warm / (cold + warm) * (high_mireds - low_mireds)
+        if mireds:
+            white = kelvin.rgb(1000000 // mireds)
+    level = max(cold, warm) / 255.0
+    return _match_max_scale(rgbww, [channel + tint * level for channel, tint
+                                    in zip((red, green, blue), white)])
+
+
+def _match_max_scale(given, made):
+    """made, scaled so that its brightest channel is given's brightest."""
+    factor = max(given) / max(made) if max(made) else 0.0
+    return [int(channel * factor + 0.5) for channel in made]
+
+
+def _argb(rgb):
+    return "FF%02X%02X%02X" % tuple(max(0, min(255, int(channel + 0.5)))
+                                    for channel in rgb)

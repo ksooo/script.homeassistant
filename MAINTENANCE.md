@@ -54,6 +54,7 @@ This is the group that needs looking after.
 | Which states are a point in time and say how long ago - `TIMESTAMP_STATE_DOMAINS` and `SENSOR_TIMESTAMP_DEVICE_CLASSES` - and when the wording moves from seconds to minutes and on, `selectUnit`'s thresholds | `resources/lib/formatting.py` | a row shows a raw date again |
 | How the details dialog words an attribute: the name and value key shapes of `compute_attribute_display.ts`, `DOMAIN_ATTRIBUTES_UNITS`, `DOMAIN_ATTRIBUTES_FORMATERS`, `TEMPERATURE_ATTRIBUTES`, `DOMAIN_OPTIONS_ATTRIBUTES` and `getWeatherUnit` | `resources/lib/details.py` | an attribute reads raw, or without its unit |
 | When a number is a slider: `showNumberSlider` and its `AUTO_MODE_MAX_STEPS` | `resources/lib/actions.py` (`_number_action`) | a number opens the pad where Home Assistant shows a slider, or the reverse |
+| A lamp's favourite colours: the registry's `options.light.favorite_colors`, and where none were saved `computeDefaultFavoriteColors`; which lamps have them, `lightSupportsFavoriteColors` and `shouldShowFavoriteOptions` | `resources/lib/actions.py` (`favourite_colours`) | a lamp offers other favourites than Home Assistant, or none |
 | What the media window draws: which buttons a state and a feature mask earn, which icon each of them carries, which attribute the description line is taken from, and how a reported title is tidied - `computeMediaControls`, `computeMediaDescription` and `cleanupMediaTitle`, all three in the frontend | `resources/lib/media.py` | the window offers buttons Home Assistant would not, or says the wrong thing about what is playing |
 
 ### Cosmetic
@@ -63,6 +64,7 @@ This is the group that needs looking after.
 | The icon fallback chain: state pairs, device class table, domain table, and the battery ladder in ten percent steps | `resources/lib/icons.py` |
 | State colours, the active and unavailable state lists, the alarming device classes | `resources/lib/formatting.py` |
 | The colour picker: hue and saturation as Home Assistant's `ha-hs-color-picker` takes them, the colour modes it is offered for, and `hsv2rgb` at full value for the swatch | `resources/lib/actions.py`, `resources/lib/formatting.py` |
+| A favourite's swatch: `ha-favorite-color-button` and the conversions it uses, `temperature2rgb`, `rgbw2rgb` and `rgbww2rgb` | `resources/lib/formatting.py` (`favourite_swatch`), `resources/lib/kelvin.py` |
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
 | The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
 | The media window's button labels, and the hint each of them puts at the foot of the dialog | `resources/language/*/strings.po` |

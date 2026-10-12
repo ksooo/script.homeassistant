@@ -59,7 +59,10 @@ context menu only: installing an update, triggering an automation.
 
 A lamp's menu sets its brightness and colour temperature on a slider, and
 its colour on two: hue and saturation, the two values Home Assistant's
-colour wheel picks, which a remote steers more easily than a wheel.
+colour wheel picks, which a remote steers more easily than a wheel. Its
+favourite colours, the ones Home Assistant offers under the lamp, open as
+swatches in rows: Select sets the one in focus, and they stay open for the
+next. They are edited in Home Assistant.
 
 ## The media window
 

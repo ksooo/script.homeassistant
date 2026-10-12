@@ -109,6 +109,30 @@ class HsColour(unittest.TestCase):
         self.assertEqual(formatting.hs_colour(77, 0), "FFFFFFFF")
 
 
+class FavouriteSwatch(unittest.TestCase):
+    def swatch(self, favourite, **attributes):
+        return formatting.favourite_swatch(favourite, attributes)
+
+    def test_each_kind_of_favourite_is_drawn_in_its_colour(self):
+        self.assertEqual(self.swatch({"hs_color": [0, 100]}), "FFFF0000")
+        self.assertEqual(self.swatch({"rgb_color": [255, 110, 84]}), "FFFF6E54")
+        self.assertEqual(self.swatch({"color_temp_kelvin": 6600}), "FFFFFFFF")
+
+    def test_white_channels_are_mixed_in_as_home_assistant_does(self):
+        self.assertEqual(self.swatch({"rgbw_color": [255, 0, 0, 255]}), "FFFF8080")
+        self.assertEqual(self.swatch({"rgbww_color": [0, 0, 0, 0, 0]}), "FF000000")
+        self.assertEqual(self.swatch({"rgbww_color": [255, 0, 0, 0, 0]}), "FFFF0000")
+
+    def test_what_cannot_be_read_is_white(self):
+        self.assertEqual(self.swatch({"xy_color": [0.3, 0.3]}), "FFFFFFFF")
+        self.assertEqual(self.swatch({"hs_color": "red"}), "FFFFFFFF")
+
+    def test_only_a_white_tone_is_named(self):
+        self.assertEqual(formatting.favourite_note({"color_temp_kelvin": 2700}),
+                         "2700 K")
+        self.assertEqual(formatting.favourite_note({"hs_color": [0, 100]}), "")
+
+
 class Colour(unittest.TestCase):
     def colour(self, *args, **kwargs):
         return formatting.colour(one(*args, **kwargs), args[0])

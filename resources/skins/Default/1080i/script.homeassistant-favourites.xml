@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <defaultcontrol>50</defaultcontrol>
+    <controls>
+        <control type="image" id="90">
+            <left>510</left><top>360</top><width>900</width><height>360</height>
+            <texture border="24">panel.png</texture>
+        </control>
+
+        <control type="label" id="100">
+            <left>570</left><top>402</top><width>780</width><height>33</height>
+            <font>font10</font><textcolor>FFA0A0A0</textcolor><label></label>
+        </control>
+        <control type="label" id="101">
+            <left>570</left><top>435</top><width>780</width><height>54</height>
+            <scroll>true</scroll><font>font14</font>
+            <textcolor>FFF0F0F0</textcolor><label></label>
+        </control>
+
+        <!-- Eight to a row and room for three rows; the script grows the
+             panel behind it to the rows in use. -->
+        <control type="panel" id="50">
+            <left>564</left><top>519</top><width>792</width><height>432</height>
+            <orientation>vertical</orientation>
+            <scrolltime>200</scrolltime>
+            <itemlayout width="99" height="144">
+                <control type="image">
+                    <left>13</left><top>18</top><width>72</width><height>72</height>
+                    <aspectratio>keep</aspectratio>
+                    <colordiffuse>$INFO[ListItem.Property(colour)]</colordiffuse>
+                    <texture>circle.png</texture>
+                </control>
+            </itemlayout>
+            <!-- A ring around the swatch, kept apart from it by the panel's
+                 colour so that it shows next to a blue one too. -->
+            <focusedlayout width="99" height="144">
+                <control type="image">
+                    <left>3</left><top>8</top><width>92</width><height>92</height>
+                    <aspectratio>keep</aspectratio>
+                    <colordiffuse>FF41BDF5</colordiffuse>
+                    <texture>circle.png</texture>
+                </control>
+                <control type="image">
+                    <left>8</left><top>13</top><width>82</width><height>82</height>
+                    <aspectratio>keep</aspectratio>
+                    <colordiffuse>FF161C26</colordiffuse>
+                    <texture>circle.png</texture>
+                </control>
+                <control type="image">
+                    <left>13</left><top>18</top><width>72</width><height>72</height>
+                    <aspectratio>keep</aspectratio>
+                    <colordiffuse>$INFO[ListItem.Property(colour)]</colordiffuse>
+                    <texture>circle.png</texture>
+                </control>
+                <control type="label">
+                    <left>0</left><top>105</top><width>99</width><height>33</height>
+                    <align>center</align><font>font10</font>
+                    <textcolor>FFA0A0A0</textcolor>
+                    <label>$INFO[ListItem.Property(note)]</label>
+                </control>
+            </focusedlayout>
+        </control>
+    </controls>
+</window>

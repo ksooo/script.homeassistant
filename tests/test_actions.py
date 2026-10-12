@@ -4,7 +4,7 @@ import types
 import unittest
 
 from . import support
-from resources.lib import actions
+from resources.lib import actions, kelvin
 
 
 def one(entity_id, value="idle", options=None, **attributes):
@@ -329,6 +329,49 @@ class Light(unittest.TestCase):
         self.assertEqual(actions.colour_start(store.states["light.a"]), (30, 79))
         store = one("light.a", "off")
         self.assertEqual(actions.colour_start(store.states["light.a"]), (0, 0))
+
+    def test_a_lamp_with_colour_or_white_tones_is_offered_its_favourites(self):
+        self.assertIn("action_favourite_colours",
+                      labels("light.a", "on", supported_color_modes=["hs"]))
+        self.assertIn("action_favourite_colours",
+                      labels("light.a", "on", supported_color_modes=["color_temp"],
+                             min_color_temp_kelvin=2000, max_color_temp_kelvin=6500))
+        self.assertNotIn("action_favourite_colours",
+                         labels("light.a", "on", supported_color_modes=["brightness"]))
+
+    def test_an_emptied_favourites_list_hides_them(self):
+        self.assertNotIn("action_favourite_colours",
+                         labels("light.a", "on", {"light": {"favorite_colors": []}},
+                                supported_color_modes=["hs"]))
+
+    def test_saved_favourites_are_offered_as_they_are(self):
+        saved = [{"hs_color": [30, 80]}, {"color_temp_kelvin": 3000}]
+        store = one("light.a", "on", {"light": {"favorite_colors": saved}},
+                    supported_color_modes=["hs", "color_temp"])
+        self.assertEqual(
+            actions.favourite_colours(store, store.states["light.a"]), saved)
+
+    def test_a_white_lamp_defaults_to_four_whites_across_its_range(self):
+        store = one("light.a", "on", supported_color_modes=["color_temp"],
+                    min_color_temp_kelvin=2000, max_color_temp_kelvin=6500)
+        self.assertEqual(
+            actions.favourite_colours(store, store.states["light.a"]),
+            [{"color_temp_kelvin": 2000}, {"color_temp_kelvin": 3500},
+             {"color_temp_kelvin": 5000}, {"color_temp_kelvin": 6500}])
+
+    def test_a_colour_lamp_defaults_to_whites_in_rgb_and_four_colours(self):
+        store = one("light.a", "on", supported_color_modes=["rgb"])
+        favourites = actions.favourite_colours(store, store.states["light.a"])
+        self.assertEqual(len(favourites), 8)
+        self.assertEqual(favourites[0], {"rgb_color": list(kelvin.rgb(2000))})
+        self.assertEqual(favourites[4], {"rgb_color": [127, 172, 255]})
+        self.assertEqual(favourites[7], {"rgb_color": [255, 110, 84]})
+
+    def test_a_lamp_without_a_registry_entry_has_no_favourites(self):
+        store = support.build(states=[support.state(
+            "light.a", "on", supported_color_modes=["hs"])])
+        self.assertEqual(
+            actions.favourite_colours(store, store.states["light.a"]), [])
 
     def test_a_lamp_that_names_no_range_gets_home_assistants(self):
         store = one("light.a", "on", supported_color_modes=["color_temp"])

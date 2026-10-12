@@ -5,6 +5,8 @@ testable without Kodi. Anything that could surprise - installing an update,
 triggering an automation - is menu only and never bound to OK.
 """
 
+from . import kelvin
+
 SERVICE = "service"
 NUMBER = "number"
 TEMPERATURE = "temperature"
@@ -17,6 +19,8 @@ AREAS = "areas"
 SLIDER = "slider"
 # A lamp's colour, picked by hue and saturation.
 COLOUR = "colour"
+# A lamp's favourite colours, one of which is set.
+FAVOURITES = "favourites"
 # A service the panel may want its code for.
 ALARM = "alarm"
 # The media player's own window.
@@ -421,6 +425,9 @@ def _light_commands(store, state):
                                            "step": _KELVIN_STEP, "unit": "K"}))
     if modes & _COLOUR_MODES:
         commands.append(Action("action_colour", COLOUR, "light", "turn_on"))
+    if favourite_colours(store, state):
+        commands.append(Action("action_favourite_colours", FAVOURITES, "light",
+                               "turn_on"))
     if state.attributes.get("effect_list"):
         commands.append(Action("action_effect", PICK, "light", "turn_on",
                                {"from": "effect_list", "as": "effect"}))
@@ -474,6 +481,48 @@ def colour_start(state):
         return int(round(float(hue))) % 360, int(round(float(saturation)))
     except (AttributeError, KeyError, TypeError, ValueError):
         return 0, 0
+
+
+# The defaults of Home Assistant's computeDefaultFavoriteColors.
+_FAVOURITE_WHITES = 4
+_FAVOURITE_RGB_KELVIN = (2000, 6500)
+_FAVOURITE_COLOURS = ([127, 172, 255], [215, 150, 255], [255, 158, 243],
+                      [255, 110, 84])
+
+
+def favourite_colours(store, state):
+    """The colours a lamp's favourites offer, each a turn_on payload.
+
+    Those saved in the registry options where there are any, Home
+    Assistant's defaults where none were ever saved; an empty saved list
+    hides them, as does a lamp with no registry entry.
+    """
+    entity = store.entities.get(state.entity_id)
+    modes = set(state.attributes.get("supported_color_modes") or [])
+    colour = bool(modes & _COLOUR_MODES)
+    if entity is None or not (colour or "color_temp" in modes):
+        return []
+    saved = (entity.options.get("light") or {}).get("favorite_colors")
+    if saved is not None:
+        return [favourite for favourite in saved if isinstance(favourite, dict)]
+    favourites = []
+    if "color_temp" in modes:
+        low = state.attributes.get("min_color_temp_kelvin")
+        high = state.attributes.get("max_color_temp_kelvin")
+        if low and high:
+            favourites = [{"color_temp_kelvin": int(kelvin_value + 0.5)}
+                          for kelvin_value in _spread(low, high)]
+    elif colour:
+        favourites = [{"rgb_color": list(kelvin.rgb(int(kelvin_value + 0.5)))}
+                      for kelvin_value in _spread(*_FAVOURITE_RGB_KELVIN)]
+    if colour:
+        favourites.extend({"rgb_color": list(rgb)} for rgb in _FAVOURITE_COLOURS)
+    return favourites
+
+
+def _spread(low, high):
+    step = (high - low) / (_FAVOURITE_WHITES - 1)
+    return [low + step * index for index in range(_FAVOURITE_WHITES)]
 
 
 def _kelvin_range(state):

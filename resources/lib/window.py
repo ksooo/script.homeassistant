@@ -19,8 +19,9 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, colourdialog, details, detailsdialog, direct, formatting,
-               icons, kodi, mediadialog, model, ptzdialog, sections, sliderdialog)
+from . import (cameras, colourdialog, details, detailsdialog, direct,
+               favouritesdialog, formatting, icons, kodi, mediadialog, model,
+               ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
@@ -30,6 +31,7 @@ PTZ_XML = "script.homeassistant-ptz.xml"
 SHORTCUT_XML = "script.homeassistant-shortcut.xml"
 DETAILS_XML = "script.homeassistant-details.xml"
 COLOUR_XML = "script.homeassistant-colour.xml"
+FAVOURITES_XML = "script.homeassistant-favourites.xml"
 
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
@@ -831,6 +833,10 @@ class _Dashboard:
             self._open_colour(entity_id, action)
             return
 
+        if action.kind == ha_actions.FAVOURITES:
+            self._open_favourites(entity_id, action)
+            return
+
         if self._session.client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
@@ -1053,6 +1059,19 @@ class _Dashboard:
             COLOUR_XML, kodi.ADDON_PATH, "Default", "1080i",
             name=self._store.display_name_of(entity_id),
             start=ha_actions.colour_start(self._store.states.get(entity_id)),
+            send=lambda data: self._send(action.domain, action.service,
+                                         entity_id, data))
+        self._overlay.show()
+
+    def _open_favourites(self, entity_id, action):
+        state = self._store.states.get(entity_id)
+        if state is None:
+            return
+        self._overlay = favouritesdialog.FavouritesDialog(
+            FAVOURITES_XML, kodi.ADDON_PATH, "Default", "1080i",
+            name=self._store.display_name_of(entity_id),
+            favourites=ha_actions.favourite_colours(self._store, state),
+            attributes=state.attributes,
             send=lambda data: self._send(action.domain, action.service,
                                          entity_id, data))
         self._overlay.show()
