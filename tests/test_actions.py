@@ -317,6 +317,19 @@ class Light(unittest.TestCase):
                                            "min": 2202, "max": 4000,
                                            "step": 100, "unit": "K"}))
 
+    def test_a_lamp_that_takes_a_colour_is_offered_the_colour_picker(self):
+        self.assertIn("action_colour",
+                      labels("light.a", "on", supported_color_modes=["hs", "color_temp"]))
+        self.assertIn("action_colour", labels("light.a", "on", supported_color_modes=["xy"]))
+        self.assertNotIn("action_colour",
+                         labels("light.a", "on", supported_color_modes=["color_temp"]))
+
+    def test_the_colour_picker_starts_at_the_lamps_colour_or_white(self):
+        store = one("light.a", "on", hs_color=[29.6, 79.2])
+        self.assertEqual(actions.colour_start(store.states["light.a"]), (30, 79))
+        store = one("light.a", "off")
+        self.assertEqual(actions.colour_start(store.states["light.a"]), (0, 0))
+
     def test_a_lamp_that_names_no_range_gets_home_assistants(self):
         store = one("light.a", "on", supported_color_modes=["color_temp"])
         action = actions.commands_for(store, store.states["light.a"])[1]

@@ -15,6 +15,8 @@ PICK = "pick"
 AREAS = "areas"
 # A slider; data carries the service field, the range, the step and the unit.
 SLIDER = "slider"
+# A lamp's colour, picked by hue and saturation.
+COLOUR = "colour"
 # A service the panel may want its code for.
 ALARM = "alarm"
 # The media player's own window.
@@ -417,6 +419,8 @@ def _light_commands(store, state):
                                "turn_on", {"as": "color_temp_kelvin",
                                            "min": kelvins[0], "max": kelvins[1],
                                            "step": _KELVIN_STEP, "unit": "K"}))
+    if modes & _COLOUR_MODES:
+        commands.append(Action("action_colour", COLOUR, "light", "turn_on"))
     if state.attributes.get("effect_list"):
         commands.append(Action("action_effect", PICK, "light", "turn_on",
                                {"from": "effect_list", "as": "effect"}))
@@ -456,6 +460,20 @@ def _number_action(state):
                   {"as": "value", "min": int(low), "max": int(high),
                    "step": int(step) * max(presses, 1),
                    "unit": attributes.get("unit_of_measurement") or ""})
+
+
+# The colour modes Home Assistant offers its colour picker for.
+_COLOUR_MODES = {"hs", "rgb", "rgbw", "rgbww", "xy"}
+
+
+def colour_start(state):
+    """Hue and saturation the colour picker opens at: the lamp's own where
+    it reports one, white otherwise, as Home Assistant's wheel shows it."""
+    try:
+        hue, saturation = state.attributes["hs_color"]
+        return int(round(float(hue))) % 360, int(round(float(saturation)))
+    except (AttributeError, KeyError, TypeError, ValueError):
+        return 0, 0
 
 
 def _kelvin_range(state):

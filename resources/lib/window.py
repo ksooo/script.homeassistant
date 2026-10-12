@@ -19,8 +19,8 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, details, detailsdialog, direct, formatting, icons, kodi,
-               mediadialog, model, ptzdialog, sections, sliderdialog)
+from . import (cameras, colourdialog, details, detailsdialog, direct, formatting,
+               icons, kodi, mediadialog, model, ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
@@ -29,6 +29,7 @@ SLIDER_XML = "script.homeassistant-slider.xml"
 PTZ_XML = "script.homeassistant-ptz.xml"
 SHORTCUT_XML = "script.homeassistant-shortcut.xml"
 DETAILS_XML = "script.homeassistant-details.xml"
+COLOUR_XML = "script.homeassistant-colour.xml"
 
 # How long the rows are given to fade out before the next section is put in
 # their place. The skin's fade is the same length.
@@ -826,6 +827,10 @@ class _Dashboard:
             self._open_slider(entity_id, action)
             return
 
+        if action.kind == ha_actions.COLOUR:
+            self._open_colour(entity_id, action)
+            return
+
         if self._session.client is None:
             kodi.notify(kodi.tr("disconnected"), error=True)
             return
@@ -1042,6 +1047,15 @@ class _Dashboard:
         item.setMimeType("application/vnd.apple.mpegurl")
         item.setContentLookup(False)
         return url, item
+
+    def _open_colour(self, entity_id, action):
+        self._overlay = colourdialog.ColourDialog(
+            COLOUR_XML, kodi.ADDON_PATH, "Default", "1080i",
+            name=self._store.display_name_of(entity_id),
+            start=ha_actions.colour_start(self._store.states.get(entity_id)),
+            send=lambda data: self._send(action.domain, action.service,
+                                         entity_id, data))
+        self._overlay.show()
 
     def _open_slider(self, entity_id, action):
         self._overlay = sliderdialog.SliderDialog(

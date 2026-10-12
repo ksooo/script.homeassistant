@@ -1,5 +1,6 @@
 """Turns a Home Assistant state into what a Kodi tile shows."""
 
+import colorsys
 import datetime
 import time
 
@@ -342,3 +343,11 @@ def parse_time(iso):
     if moment.tzinfo is None:
         return None
     return moment
+
+
+def hs_colour(hue, saturation):
+    """A hue and saturation at full brightness, as an ARGB string for the
+    skin - hsv2rgb with the value at its top, as Home Assistant draws it."""
+    red, green, blue = colorsys.hsv_to_rgb(hue / 360.0, saturation / 100.0, 1.0)
+    return "FF%02X%02X%02X" % tuple(int(round(channel * 255))
+                                    for channel in (red, green, blue))

@@ -100,6 +100,15 @@ class Timestamps(unittest.TestCase):
     def test_a_time_that_cannot_be_read_is_shown_as_it_is(self):
         self.assertEqual(self.text("notify.phone", "unknown-ish"), "unknown-ish")
 
+
+class HsColour(unittest.TestCase):
+    def test_a_hue_and_saturation_at_full_brightness(self):
+        self.assertEqual(formatting.hs_colour(0, 100), "FFFF0000")
+        self.assertEqual(formatting.hs_colour(120, 100), "FF00FF00")
+        self.assertEqual(formatting.hs_colour(240, 50), "FF8080FF")
+        self.assertEqual(formatting.hs_colour(77, 0), "FFFFFFFF")
+
+
 class Colour(unittest.TestCase):
     def colour(self, *args, **kwargs):
         return formatting.colour(one(*args, **kwargs), args[0])

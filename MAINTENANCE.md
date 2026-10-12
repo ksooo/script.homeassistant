@@ -29,7 +29,7 @@ configuration needs no code change.
 | WebSocket command names | `resources/lib/model.py` (`load`, `subscribe`) | connects, stays empty |
 | IndieAuth `client_id`/`redirect_uri`, `/auth/login_flow`, `/auth/token` with `authorization_code` and `refresh_token` | `resources/lib/ha/auth.py` | user name and password stop working; a long-lived token still does |
 | `/api/camera_proxy/<entity>` | `resources/lib/cameras.py` | camera rows stay blank |
-| Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
+| Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `hs_color`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
 | `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
 | `media_player.join` and `unjoin` with `group_members` | `resources/lib/mediadialog.py` | connecting players reports an error |
 | `camera/stream` for HLS, and what the WebRTC inputstream takes from 22.1.0 on: Home Assistant's URL with the camera in its `ha_entity_id` parameter, and the token in `bearer_token` | `resources/lib/window.py`, `addon.xml` | a camera's live picture fails |
@@ -62,6 +62,7 @@ This is the group that needs looking after.
 | --- | --- |
 | The icon fallback chain: state pairs, device class table, domain table, and the battery ladder in ten percent steps | `resources/lib/icons.py` |
 | State colours, the active and unavailable state lists, the alarming device classes | `resources/lib/formatting.py` |
+| The colour picker: hue and saturation as Home Assistant's `ha-hs-color-picker` takes them, the colour modes it is offered for, and `hsv2rgb` at full value for the swatch | `resources/lib/actions.py`, `resources/lib/formatting.py` |
 | The shipped Material Design Icons, frozen at whatever `tools/icons.txt` lists | `tools/icons.txt` |
 | The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
 | The media window's button labels, and the hint each of them puts at the foot of the dialog | `resources/language/*/strings.po` |

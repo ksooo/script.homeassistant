@@ -57,6 +57,10 @@ thermostat, an alarm panel and a water heater all do that. A media player gets
 a window of its own instead, see below. Anything that could surprise is in the
 context menu only: installing an update, triggering an automation.
 
+A lamp's menu sets its brightness and colour temperature on a slider, and
+its colour on two: hue and saturation, the two values Home Assistant's
+colour wheel picks, which a remote steers more easily than a wheel.
+
 ## The media window
 
 Select on a media player opens a window rather than a list of commands. It is

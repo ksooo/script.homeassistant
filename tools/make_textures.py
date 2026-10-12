@@ -6,6 +6,7 @@ deterministic, so regenerating never produces a spurious diff. The addon icon
 is not generated here - it is the Home Assistant logo.
 """
 
+import colorsys
 import os
 import struct
 import zlib
@@ -103,6 +104,20 @@ def pill(width, height, colour):
             return None
         return (colour[0], colour[1], colour[2], 1.0)
     return render(width, height, shader)
+
+
+def hue_band(width, height):
+    """Every hue at full saturation, left to right."""
+    def shader(x, y):
+        red, green, blue = colorsys.hsv_to_rgb(x / width, 1.0, 1.0)
+        return (int(round(red * 255)), int(round(green * 255)),
+                int(round(blue * 255)), 1.0)
+    return render(width, height, shader)
+
+
+def ramp(width, height):
+    """White, from clear on the left to opaque on the right."""
+    return render(width, height, lambda x, y: (0xFF, 0xFF, 0xFF, x / width))
 
 
 def horizontal_band(width, height, thickness, colour, opacity):
@@ -211,6 +226,11 @@ def main():
     # shorter than the circle, which it would otherwise look taller than.
     made.append(write_png(os.path.join(MEDIA, "pill.png"), 192, 380,
                           pill(192, 380, (0xFF, 0xFF, 0xFF))))
+
+    # The colour picker's tracks: every hue, and white shading into one -
+    # tinted with the hue in the skin.
+    made.append(write_png(os.path.join(MEDIA, "hue.png"), 360, 4, hue_band(360, 4)))
+    made.append(write_png(os.path.join(MEDIA, "ramp.png"), 256, 4, ramp(256, 4)))
 
     for path in made:
         print("%7d  %s" % (os.path.getsize(path), os.path.relpath(path, ROOT)))
