@@ -13,6 +13,7 @@ would need blank filler items - and a focused blank item shows nothing at all.
 import os
 import threading
 import time
+import urllib.parse
 
 import xbmc
 import xbmcgui
@@ -1019,10 +1020,11 @@ class _Dashboard:
         item = xbmcgui.ListItem(player.name)
         item.setContentLookup(False)
         item.setProperty("inputstream", _WEBRTC_INPUTSTREAM)
-        item.setProperty(_WEBRTC_INPUTSTREAM + ".signaling", "homeassistant")
-        item.setProperty(_WEBRTC_INPUTSTREAM + ".entity_id", entity_id)
         item.setProperty(_WEBRTC_INPUTSTREAM + ".bearer_token", token)
-        return self._settings.url, item
+        # The inputstream takes the camera from the URL.
+        url = "%s/?%s" % (self._settings.url.rstrip("/"),
+                          urllib.parse.urlencode({"ha_entity_id": entity_id}))
+        return url, item
 
     def _hls_source(self, client, entity_id, player):
         """Home Assistant's HLS stream, once it runs."""

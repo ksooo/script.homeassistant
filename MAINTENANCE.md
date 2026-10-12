@@ -32,7 +32,7 @@ configuration needs no code change.
 | Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
 | `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
 | `media_player.join` and `unjoin` with `group_members` | `resources/lib/mediadialog.py` | connecting players reports an error |
-| `camera/stream` for HLS, and the WebRTC inputstream's own signalling through Home Assistant | `resources/lib/window.py` | a camera's live picture fails |
+| `camera/stream` for HLS, and what the WebRTC inputstream takes from 22.1.0 on: Home Assistant's URL with the camera in its `ha_entity_id` parameter, and the token in `bearer_token` | `resources/lib/window.py`, `addon.xml` | a camera's live picture fails |
 | The rest of the player's services and their fields: `media_seek` with `seek_position`, `shuffle_set` with `shuffle`, `repeat_set` with `repeat`, `select_source` with `source`, `select_sound_mode` with `sound_mode` | `resources/lib/mediadialog.py` | that one button or slider reports an error |
 
 ### Breaks quietly

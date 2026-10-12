@@ -121,10 +121,10 @@ three ways that is there:
 1. The camera's own stream URL - RTSP, RTSPS, HTTP or HTTPS - entered per
    camera on the settings page "Cameras", where the camera answers on it.
 2. Home Assistant's WebRTC, through the
-   [WebRTC inputstream](https://github.com/ksooo/inputstream.webrtc), where
-   Home Assistant offers it for the camera. Without the inputstream add-on
-   installed and enabled, such a camera plays nothing and a notice says what
-   is missing.
+   [WebRTC inputstream](https://github.com/ksooo/inputstream.webrtc), 22.1.0
+   or later, where Home Assistant offers it for the camera. Without the
+   inputstream add-on installed and enabled, such a camera plays nothing and
+   a notice says what is missing.
 3. Home Assistant's HLS stream.
 
 A way that is found but will not play gives way to the next.
