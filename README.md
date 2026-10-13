@@ -122,10 +122,12 @@ hiding it shows up in Kodi without a restart.
 
 A camera row carries a still from `/api/camera_proxy`, refreshed on the
 interval set in the add-on settings and only for the section on screen. The
-still is written to a file under `special://temp` rather than handed to Kodi
+still is written to a file in the add-on's profile rather than handed to Kodi
 as a URL: Kodi caches images by URL, and a picture that changes every ten
 seconds would fill its texture database. Two file names per camera alternate,
-because Kodi holds on to a file it has already read under the same path.
+because Kodi holds on to a file it has already read under the same path. The
+files stay, so a row shows the camera's last still at once - after a restart
+too - until the fresh one arrives.
 
 OK on a camera plays its live picture in Kodi's own player, by the first of
 three ways that is there:

@@ -169,7 +169,7 @@ class _Dashboard:
         self._brands_due = 0.0
         self._icons = _shipped_icons()
         self._snapshots = cameras.Snapshots(
-            self._settings.url, kodi.temp_directory(),
+            self._settings.url, kodi.stills_directory(),
             verify_ssl=self._settings.verify_ssl, log=kodi.log)
         self._camera_worker = None
         self._camera_due = 0.0
@@ -292,7 +292,6 @@ class _Dashboard:
             self._ptz = None
         self._store.cancel_pending_reload()
         self._session.stop()
-        self._snapshots.clean_up()
         # Both of these were handed a bound method of this window, which is
         # to say they hold the window - and they outlive it, so it would be
         # left behind at the end of the script. Nothing is going to call
@@ -703,6 +702,10 @@ class _Dashboard:
         item.setProperty("entity_id", entity_id)
         if entity_id.startswith("camera."):
             item.setProperty("camera", "yes")
+            still = (self._snapshots.latest(entity_id)
+                     if self._settings.camera_refresh else "")
+            if still:
+                item.setArt({"thumb": still})
         # Rows that do something are drawn as buttons, the read-only ones flat.
         item.setProperty("action",
                          "yes" if ha_actions.default_action(self._store, entity_id)

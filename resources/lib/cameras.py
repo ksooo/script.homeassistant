@@ -4,11 +4,14 @@ Kodi caches every image it loads by URL, which a picture that changes every
 few seconds would fill the texture database with. The still is therefore
 written to a local file instead - alternating between two names per camera,
 because Kodi holds on to a file it has already read under the same path.
+The files are kept, so that a row has the last still at once, even after a
+restart, until a fresh one arrives.
 """
 
 import hashlib
 import os
 import ssl
+import threading
 import urllib.error
 import urllib.request
 
@@ -50,7 +53,9 @@ class Snapshots:
         self._directory = directory
         self._verify_ssl = verify_ssl
         self._log = log or (lambda message, level=0: None)
+        # The slot each camera's newest still is in, None for none yet.
         self._slots = {}
+        self._lock = threading.Lock()
 
     def fetch(self, entity_id, picture):
         """Returns the path of a freshly written still, or an empty string.
@@ -71,27 +76,43 @@ class Snapshots:
             return ""
         if not data:
             return ""
+        return self.keep(entity_id, data)
 
-        slot = self._slots.get(entity_id, 1) ^ 1
-        self._slots[entity_id] = slot
-        name = "%s-%d.jpg" % (hashlib.md5(entity_id.encode("utf-8")).hexdigest()[:12],
-                              slot)
-        path = os.path.join(self._directory, name)
+    def keep(self, entity_id, data):
+        """Write a still into the camera's other slot, and make it the
+        newest only once it is written whole."""
+        with self._lock:
+            slot = 1 if self._newest(entity_id) == 0 else 0
+        path = self._path(entity_id, slot)
         try:
             with open(path, "wb") as handle:
                 handle.write(data)
         except OSError as error:
             self._log("cannot write camera still: %s" % error, 3)
             return ""
+        with self._lock:
+            self._slots[entity_id] = slot
         return path
 
-    def clean_up(self):
-        for entity_id, slot in self._slots.items():
-            digest = hashlib.md5(entity_id.encode("utf-8")).hexdigest()[:12]
-            for index in (0, 1):
+    def latest(self, entity_id):
+        """The camera's newest still, from this run or an earlier one, or an
+        empty string."""
+        with self._lock:
+            slot = self._newest(entity_id)
+        return "" if slot is None else self._path(entity_id, slot)
+
+    def _newest(self, entity_id):
+        # A camera not seen yet in this run starts from what is on disk.
+        if entity_id not in self._slots:
+            ages = []
+            for slot in (0, 1):
                 try:
-                    os.remove(os.path.join(self._directory,
-                                           "%s-%d.jpg" % (digest, index)))
+                    ages.append((os.path.getmtime(self._path(entity_id, slot)), slot))
                 except OSError:
                     pass
-        self._slots.clear()
+            self._slots[entity_id] = max(ages)[1] if ages else None
+        return self._slots[entity_id]
+
+    def _path(self, entity_id, slot):
+        digest = hashlib.md5(entity_id.encode("utf-8")).hexdigest()[:12]
+        return os.path.join(self._directory, "%s-%d.jpg" % (digest, slot))
