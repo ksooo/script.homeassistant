@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.13.0"
+       version="1.14.0"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -20,10 +20,12 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.13.0
-- A lamp that takes a colour can be set to one from its menu, on two sliders for hue and saturation
-- A lamp's favourite colours, as Home Assistant keeps them, open from its menu as swatches. OK sets the one in focus and leaves them open to try the next
-- A lit lamp's icon shows the lamp's own colour, as in Home Assistant
+    <news>v1.14.0
+- Lists to choose from, the context menu and questions come up in dialogs of the add-on's own look instead of Kodi's. A list ticks the current choice, such as a vacuum's fan speed, and goes round from its last row to its first. The context menu's "Command" entry is now called "Actions"
+- Numbers are entered on a pad of the add-on's own: it shows the entity's bounds and step, steps with minus and plus, takes fractions such as 21.5 °C, and refuses a value out of range. A numeric alarm code is typed there too, hidden
+- A camera row shows the camera's last still at once, even after a restart, and stills load much faster
+- SIM, kiosk mode and gamepad sensors show their icons
+- Fixed: camera thumbnails in the media browser, such as Reolink's, did not load
 </news>
     <assets>
       <icon>resources/icon.png</icon>
