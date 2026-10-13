@@ -8,6 +8,7 @@ be kept by whoever walks the tree.
 """
 
 import collections
+import re
 
 # What a line offers: opening it, playing it, or both. Home Assistant says so
 # per child, and neither follows from the media class.
@@ -34,6 +35,17 @@ def rows(node, play_label):
                            bool(child.get("can_expand")),
                            bool(child.get("can_play"))))
     return listing
+
+
+# A camera or an image entity listed by its proxy path, which wants the
+# sign-in Home Assistant's frontend fetches it with.
+_PROXIED = re.compile(r"^/api/(?:camera|image)_proxy/([a-z0-9_]+\.[a-z0-9_]+)$")
+
+
+def proxied_entity(thumbnail):
+    """The entity whose picture a thumbnail is, where that wants a sign-in."""
+    match = _PROXIED.match(thumbnail or "")
+    return match.group(1) if match else ""
 
 
 def _text(item, key):

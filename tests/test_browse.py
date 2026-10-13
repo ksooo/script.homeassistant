@@ -68,5 +68,19 @@ class Levels(unittest.TestCase):
         self.assertEqual(browse.rows(node, PLAY), [])
 
 
+class Thumbnails(unittest.TestCase):
+    def test_a_camera_or_image_proxy_path_names_its_entity(self):
+        self.assertEqual(browse.proxied_entity("/api/camera_proxy/camera.garten"),
+                         "camera.garten")
+        self.assertEqual(browse.proxied_entity("/api/image_proxy/image.cover"),
+                         "image.cover")
+
+    def test_other_pictures_and_signed_ones_are_left_alone(self):
+        self.assertEqual(browse.proxied_entity("/api/brands/integration/kodi/logo.png"), "")
+        self.assertEqual(browse.proxied_entity("/api/camera_proxy/camera.a?token=t"), "")
+        self.assertEqual(browse.proxied_entity("https://example.com/logo.png"), "")
+        self.assertEqual(browse.proxied_entity(""), "")
+
+
 if __name__ == "__main__":
     unittest.main()

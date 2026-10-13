@@ -29,6 +29,7 @@ configuration needs no code change.
 | WebSocket command names | `resources/lib/model.py` (`load`, `subscribe`) | connects, stays empty |
 | IndieAuth `client_id`/`redirect_uri`, `/auth/login_flow`, `/auth/token` with `authorization_code` and `refresh_token` | `resources/lib/ha/auth.py` | user name and password stop working; a long-lived token still does |
 | `/api/camera_proxy/<entity>`, with `width` and `height` for the size | `resources/lib/cameras.py` | camera rows stay blank, or their stills come at full size again |
+| The camera and image proxy paths the media tree lists as thumbnails, swapped for the entity's own picture | `resources/lib/browse.py` (`proxied_entity`), `resources/lib/window.py` | those thumbnails stay blank in the browser |
 | Service field names: `cleaning_area_id`, `brightness_pct`, `color_temp_kelvin`, `hs_color`, `effect`, `fan_speed`, `option`, `hvac_mode`, `preset_mode`, `volume_level`, `position`, `value` | `resources/lib/actions.py` | the call comes back as an error |
 | `media_player/browse_media`, and `play_media` with `media_content_type` and `media_content_id` | `resources/lib/window.py`, `resources/lib/mediadialog.py` | the browse button reports an error, or a pick plays nothing |
 | `media_player.join` and `unjoin` with `group_members` | `resources/lib/mediadialog.py` | connecting players reports an error |

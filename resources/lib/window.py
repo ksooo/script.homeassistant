@@ -19,9 +19,9 @@ import xbmc
 import xbmcgui
 
 from . import actions as ha_actions
-from . import (cameras, colourdialog, details, detailsdialog, dialogs, direct,
-               favouritesdialog, formatting, icons, kodi, mediadialog, model,
-               ptzdialog, sections, sliderdialog)
+from . import (browse, cameras, colourdialog, details, detailsdialog, dialogs,
+               direct, favouritesdialog, formatting, icons, kodi, mediadialog,
+               model, ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
@@ -950,12 +950,31 @@ class _Dashboard:
                 for heading, area_id in sections.room_headings(self._store)
                 if area_id in mapped]
 
+    def _picture_url(self, picture):
+        """A picture of Home Assistant's as Kodi can fetch it.
+
+        A camera or an image entity in the media tree comes as a path that
+        wants a sign-in. The entity's own picture is the same with a token of
+        its own, and a camera's kept still is that picture without the token
+        that would make Kodi cache a fresh copy each time.
+        """
+        entity_id = browse.proxied_entity(picture)
+        if entity_id:
+            still = (self._snapshots.latest(entity_id)
+                     if entity_id.startswith("camera.")
+                     and self._settings.camera_refresh else "")
+            if still:
+                return still
+            state = self._store.states.get(entity_id)
+            own = state.attributes.get("entity_picture") if state else None
+            picture = own or picture
+        return kodi.image_url(self._settings.url, picture, self._brands_token)
+
     def _open_media(self, entity_id):
         self._overlay = mediadialog.MediaDialog(
             MEDIA_XML, kodi.ADDON_PATH, "Default", "1080i",
             store=self._store, entity_id=entity_id,
-            art_url=lambda picture: kodi.image_url(
-                self._settings.url, picture, self._brands_token),
+            art_url=self._picture_url,
             call=self._call_service,
             browse=self._browse_media)
         self._overlay.show()
