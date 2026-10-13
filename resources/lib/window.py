@@ -883,14 +883,20 @@ class _Dashboard:
                 key, current = field[0], attributes.get(field[1], 0)
             else:
                 key, current = "value", state.state if state else "0"
-            value = dialog.numeric(0, kodi.tr(action.label_key), str(_as_int(current)))
-            return None if value in (None, "") else {key: float(value)}
+            value = dialogs.number(
+                kodi.tr(action.label_key), self._store.display_name_of(entity_id),
+                _as_float(current), ha_actions.number_bounds(state, action),
+                ha_actions.number_step(state, action))
+            return None if value is None else {key: value}
 
         if action.kind == ha_actions.TEMPERATURE:
             current = attributes.get("temperature", attributes.get("current_temperature", 20))
-            value = dialog.numeric(0, kodi.tr("action_set_temperature"),
-                                   str(_as_int(current)))
-            return None if value in (None, "") else {"temperature": float(value)}
+            unit = self._store.unit_of_temperature
+            value = dialogs.number(
+                kodi.tr("action_set_temperature"), self._store.display_name_of(entity_id),
+                _as_float(current), ha_actions.number_bounds(state, action, unit),
+                ha_actions.number_step(state, action, unit))
+            return None if value is None else {"temperature": value}
 
         if action.kind == ha_actions.PICK:
             labels, values = _choices(self._store, entity_id, action,
@@ -915,12 +921,12 @@ class _Dashboard:
             return {action.data["as"]: [rooms[index][1] for index in chosen]}
 
         if action.kind == ha_actions.ALARM:
-            return self._alarm_code(action, attributes, dialog)
+            return self._alarm_code(entity_id, action, attributes, dialog)
 
         return {}
 
 
-    def _alarm_code(self, action, attributes, dialog):
+    def _alarm_code(self, entity_id, action, attributes, dialog):
         """The panel's code, where the panel asks for one.
 
         Disarming needs it whenever a format is given; arming only when the
@@ -933,7 +939,7 @@ class _Dashboard:
             return {}
         heading = kodi.tr("action_code")
         if code_format == "number":
-            code = dialog.numeric(0, heading, "", True)
+            code = dialogs.code(heading, self._store.display_name_of(entity_id))
         else:
             code = dialog.input(heading, type=xbmcgui.INPUT_ALPHANUM,
                                 option=xbmcgui.ALPHANUM_HIDE_INPUT)
@@ -1334,8 +1340,8 @@ def _choices(store, entity_id, action, attributes):
             named)
 
 
-def _as_int(value):
+def _as_float(value):
     try:
-        return int(float(value))
+        return float(value)
     except (TypeError, ValueError):
-        return 0
+        return None

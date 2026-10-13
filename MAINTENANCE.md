@@ -49,12 +49,14 @@ This is the group that needs looking after.
 | How a row is named: `friendly_name` for rows, the registry name under a device heading, `name_by_user or name` for a device | `resources/lib/model.py` | rows are named differently from Home Assistant |
 | What OK does per domain, and which domains are read only | `resources/lib/actions.py` (`default_action`) | a new domain is treated as display only |
 | `frontend/get_translations` and the four key shapes an option value is looked up under | `resources/lib/formatting.py` (`option_text`) | option lists read as raw values again |
-| Kodi's own action ids, written as numbers: the context menu, info, back, the five transport actions, and for the steering cross the arrows, page up and down and zoom in and out. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py`, `resources/lib/ptzdialog.py`, `resources/lib/detailsdialog.py`, `resources/lib/dialogs.py` | an action does the wrong thing, or nothing |
+| Kodi's own action ids, written as numbers: the context menu, info, back, the digit keys, the five transport actions, and for the steering cross the arrows, page up and down and zoom in and out. The Python API names none of them, so they are copied out of Kodi's `ActionIDs.h` | `resources/lib/window.py`, `resources/lib/mediadialog.py`, `resources/lib/ptzdialog.py`, `resources/lib/detailsdialog.py`, `resources/lib/dialogs.py` | an action does the wrong thing, or nothing |
 | How a live picture is had: the camera's own URL, then WebRTC before HLS as the frontend prefers them | `resources/lib/actions.py` (`live_ways`) | a camera plays a worse way than Home Assistant would |
 | Reolink's steering: the button translation keys `ptz_left` to `ptz_zoom_out` and `guard_go_to`, `reolink.ptz_move` with `speed` where a button's feature bit says so, and the lens a zoom belongs to, read from the channel in Reolink's unique ids (`<device>_<channel>_<key>`) | `resources/lib/actions.py` (`ptz_buttons`) | the steering cross or the lenses no longer appear |
 | Which states are a point in time and say how long ago - `TIMESTAMP_STATE_DOMAINS` and `SENSOR_TIMESTAMP_DEVICE_CLASSES` - and when the wording moves from seconds to minutes and on, `selectUnit`'s thresholds | `resources/lib/formatting.py` | a row shows a raw date again |
 | How the details dialog words an attribute: the name and value key shapes of `compute_attribute_display.ts`, `DOMAIN_ATTRIBUTES_UNITS`, `DOMAIN_ATTRIBUTES_FORMATERS`, `TEMPERATURE_ATTRIBUTES`, `DOMAIN_OPTIONS_ATTRIBUTES` and `getWeatherUnit` | `resources/lib/details.py` | an attribute reads raw, or without its unit |
 | When a number is a slider: `showNumberSlider` and its `AUTO_MODE_MAX_STEPS` | `resources/lib/actions.py` (`_number_action`) | a number opens the pad where Home Assistant shows a slider, or the reverse |
+| The bounds a number pad entry is held to: `min` and `max` of a number, `min_temp` and `max_temp` of a thermostat or water heater, `min_humidity` and `max_humidity` of a humidifier, 0 to 100 for positions and speeds | `resources/lib/actions.py` (`number_bounds`) | a value Home Assistant refuses is sent, and only its error says why |
+| The step the pad's minus and plus move by, and the places it takes: `step` of a number, `target_temp_step` of a thermostat or water heater, otherwise the frontend's 0.5 (1 in Fahrenheit) | `resources/lib/actions.py` (`number_step`) | a fraction cannot be entered, or the steps are too coarse |
 | A lamp's favourite colours: the registry's `options.light.favorite_colors`, and where none were saved `computeDefaultFavoriteColors`; which lamps have them, `lightSupportsFavoriteColors` and `shouldShowFavoriteOptions` | `resources/lib/actions.py` (`favourite_colours`) | a lamp offers other favourites than Home Assistant, or none |
 | What the media window draws: which buttons a state and a feature mask earn, which icon each of them carries, which attribute the description line is taken from, and how a reported title is tidied - `computeMediaControls`, `computeMediaDescription` and `cleanupMediaTitle`, all three in the frontend | `resources/lib/media.py` | the window offers buttons Home Assistant would not, or says the wrong thing about what is playing |
 
@@ -238,6 +240,13 @@ button where the skin put it.
 in: without a window to go by, Kodi asks the topmost modal dialog. Behind a
 dialog of the add-on's own, the dashboard therefore names those dialogs to
 keep its row marked.
+
+Kodi's number pad takes whole numbers only: `Dialog().numeric` has types for
+a number, a date, a time and an IP address, none of them with a decimal
+point, so a target temperature of 21.5 °C could not be entered on it. The
+add-on draws its own pad instead (`resources/lib/dialogs.py`, with the entry
+worked out in `resources/lib/numberpad.py`); only a code that is text still
+goes to Kodi's keyboard.
 
 A script cannot claim an action either. Kodi acts on it first and tells the
 script afterwards, and the answer that decides whether it goes further comes

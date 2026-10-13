@@ -383,6 +383,41 @@ class Light(unittest.TestCase):
                   if a.label_key == "action_fan_speed"][0]
         self.assertEqual(actions.pick_current(store.states["vacuum.a"], action), "turbo")
 
+    def test_a_number_pad_keeps_to_the_entitys_bounds(self):
+        store = one("input_number.a", "30", min=1.0, max=120.0, step=1.0,
+                    mode="box", unit_of_measurement="min")
+        action = actions.default_action(store, "input_number.a")
+        self.assertEqual(actions.number_bounds(store.states["input_number.a"], action),
+                         (1.0, 120.0, "min"))
+
+    def test_a_position_or_speed_runs_from_0_to_100_percent(self):
+        action = actions.Action("action_speed", actions.NUMBER, "fan", "set_percentage")
+        self.assertEqual(actions.number_bounds(None, action), (0.0, 100.0, "%"))
+
+    def test_a_target_temperature_keeps_to_the_thermostats_range(self):
+        store = one("climate.a", "heat", min_temp=7, max_temp=35)
+        action = actions.Action("action_set_temperature", actions.TEMPERATURE,
+                                "climate", "set_temperature")
+        self.assertEqual(actions.number_bounds(store.states["climate.a"], action, "°C"),
+                         (7.0, 35.0, "°C"))
+
+    def test_a_step_comes_from_the_entity_or_the_frontends_default(self):
+        climate = actions.Action("action_set_temperature", actions.TEMPERATURE,
+                                 "climate", "set_temperature")
+        store = one("climate.a", "heat")
+        self.assertEqual(actions.number_step(store.states["climate.a"], climate, "°C"), 0.5)
+        self.assertEqual(actions.number_step(store.states["climate.a"], climate, "°F"), 1.0)
+        store = one("climate.a", "heat", target_temp_step=0.1)
+        self.assertEqual(actions.number_step(store.states["climate.a"], climate, "°C"), 0.1)
+        store = one("input_number.a", "30", min=1.0, max=120.0, step=1.0, mode="box")
+        number = actions.default_action(store, "input_number.a")
+        self.assertEqual(actions.number_step(store.states["input_number.a"], number), 1.0)
+
+    def test_a_number_without_bounds_has_none(self):
+        store = one("number.a", "5")
+        action = actions.Action("action_set_value", actions.NUMBER, "number", "set_value")
+        self.assertIsNone(actions.number_bounds(store.states["number.a"], action))
+
     def test_a_lamp_that_names_no_range_gets_home_assistants(self):
         store = one("light.a", "on", supported_color_modes=["color_temp"])
         action = actions.commands_for(store, store.states["light.a"])[1]

@@ -434,6 +434,46 @@ def _light_commands(store, state):
     return commands
 
 
+def number_bounds(state, action, temperature_unit=""):
+    """The lowest and highest value a number pad entry may have, and its
+    unit, or None where the entity names none. Home Assistant refuses a
+    value outside them."""
+    attributes = state.attributes if state else {}
+    if action.service == "set_temperature":
+        low, high = attributes.get("min_temp"), attributes.get("max_temp")
+        unit = temperature_unit
+    elif action.service == "set_value":
+        low, high = attributes.get("min"), attributes.get("max")
+        unit = attributes.get("unit_of_measurement") or ""
+    elif action.service == "set_humidity":
+        low = attributes.get("min_humidity", 0)
+        high = attributes.get("max_humidity", 100)
+        unit = "%"
+    else:
+        low, high, unit = 0, 100, "%"
+    try:
+        return float(low), float(high), unit
+    except (TypeError, ValueError):
+        return None
+
+
+def number_step(state, action, temperature_unit=""):
+    """The step the dialog's minus and plus move by: the entity's own, or
+    for a temperature the frontend's 0.5, 1 in Fahrenheit."""
+    attributes = state.attributes if state else {}
+    if action.service == "set_temperature":
+        step = attributes.get("target_temp_step") or (
+            1 if temperature_unit == "\u00b0F" else 0.5)
+    elif action.service == "set_value":
+        step = attributes.get("step") or 1
+    else:
+        step = 1
+    try:
+        return float(step)
+    except (TypeError, ValueError):
+        return 1.0
+
+
 # Home Assistant's AUTO_MODE_MAX_STEPS: an "auto" number is a slider up to
 # this many steps, a box beyond.
 _AUTO_SLIDER_STEPS = 256

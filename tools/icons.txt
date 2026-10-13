@@ -71,6 +71,7 @@ axis-x-y-arrow-lock
 axis-y-arrow-lock
 axis-z-arrow-lock
 baby-face-outline
+backspace-outline
 balcony
 bathtub
 bathtub-outline

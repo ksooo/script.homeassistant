@@ -57,10 +57,12 @@ thermostat, an alarm panel and a water heater all do that. A media player gets
 a window of its own instead, see below. Anything that could surprise is in the
 context menu only: installing an update, triggering an automation.
 
-Lists to choose from, the context menu and questions come up in dialogs of
-the add-on's own look rather than Kodi's, each naming the entity it is
-about and ticking the current choice where there is one. Only the keyboard,
-the number pad and the settings stay Kodi's.
+Lists to choose from, the context menu, questions and numbers come up in
+dialogs of the add-on's own look rather than Kodi's, each naming the entity
+it is about and ticking the current choice where there is one. A number is
+typed or stepped in on a pad that shows the entity's bounds and takes
+fractions; a numeric alarm code is typed there too, hidden. Only the
+keyboard and the settings stay Kodi's.
 
 A lamp's menu sets its brightness and colour temperature on a slider, and
 its colour on two: hue and saturation, the two values Home Assistant's
@@ -177,7 +179,7 @@ entity is.
 * **Icons are shipped, not fetched.** Kodi renders no SVG, so the icons are
   rasterised to PNG at build time: every Material Design icon tagged Home
   Automation, Weather, Battery or Lock, plus everything the add-on's rules and
-  the integrations name - 1278 in all and 846 KB together. An entity whose
+  the integrations name - 1279 in all and 847 KB together. An entity whose
   icon is outside that set shows the plain circle; running
   `tools/make_icons.py` after adding the name to `tools/icons.txt` fixes that.
 * **Only the last icon rule lives in the add-on.** An explicit `icon`

@@ -576,6 +576,10 @@ msgctxt "#30394"
 msgid "Favourite colours"
 msgstr ""
 
+msgctxt "#30395"
+msgid "Step %s"
+msgstr ""
+
 msgctxt "#30400"
 msgid "No Home Assistant URL configured"
 msgstr ""

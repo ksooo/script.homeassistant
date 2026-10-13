@@ -1,5 +1,5 @@
-"""Kodi's select, multiselect, context menu, yes/no and OK dialogs, drawn in
-this add-on's look rather than the skin's.
+"""Kodi's select, multiselect, context menu, yes/no, OK and number dialogs,
+drawn in this add-on's look rather than the skin's.
 
 Run modally and answering as Kodi's do, so a call site only swaps the call.
 The selection dialogs also name what they are about, as the slider dialog
@@ -9,10 +9,11 @@ does: a small heading and, under it, the entity.
 import xbmc
 import xbmcgui
 
-from . import kodi
+from . import kodi, numberpad
 
 SELECT_XML = "script.homeassistant-select.xml"
 MESSAGE_XML = "script.homeassistant-message.xml"
+NUMBER_XML = "script.homeassistant-number.xml"
 
 GROUP_ALL = 80
 IMAGE_PANEL = 90
@@ -23,8 +24,18 @@ LIST_ROWS = 50
 BUTTON_SECOND = 120
 BUTTON_FIRST = 121
 
+LABEL_VALUE = 103
+BUTTON_DIGIT = 200
+BUTTON_POINT = 210
+BUTTON_DELETE = 211
+BUTTON_MINUS = 212
+BUTTON_PLUS = 213
+BUTTON_OK = 214
+
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
+# REMOTE_0 to REMOTE_9: the digit keys of a remote or a keyboard.
+ACTION_DIGIT_FIRST = 58
 
 # Kodi's own words for the buttons: No, Yes, OK.
 _NO = 106
@@ -63,6 +74,34 @@ def yesno(heading, text):
 
 def ok(heading, text):
     _ask(heading, text, [_OK])
+
+
+def number(heading, name, current, bounds=None, step=1.0):
+    """A number typed or stepped in, held to the bounds (low, high, unit);
+    None when cancelled."""
+    low, high, unit = bounds if bounds else (None, None, "")
+    entry = numberpad.Entry(current, low, high, step,
+                            separator="," if kodi.LANGUAGE == "de" else ".")
+    result = _pad(heading, name, entry, unit, bounds is not None)
+    return None if result is None else entry.value()
+
+
+def code(heading, name):
+    """A code typed in hidden, as text; None when cancelled or left empty."""
+    entry = numberpad.Entry(code=True)
+    if _pad(heading, name, entry, "", False) is None:
+        return None
+    return entry.text or None
+
+
+def _pad(heading, name, entry, unit, bounded):
+    dialog = _NumberDialog(NUMBER_XML, kodi.ADDON_PATH, "Default", "1080i",
+                           heading=heading, name=name, entry=entry, unit=unit,
+                           bounded=bounded)
+    dialog.doModal()
+    result = dialog.result
+    del dialog
+    return result
 
 
 def _run(heading, name, entries, multi, chosen):
@@ -196,6 +235,84 @@ class _MessageDialog(xbmcgui.WindowXMLDialog):
         if control_id in (BUTTON_FIRST, BUTTON_SECOND):
             self.result = control_id == BUTTON_FIRST and len(self._buttons) > 1
             self.close()
+
+
+class _NumberDialog(xbmcgui.WindowXMLDialog):
+    def __init__(self, xml_file, resource_path, theme_skin, theme_res, **kwargs):
+        super().__init__()
+        self._heading = kwargs["heading"]
+        self._name = kwargs["name"]
+        self._entry = kwargs["entry"]
+        self._unit = kwargs["unit"]
+        self._bounded = kwargs["bounded"]
+        self.result = None
+
+    def onInit(self):
+        entry = self._entry
+        _label(self, LABEL_HEADING, self._heading)
+        _label(self, LABEL_NAME, self._name)
+        for number in range(10):
+            _label(self, BUTTON_DIGIT + number, str(number))
+        _label(self, BUTTON_POINT, entry.separator)
+        _label(self, BUTTON_OK, xbmc.getLocalizedString(_OK))
+        if entry.code:
+            self.setProperty("code", "true")
+        for control_id, shown in ((BUTTON_POINT, entry.decimals > 0),
+                                  (BUTTON_MINUS, not entry.code),
+                                  (BUTTON_PLUS, not entry.code)):
+            try:
+                self.getControl(control_id).setVisible(shown)
+            except RuntimeError:
+                pass
+        self._hint()
+        self._show()
+
+    def onAction(self, action):
+        code = action.getId()
+        if code in (ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
+            self.close()
+        elif ACTION_DIGIT_FIRST <= code < ACTION_DIGIT_FIRST + 10:
+            self._entry.digit(code - ACTION_DIGIT_FIRST)
+            self._show()
+
+    def onClick(self, control_id):
+        entry = self._entry
+        if BUTTON_DIGIT <= control_id < BUTTON_DIGIT + 10:
+            entry.digit(control_id - BUTTON_DIGIT)
+        elif control_id == BUTTON_POINT:
+            entry.point()
+        elif control_id == BUTTON_DELETE:
+            entry.delete()
+        elif control_id in (BUTTON_MINUS, BUTTON_PLUS):
+            entry.nudge(-1 if control_id == BUTTON_MINUS else 1)
+        elif control_id == BUTTON_OK:
+            if entry.code or entry.in_range():
+                self.result = True
+                self.close()
+                return
+        self._show()
+
+    def _hint(self):
+        entry = self._entry
+        parts = []
+        if self._bounded:
+            parts.append("%s\u2013%s" % (entry.number_text(entry.low),
+                                          _with_unit(entry.number_text(entry.high),
+                                                     self._unit)))
+        if not entry.code and entry.step != 1:
+            parts.append(kodi.tr("number_step") % entry.number_text(entry.step))
+        self.setProperty("hint", " \u00b7 ".join(parts))
+
+    def _show(self):
+        entry = self._entry
+        shown = entry.shown()
+        _label(self, LABEL_VALUE, _with_unit(shown, self._unit) if shown else "")
+        out = bool(entry.text) and not entry.code and not entry.in_range()
+        self.setProperty("out_of_range", "true" if out else "")
+
+
+def _with_unit(text, unit):
+    return ("%s %s" % (text, unit)).strip() if unit else text
 
 
 def _label(window, control_id, text):
