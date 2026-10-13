@@ -1,3 +1,6 @@
+v1.14.1
+- The add-on's dialogs and the context menu open and close with Home Assistant's transition, fading in from a slightly smaller size
+
 v1.14.0
 - Lists to choose from, the context menu and questions come up in dialogs of the add-on's own look instead of Kodi's. A list ticks the current choice, such as a vacuum's fan speed, and goes round from its last row to its first. The context menu's "Command" entry is now called "Actions"
 - Numbers are entered on a pad of the add-on's own: it shows the entity's bounds and step, steps with minus and plus, takes fractions such as 21.5 °C, and refuses a value out of range. A numeric alarm code is typed there too, hidden
