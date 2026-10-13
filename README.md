@@ -121,7 +121,8 @@ hiding it shows up in Kodi without a restart.
 ## Cameras
 
 A camera row carries a still from `/api/camera_proxy`, refreshed on the
-interval set in the add-on settings and only for the section on screen. The
+interval set in the add-on settings and only for the section on screen, and
+asked for at preview size, as Home Assistant's frontend does. The
 still is written to a file in the add-on's profile rather than handed to Kodi
 as a URL: Kodi caches images by URL, and a picture that changes every ten
 seconds would fill its texture database. Two file names per camera alternate,

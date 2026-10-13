@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 from . import support  # noqa: F401  (puts the addon on the path)
 from resources.lib import cameras
@@ -37,3 +38,18 @@ class Stills(unittest.TestCase):
         later = self.snapshots()
         self.assertEqual(later.latest("camera.a"), newer)
         self.assertEqual(later.keep("camera.a", b"three"), older)
+
+
+class Fetching(unittest.TestCase):
+    def test_a_still_is_asked_for_at_preview_size(self):
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        response = mock.MagicMock()
+        response.__enter__.return_value = response
+        response.headers = {"Content-Type": "image/jpeg"}
+        response.read.return_value = b"jpeg"
+        with mock.patch("urllib.request.urlopen", return_value=response) as urlopen:
+            cameras.Snapshots("http://ha/", directory).fetch(
+                "camera.a", "/api/camera_proxy/camera.a?token=t")
+        self.assertEqual(urlopen.call_args[0][0],
+                         "http://ha/api/camera_proxy/camera.a?token=t&width=256&height=144")

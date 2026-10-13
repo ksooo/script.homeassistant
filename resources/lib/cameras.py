@@ -16,6 +16,10 @@ import urllib.error
 import urllib.request
 
 _TIMEOUT = 15
+# The size a still is asked for, which Home Assistant scales the camera's
+# picture down to as its frontend has it do for a preview: twice the row's
+# 72 pixels high at 16:9, so it stays sharp on a 4K screen.
+_STILL_SIZE = (256, 144)
 # How long the first request for a stream may take: Home Assistant answers
 # it only once the stream has its first segments.
 _STREAM_TIMEOUT = 30
@@ -64,7 +68,9 @@ class Snapshots:
         Assistant renews by itself, as its own frontend uses it - so the still
         does not depend on how the addon signed in, or for how long.
         """
-        url = self._base_url + picture
+        separator = "&" if "?" in picture else "?"
+        url = "%s%s%swidth=%d&height=%d" % (self._base_url, picture, separator,
+                                            *_STILL_SIZE)
         try:
             with urllib.request.urlopen(url, timeout=_TIMEOUT,
                                         context=_context(url, self._verify_ssl)) as response:
