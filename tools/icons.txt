@@ -510,6 +510,7 @@ fuel
 fuel-cell
 gamepad
 gamepad-outline
+gamepad-variant
 gamepad-variant-outline
 garage
 garage-alert
@@ -985,6 +986,7 @@ shuffle
 shuffle-disabled
 signal
 signal-distance-variant
+sim
 sine-wave
 skip-backward
 skip-forward
@@ -1059,6 +1061,7 @@ swap-horizontal
 table-chair
 table-furniture
 table-lock
+tablet
 tag
 tag-text
 tag-text-outline

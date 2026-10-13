@@ -177,7 +177,7 @@ entity is.
 * **Icons are shipped, not fetched.** Kodi renders no SVG, so the icons are
   rasterised to PNG at build time: every Material Design icon tagged Home
   Automation, Weather, Battery or Lock, plus everything the add-on's rules and
-  the integrations name - 1272 in all and 844 KB together. An entity whose
+  the integrations name - 1278 in all and 846 KB together. An entity whose
   icon is outside that set shows the plain circle; running
   `tools/make_icons.py` after adding the name to `tools/icons.txt` fixes that.
 * **Only the last icon rule lives in the add-on.** An explicit `icon`
@@ -199,7 +199,9 @@ to use the add-on. Each has one occasion to be run:
 | `python3 tools/make_icons.py` and `python3 tools/make_icons.py --large` | `tools/icons.txt`, when an entity icon joins the shipped set; the second renders the 256 pixel icons for Kodi favourites |
 | `python3 tools/make_textures.py` | the colours or geometry in that script, when a skin texture should look different |
 
-Both are deterministic, so a rerun without changes produces no diff.
+Both are deterministic, so a rerun without changes produces no diff - except
+that QuickLook rounds a few edge pixels of the odd icon differently from run
+to run; such changes are noise and are best reverted.
 `make_icons.py` fetches the Material Design path data once and rasterises with
 `rsvg-convert`, falling back to macOS QuickLook.
 
