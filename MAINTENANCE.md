@@ -73,6 +73,7 @@ This is the group that needs looking after.
 | The two words Home Assistant has no state for: a row that cannot be reached, and one that is there to be run | `resources/language/*/strings.po` |
 | The media window's button labels, and the hint each of them puts at the foot of the dialog | `resources/language/*/strings.po` |
 | The words on the dialogs' buttons, Kodi's own strings 106, 107 and 186 (No, Yes, OK) | `resources/lib/dialogs.py` |
+| The dialogs' opening and closing: `ha-dialog`'s `show-dialog` from Web Awesome, fading in from 80 % of the size over 200 ms and back out the same way | `resources/skins/Default/1080i/*.xml` |
 | The details dialog's labels, the relative times, and the names of the eight attributes every entity can have, which the frontend words itself (`ui.components.attributes.names`) | `resources/language/*/strings.po` |
 
 A new or renamed icon in Home Assistant ends as an empty square here, not as an

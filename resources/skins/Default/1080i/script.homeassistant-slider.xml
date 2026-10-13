@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
+    <!-- Home Assistant's dialog transition: in from four fifths of the size
+         over 200 ms, and back out the same way. -->
+    <animation effect="fade" start="0" end="100" time="200" tween="cubic" easing="out">WindowOpen</animation>
+    <animation effect="zoom" start="80" end="100" center="960,540" time="200" tween="cubic" easing="out">WindowOpen</animation>
+    <animation effect="fade" start="100" end="0" time="200" tween="cubic" easing="in">WindowClose</animation>
+    <animation effect="zoom" start="100" end="80" center="960,540" time="200" tween="cubic" easing="in">WindowClose</animation>
     <defaultcontrol>110</defaultcontrol>
     <controls>
         <control type="image">
