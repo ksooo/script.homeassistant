@@ -169,10 +169,11 @@ class _Dashboard:
         self._brands_due = 0.0
         self._icons = _shipped_icons()
         self._snapshots = cameras.Snapshots(
-            self._settings.url, kodi.stills_directory(),
+            self._settings.url, kodi.temp_directory(),
             verify_ssl=self._settings.verify_ssl, log=kodi.log)
         self._camera_worker = None
         self._camera_due = 0.0
+        self._pruned = False
         self._clock_due = 0.0
         self._overlay = None
         self._live = None
@@ -566,6 +567,12 @@ class _Dashboard:
     # -- building --------------------------------------------------------
 
     def _rebuild(self):
+        if not self._pruned and self._store.states:
+            # Once a run, with the cameras Home Assistant has now: the stills
+            # of any it no longer has would otherwise stay for good.
+            self._pruned = True
+            self._snapshots.prune([entity_id for entity_id in self._store.states
+                                   if entity_id.startswith("camera.")])
         self._sections = sections.build(self._store, self._options, kodi.tr)
         try:
             categories = self.getControl(CATEGORY_LIST)

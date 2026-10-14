@@ -39,6 +39,17 @@ class Stills(unittest.TestCase):
         self.assertEqual(later.latest("camera.a"), newer)
         self.assertEqual(later.keep("camera.a", b"three"), older)
 
+    def test_the_stills_of_a_camera_gone_are_deleted_and_nothing_else(self):
+        snapshots = self.snapshots()
+        kept = snapshots.keep("camera.a", b"one")
+        gone = snapshots.keep("camera.b", b"two")
+        other = os.path.join(self.directory, "kelvin-2700-6500.png")
+        open(other, "wb").close()
+        snapshots.prune(["camera.a"])
+        self.assertTrue(os.path.exists(kept))
+        self.assertFalse(os.path.exists(gone))
+        self.assertTrue(os.path.exists(other))
+
 
 class Fetching(unittest.TestCase):
     def test_a_still_is_asked_for_at_preview_size(self):

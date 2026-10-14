@@ -126,17 +126,14 @@ def profile_directory():
     return xbmcvfs.translatePath(ADDON.getAddonInfo("profile"))
 
 
-def stills_directory():
-    """Where camera stills are kept, in the profile so that they outlast a
-    restart of the addon and of Kodi."""
-    path = os.path.join(profile_directory(), "stills", "")
-    if not xbmcvfs.exists(path):
-        xbmcvfs.mkdirs(path)
-    return path
-
-
 def temp_directory():
-    """A writable place for drawn images, created on first use."""
+    """A writable place for camera stills and drawn images, created on first
+    use.
+
+    Kodi takes an image under special://temp as cached already and reads it
+    afresh each time; anywhere else it keeps the image in its texture cache
+    by path, and a still rewritten under the same name would stay stale.
+    """
     path = xbmcvfs.translatePath("special://temp/%s/" % ADDON_ID)
     if not xbmcvfs.exists(path):
         xbmcvfs.mkdirs(path)

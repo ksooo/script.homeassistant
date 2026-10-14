@@ -10,6 +10,7 @@ restart, until a fresh one arrives.
 
 import hashlib
 import os
+import re
 import ssl
 import threading
 import urllib.error
@@ -23,6 +24,8 @@ _STILL_SIZE = (256, 144)
 # How long the first request for a stream may take: Home Assistant answers
 # it only once the stream has its first segments.
 _STREAM_TIMEOUT = 30
+# A still's file name: the camera's digest and its slot.
+_STILL = re.compile(r"^([0-9a-f]{12})-[01]\.jpg$")
 
 
 def stream_ready(url, verify_ssl=True):
@@ -107,6 +110,21 @@ class Snapshots:
             slot = self._newest(entity_id)
         return "" if slot is None else self._path(entity_id, slot)
 
+    def prune(self, entity_ids):
+        """Delete the stills of every camera that is not among those given."""
+        kept = {_digest(entity_id) for entity_id in entity_ids}
+        try:
+            names = os.listdir(self._directory)
+        except OSError:
+            return
+        for name in names:
+            match = _STILL.match(name)
+            if match and match.group(1) not in kept:
+                try:
+                    os.remove(os.path.join(self._directory, name))
+                except OSError:
+                    pass
+
     def _newest(self, entity_id):
         # A camera not seen yet in this run starts from what is on disk.
         if entity_id not in self._slots:
@@ -120,5 +138,8 @@ class Snapshots:
         return self._slots[entity_id]
 
     def _path(self, entity_id, slot):
-        digest = hashlib.md5(entity_id.encode("utf-8")).hexdigest()[:12]
-        return os.path.join(self._directory, "%s-%d.jpg" % (digest, slot))
+        return os.path.join(self._directory, "%s-%d.jpg" % (_digest(entity_id), slot))
+
+
+def _digest(entity_id):
+    return hashlib.md5(entity_id.encode("utf-8")).hexdigest()[:12]
