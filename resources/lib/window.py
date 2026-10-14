@@ -43,8 +43,9 @@ _LIVE_PATIENCE = 30.0
 
 _WEBRTC_INPUTSTREAM = "inputstream.webrtc"
 
-# How often rows that say how long ago are redrawn.
-_CLOCK_INTERVAL = 30.0
+# How often the relative times are worked out again: every second, as
+# Home Assistant's ha-relative-time does while they are under a minute.
+_CLOCK_INTERVAL = 1.0
 
 # How long a favourite waits for Home Assistant before it gives up, rather
 # than leave Kodi's busy spinner up.
@@ -751,13 +752,26 @@ class _Dashboard:
         item.setProperty("icon", "icons/%s.png" % icon if icon in self._icons else "")
 
     def _tick_clock(self):
-        """Keep "5 minutes ago" true: a state that is a time does not change
-        as the time passes, so nothing else would redraw it."""
+        """Keep "5 seconds ago" true: a state that is a time does not change
+        as the time passes, so nothing else would redraw it. Only the words
+        are set, and only where they changed."""
         if time.time() < self._clock_due:
             return
         self._clock_due = time.time() + _CLOCK_INTERVAL
-        self._refresh_rows([entity_id for entity_id in self._row_positions
-                            if formatting.is_timestamp(self._store, entity_id)])
+        try:
+            rows = self.getControl(ROW_LIST)
+        except RuntimeError:
+            return
+        for entity_id, position in self._row_positions.items():
+            if not formatting.is_timestamp(self._store, entity_id):
+                continue
+            text = formatting.state_text(self._store, entity_id, kodi.tr)
+            try:
+                item = rows.getListItem(position)
+            except (RuntimeError, ValueError):
+                continue
+            if item.getLabel2() != text:
+                item.setLabel2(text)
 
     def _refresh_rows(self, entity_ids):
         try:
