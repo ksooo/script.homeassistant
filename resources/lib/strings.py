@@ -146,6 +146,8 @@ IDS = {
     "ago_months": 30437,
     "ago_year": 30438,
     "ago_years": 30439,
+    "ago_now": 30448,
+    "ago_two_days": 30449,
     "attribute_assumed_state": 30440,
     "attribute_attribution": 30441,
     "attribute_device_class": 30442,

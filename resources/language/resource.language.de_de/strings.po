@@ -705,32 +705,32 @@ msgid "%d hours ago"
 msgstr "Vor %d Stunden"
 
 msgctxt "#30432"
-msgid "1 day ago"
-msgstr "Vor 1 Tag"
+msgid "Yesterday"
+msgstr "Gestern"
 
 msgctxt "#30433"
 msgid "%d days ago"
 msgstr "Vor %d Tagen"
 
 msgctxt "#30434"
-msgid "1 week ago"
-msgstr "Vor 1 Woche"
+msgid "Last week"
+msgstr "Letzte Woche"
 
 msgctxt "#30435"
 msgid "%d weeks ago"
 msgstr "Vor %d Wochen"
 
 msgctxt "#30436"
-msgid "1 month ago"
-msgstr "Vor 1 Monat"
+msgid "Last month"
+msgstr "Letzten Monat"
 
 msgctxt "#30437"
 msgid "%d months ago"
 msgstr "Vor %d Monaten"
 
 msgctxt "#30438"
-msgid "1 year ago"
-msgstr "Vor 1 Jahr"
+msgid "Last year"
+msgstr "Letztes Jahr"
 
 msgctxt "#30439"
 msgid "%d years ago"
@@ -767,3 +767,11 @@ msgstr "Unterstützte Funktionen"
 msgctxt "#30447"
 msgid "Unit of measurement"
 msgstr "Maßeinheit"
+
+msgctxt "#30448"
+msgid "Now"
+msgstr "Jetzt"
+
+msgctxt "#30449"
+msgid "2 days ago"
+msgstr "Vorgestern"

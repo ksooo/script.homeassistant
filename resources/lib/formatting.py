@@ -66,6 +66,11 @@ _RELATIVE = ((45, 1, "ago_second", "ago_seconds"),
              (11, 30.44 * 86400, "ago_month", "ago_months"),
              (None, 365.25 * 86400, "ago_year", "ago_years"))
 
+# Counts that Intl.RelativeTimeFormat says in words, as Home Assistant's
+# numeric "auto" has it; a count of one does so through each unit's own
+# string ("yesterday", "last week").
+_RELATIVE_WORDS = {(1, 0): "ago_now", (86400, 2): "ago_two_days"}
+
 
 def state_text(store, entity_id, translate=None):
     """The value line of a tile.
@@ -346,10 +351,18 @@ def relative_time(iso, now, tr):
     moment = parse_time(iso)
     if moment is None:
         return ""
-    seconds = max(0.0, now - moment.timestamp())
+    return ago(moment.timestamp(), now, tr)
+
+
+def ago(timestamp, now, tr):
+    """How long ago a moment in seconds since the epoch was."""
+    seconds = max(0.0, now - timestamp)
     for limit, size, one, many in _RELATIVE:
         count = int(round(seconds / size))
         if limit is None or count < limit:
+            word = _RELATIVE_WORDS.get((size, count))
+            if word:
+                return tr(word)
             return tr(one) if count == 1 else tr(many) % count
     return ""
 

@@ -705,7 +705,7 @@ msgid "%d hours ago"
 msgstr ""
 
 msgctxt "#30432"
-msgid "1 day ago"
+msgid "Yesterday"
 msgstr ""
 
 msgctxt "#30433"
@@ -713,7 +713,7 @@ msgid "%d days ago"
 msgstr ""
 
 msgctxt "#30434"
-msgid "1 week ago"
+msgid "Last week"
 msgstr ""
 
 msgctxt "#30435"
@@ -721,7 +721,7 @@ msgid "%d weeks ago"
 msgstr ""
 
 msgctxt "#30436"
-msgid "1 month ago"
+msgid "Last month"
 msgstr ""
 
 msgctxt "#30437"
@@ -729,7 +729,7 @@ msgid "%d months ago"
 msgstr ""
 
 msgctxt "#30438"
-msgid "1 year ago"
+msgid "Last year"
 msgstr ""
 
 msgctxt "#30439"
@@ -766,4 +766,12 @@ msgstr ""
 
 msgctxt "#30447"
 msgid "Unit of measurement"
+msgstr ""
+
+msgctxt "#30448"
+msgid "Now"
+msgstr ""
+
+msgctxt "#30449"
+msgid "2 days ago"
 msgstr ""

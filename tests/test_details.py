@@ -11,6 +11,7 @@ NOW = 1791009600.0  # 2026-10-03 06:40:00 UTC
 def tr(name):
     return {"ago_minute": "1 minute ago", "ago_minutes": "%d minutes ago",
             "ago_seconds": "%d seconds ago", "ago_hours": "%d hours ago",
+            "ago_now": "Now", "ago_day": "Yesterday", "ago_two_days": "2 days ago",
             "unknown": "Unknown", "attribute_friendly_name": "Friendly name"}.get(name, name)
 
 
@@ -99,6 +100,11 @@ class RelativeTime(unittest.TestCase):
                          "5 minutes ago")
         self.assertEqual(formatting.relative_time("2026-10-03T03:40:00+00:00", NOW, tr),
                          "3 hours ago")
+
+    def test_some_counts_have_a_word_of_their_own(self):
+        self.assertEqual(formatting.ago(NOW, NOW, tr), "Now")
+        self.assertEqual(formatting.ago(NOW - 86400, NOW, tr), "Yesterday")
+        self.assertEqual(formatting.ago(NOW - 2 * 86400, NOW, tr), "2 days ago")
 
     def test_a_time_that_cannot_be_read_says_nothing(self):
         self.assertEqual(formatting.relative_time("", NOW, tr), "")
