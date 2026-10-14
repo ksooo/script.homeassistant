@@ -1,3 +1,7 @@
+v1.14.2
+- Times that say how long ago use Home Assistant's words where it has them: "Now", "Yesterday", "Last week", "Last month", "Last year"
+- Fixed: a camera row could flip between an old still and the fresh one
+
 v1.14.1
 - The add-on's dialogs and the context menu open and close with Home Assistant's transition, fading in from a slightly smaller size
 
