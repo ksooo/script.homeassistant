@@ -1311,6 +1311,9 @@ class Shortcut(_Dashboard, xbmcgui.WindowXMLDialog):
     def _rebuild(self):
         pass
 
+    def _tick_clock(self):
+        pass
+
     def _refresh_rows(self, entity_ids):
         pass
 
