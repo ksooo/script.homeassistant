@@ -26,6 +26,10 @@ ICON_DIR = os.path.join(ADDON_PATH, "resources", "skins", "Default", "media",
                         "icons")
 # The same icons at favourite size; tools/make_icons.py --large.
 LARGE_ICON_DIR = os.path.join(ADDON_PATH, "resources", "media", "icons")
+# Home Assistant's logo for the corner of a favourite's icon, and the cut
+# around it; tools/make_textures.py.
+FAVOURITE_BADGE = os.path.join(ADDON_PATH, "resources", "media", "badge.png")
+FAVOURITE_BADGE_CUT = os.path.join(ADDON_PATH, "resources", "media", "badge_cut.png")
 
 
 def tr(key):
@@ -140,6 +144,15 @@ def temp_directory():
     return path
 
 
+def favourite_icon_directory():
+    """Where the icons drawn for Kodi favourites are kept, created on first
+    use. In the profile, unlike the stills: a favourite needs its icon past
+    a restart, and Kodi empties special://temp then."""
+    path = os.path.join(profile_directory(), "favourites")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def image_url(base_url, path, brands_token=""):
     """A Home Assistant image URL Kodi can fetch as it is.
 
@@ -165,6 +178,15 @@ def is_favourite(url):
     favourites = _json_rpc("Favourites.GetFavourites", type="media",
                            properties=["path"]).get("favourites") or []
     return any(favourite.get("path") == url for favourite in favourites)
+
+
+def favourite_thumbnails():
+    """The thumbnails of this addon's favourites in Kodi."""
+    favourites = _json_rpc("Favourites.GetFavourites", type="media",
+                           properties=["path", "thumbnail"]).get("favourites") or []
+    prefix = "plugin://%s/" % ADDON_ID
+    return [favourite.get("thumbnail") or "" for favourite in favourites
+            if (favourite.get("path") or "").startswith(prefix)]
 
 
 def toggle_favourite(url, title, thumbnail):

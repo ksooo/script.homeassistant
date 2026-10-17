@@ -20,8 +20,8 @@ import xbmcgui
 
 from . import actions as ha_actions
 from . import (browse, cameras, colourdialog, details, detailsdialog, dialogs,
-               direct, favouritesdialog, formatting, icons, kodi, mediadialog,
-               model, ptzdialog, sections, sliderdialog)
+               direct, favouriteicon, favouritesdialog, formatting, icons, kodi,
+               mediadialog, model, ptzdialog, sections, sliderdialog)
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 
@@ -824,7 +824,8 @@ class _Dashboard:
                if offered else []))
         if offered and choice == len(menu):
             kodi.toggle_favourite(url, self._store.name_with_device(entity_id),
-                                  self._favourite_icon(entity_id))
+                                  self._favourite_icon(entity_id) if favourite
+                                  else self._favourite_thumbnail(entity_id))
         elif choice >= 0:
             self._execute(entity_id, menu[choice])
 
@@ -833,6 +834,24 @@ class _Dashboard:
         path = os.path.join(kodi.LARGE_ICON_DIR,
                             icons.icon_for(self._store, entity_id) + ".png")
         return path if os.path.isfile(path) else kodi.ADDON_ICON
+
+    def _favourite_thumbnail(self, entity_id):
+        """What a new favourite carries: the entity's icon with Home
+        Assistant's logo in its corner, drawn once for each icon."""
+        icon = self._favourite_icon(entity_id)
+        # The addon's icon is that logo already.
+        if icon == kodi.ADDON_ICON:
+            return icon
+        try:
+            target = os.path.join(kodi.favourite_icon_directory(), favouriteicon.file_name(
+                icon, kodi.FAVOURITE_BADGE, kodi.FAVOURITE_BADGE_CUT))
+            if not os.path.isfile(target):
+                favouriteicon.draw(icon, kodi.FAVOURITE_BADGE, kodi.FAVOURITE_BADGE_CUT,
+                                   target)
+        except (OSError, ValueError) as error:
+            kodi.log("favourite icon not drawn: %s" % error, xbmc.LOGWARNING)
+            return icon
+        return target
 
     def _execute(self, entity_id, action):
         if action.kind == ha_actions.DETAILS:

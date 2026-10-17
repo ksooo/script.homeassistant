@@ -264,6 +264,13 @@ holds every entity's favourite for the same one and `Favourites.GetFavourites`
 returns no more than the id. A plugin URL is kept whole, which is what the
 plugin entry point is for.
 
+Nor can a favourite be changed: JSON-RPC has `Favourites.AddFavourite`, which
+adds or removes one, and nothing that edits one in place. A favourite added
+before its icon carried Home Assistant's logo keeps the plain one, since
+removing and adding it again would move it to the end of Kodi's list. Kodi's
+Python brings no imaging library either, so the logo is drawn into the icon
+in plain Python (`resources/lib/favouriteicon.py`).
+
 And a Python window's class makes its Kodi object from the first Kodi base it
 has. A dialog cannot be had by deriving one from the dashboard's window, so
 the dashboard's workings sit in a class of their own that the window and the

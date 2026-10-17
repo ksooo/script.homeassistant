@@ -7,13 +7,28 @@ is not generated here - it is the Home Assistant logo.
 """
 
 import colorsys
+import math
 import os
 import struct
+import sys
 import zlib
 
 MEDIA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                      "resources", "skins", "Default", "media")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0, ROOT)
+
+from resources.lib.favouriteicon import read_png  # noqa: E402  (path set up above)
+
+# The logo in the corner of a favourite's icon, which is 256 pixels, and the
+# room cleared around it. Estuary shows the square icon on a wider tile, so
+# the logo is lowered to sit as far below the tile's top as it does right of
+# its left edge.
+BADGE_SIZE = 72
+BADGE_TOP = 8
+BADGE_GAP = 10
+LOGO_BLUE = (0x18, 0xBC, 0xF2)
 
 ACCENT = (0x41, 0xBD, 0xF5)
 
@@ -157,6 +172,50 @@ def ground(width, height, top, bottom, glow, reach, strength):
     return pixels
 
 
+def badge():
+    """Home Assistant's logo from the addon icon, which draws it blue on
+    white, and the cut that clears a favourite's icon around it.
+
+    The white, the lines inside the logo included, becomes transparent.
+    """
+    width, height, pixels = read_png(os.path.join(ROOT, "resources", "icon.png"))
+    span = 255 - LOGO_BLUE[0]
+    alpha = [max(0, min(255, (255 - pixels[i * 4]) * 255 // span)) * pixels[i * 4 + 3] // 255
+             for i in range(width * height)]
+    xs = [i % width for i in range(width * height) if alpha[i] > 8]
+    ys = [i // width for i in range(width * height) if alpha[i] > 8]
+    side = max(max(xs) - min(xs), max(ys) - min(ys)) + 1
+    left = (min(xs) + max(xs) + 1 - side) // 2
+    top = (min(ys) + max(ys) + 1 - side) // 2
+
+    logo = bytearray(BADGE_SIZE * (BADGE_TOP + BADGE_SIZE) * 4)
+    for y in range(BADGE_SIZE):
+        rows = range(top + y * side // BADGE_SIZE, top + (y + 1) * side // BADGE_SIZE)
+        for x in range(BADGE_SIZE):
+            columns = range(left + x * side // BADGE_SIZE, left + (x + 1) * side // BADGE_SIZE)
+            covered = [alpha[row * width + column] for row in rows for column in columns]
+            index = ((BADGE_TOP + y) * BADGE_SIZE + x) * 4
+            logo[index:index + 3] = bytes(LOGO_BLUE)
+            logo[index + 3] = sum(covered) // len(covered)
+
+    size = BADGE_SIZE + BADGE_GAP
+    solid = {(x, y) for y in range(BADGE_TOP + BADGE_SIZE) for x in range(BADGE_SIZE)
+             if logo[(y * BADGE_SIZE + x) * 4 + 3] >= 128}
+    reach = BADGE_GAP + 1
+    # Nearest first, so the first one that hits the logo gives the distance.
+    offsets = sorted(((dx, dy) for dy in range(-reach, reach + 1)
+                      for dx in range(-reach, reach + 1)), key=lambda d: math.hypot(*d))
+    cut = bytearray(size * (BADGE_TOP + size) * 4)
+    for y in range(BADGE_TOP + size):
+        for x in range(size):
+            distance = next((math.hypot(dx, dy) for dx, dy in offsets
+                             if (x + dx, y + dy) in solid), reach)
+            index = (y * size + x) * 4
+            cut[index:index + 3] = b"\xff\xff\xff"
+            cut[index + 3] = int(max(0.0, min(1.0, BADGE_GAP + 0.5 - distance)) * 255)
+    return logo, cut
+
+
 def _rounded_distance(x, y, width, height, radius):
     """Signed distance to a rounded rectangle, negative inside."""
     half_w, half_h = width / 2.0, height / 2.0
@@ -231,6 +290,14 @@ def main():
     # tinted with the hue in the skin.
     made.append(write_png(os.path.join(MEDIA, "hue.png"), 360, 4, hue_band(360, 4)))
     made.append(write_png(os.path.join(MEDIA, "ramp.png"), 256, 4, ramp(256, 4)))
+
+    # Drawn into a Kodi favourite's icon by resources/lib/favouriteicon.py.
+    logo, cut = badge()
+    favourites = os.path.join(ROOT, "resources", "media")
+    made.append(write_png(os.path.join(favourites, "badge.png"), BADGE_SIZE,
+                          BADGE_TOP + BADGE_SIZE, logo))
+    made.append(write_png(os.path.join(favourites, "badge_cut.png"), BADGE_SIZE + BADGE_GAP,
+                          BADGE_TOP + BADGE_SIZE + BADGE_GAP, cut))
 
     for path in made:
         print("%7d  %s" % (os.path.getsize(path), os.path.relpath(path, ROOT)))

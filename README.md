@@ -163,7 +163,14 @@ the dashboard, without the dashboard coming into view: a dialog with nothing
 in it lies over the window the favourite was chosen in, Kodi's busy spinner
 shows while Home Assistant is reached, and Kodi comes back to that window
 afterwards. The favourite is named with the entity's device in front and
-carries the entity's icon, from a second set of the icons at 256 pixels.
+carries the entity's icon, from a second set of the icons at 256 pixels, with
+Home Assistant's logo in its top left corner. That icon is drawn when the
+favourite is added and kept in the add-on's profile folder, under
+`favourites`, named after the icon and the logo: Kodi keeps an image in its
+texture cache by path, so a logo changed by an update gets a file of its
+own. The icons of favourites removed since are deleted when the dashboard
+opens. A favourite added before the logo came keeps its plain icon until it
+is added again.
 
 A favourite points at `plugin://script.homeassistant/?entity_id=...`, which
 is why the add-on has a plugin entry point beside its script: Kodi keeps only
@@ -201,7 +208,7 @@ to use the add-on. Each has one occasion to be run:
 | Run | After changing |
 |---|---|
 | `python3 tools/make_icons.py` and `python3 tools/make_icons.py --large` | `tools/icons.txt`, when an entity icon joins the shipped set; the second renders the 256 pixel icons for Kodi favourites |
-| `python3 tools/make_textures.py` | the colours or geometry in that script, when a skin texture should look different |
+| `python3 tools/make_textures.py` | the colours or geometry in that script, when a skin texture should look different; it also cuts the logo for a favourite's icon out of `resources/icon.png` |
 
 Both are deterministic, so a rerun without changes produces no diff - except
 that QuickLook rounds a few edge pixels of the odd icon differently from run

@@ -6,7 +6,7 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
-from . import direct, kodi
+from . import direct, favouriteicon, kodi
 from .ha import auth as ha_auth
 from .ha import client as ha_client
 from .window import SHORTCUT_XML, Dashboard, Shortcut
@@ -47,6 +47,7 @@ def show_dashboard(entity_id=None):
         window = Shortcut(SHORTCUT_XML, kodi.ADDON_PATH, "Default", "1080i",
                           settings=settings, entity_id=entity_id)
     else:
+        _prune_favourite_icons()
         window = Dashboard(_WINDOW_XML, kodi.ADDON_PATH, "Default", "1080i",
                            settings=settings)
     monitor = xbmc.Monitor()
@@ -60,6 +61,16 @@ def show_dashboard(entity_id=None):
         window.close()
         window.shutdown()
         del window
+
+
+def _prune_favourite_icons():
+    """Drop the icons of favourites removed since, in the dashboard or in
+    Kodi's own list."""
+    try:
+        thumbnails = kodi.favourite_thumbnails()
+    except RuntimeError:
+        return
+    favouriteicon.prune(kodi.favourite_icon_directory(), thumbnails)
 
 
 def _client(settings):
