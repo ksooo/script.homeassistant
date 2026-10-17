@@ -1,3 +1,6 @@
+v1.15.0
+- A Kodi favourite of an entity shows the Home Assistant logo in the corner of its icon. Favourites added earlier keep their plain icon until they are removed and added again
+
 v1.14.2
 - Times that say how long ago use Home Assistant's words where it has them: "Now", "Yesterday", "Last week", "Last month", "Last year"
 - Fixed: a camera row could flip between an old still and the fresh one
