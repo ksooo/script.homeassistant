@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.homeassistant"
        name="Home Assistant Dashboard"
-       version="1.15.0"
+       version="1.15.1"
        provider-name="Kai Sommerfeld">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -20,8 +20,9 @@
     <description lang="en_GB">Brings the contents of the Home Assistant "Home" dashboard into Kodi: your favourites, the light, climate, security, maintenance, weather and energy summaries, and every area grouped by floor. States update live over the WebSocket API, and devices can be switched straight from the couch.</description>
     <summary lang="de_DE">Zeigt dein Home-Assistant-Dashboard in Kodi</summary>
     <description lang="de_DE">Bringt den Inhalt des Home-Assistant-Dashboards „Home" nach Kodi: deine Favoriten, die Übersichten für Licht, Klima, Sicherheit, Wartung, Wetter und Energie sowie alle Räume nach Etagen gruppiert. Die Zustände aktualisieren sich live über die WebSocket-API, und Geräte lassen sich direkt vom Sofa aus schalten.</description>
-    <news>v1.15.0
-- A Kodi favourite of an entity shows the Home Assistant logo in the corner of its icon. Favourites added earlier keep their plain icon until they are removed and added again
+    <news>v1.15.1
+- The music visualisation shows through the dashboard, as a playing video already did
+- Fixed: the branches in the Home Assistant logo on a favourite's icon were dark instead of white. Favourites added earlier keep the old logo until they are removed and added again
 </news>
     <assets>
       <icon>resources/icon.png</icon>

@@ -1,3 +1,7 @@
+v1.15.1
+- The music visualisation shows through the dashboard, as a playing video already did
+- Fixed: the branches in the Home Assistant logo on a favourite's icon were dark instead of white. Favourites added earlier keep the old logo until they are removed and added again
+
 v1.15.0
 - A Kodi favourite of an entity shows the Home Assistant logo in the corner of its icon. Favourites added earlier keep their plain icon until they are removed and added again
 
