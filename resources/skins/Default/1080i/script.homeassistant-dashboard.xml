@@ -19,6 +19,16 @@
             <visible>Player.HasVideo</visible>
         </control>
 
+        <!-- The music visualisation, which Estuary shows behind its windows
+             the same way. -->
+        <control type="visualisation">
+            <left>0</left>
+            <top>0</top>
+            <width>1920</width>
+            <height>1080</height>
+            <visible>Player.HasAudio + Visualisation.Enabled</visible>
+        </control>
+
         <control type="image">
             <left>0</left>
             <top>0</top>
@@ -26,10 +36,10 @@
             <height>1080</height>
             <texture>background.png</texture>
             <!-- Estuary's own figure: the ground goes back to 79 while
-                 something is playing, and the picture shows through the
-                 rest. -->
+                 a video or a visualisation plays, and the picture shows
+                 through the rest. -->
             <animation effect="fade" start="100" end="79" time="0"
-                       condition="Player.HasVideo">Conditional</animation>
+                       condition="Player.HasVideo | [Player.HasAudio + Visualisation.Enabled + !String.IsEmpty(Visualisation.Name)]">Conditional</animation>
         </control>
 
         <control type="label" id="100">
