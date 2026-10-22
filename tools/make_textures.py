@@ -176,7 +176,9 @@ def badge():
     """Home Assistant's logo from the addon icon, which draws it blue on
     white, and the cut that clears a favourite's icon around it.
 
-    The white, the lines inside the logo included, becomes transparent.
+    Only the white beside the logo becomes transparent. The lines inside it
+    stay white, as in Home Assistant's own logo: on a dark tile they would
+    otherwise show the tile through.
     """
     width, height, pixels = read_png(os.path.join(ROOT, "resources", "icon.png"))
     span = 255 - LOGO_BLUE[0]
@@ -188,15 +190,32 @@ def badge():
     left = (min(xs) + max(xs) + 1 - side) // 2
     top = (min(ys) + max(ys) + 1 - side) // 2
 
+    # Inside is what lies between a row's outermost fully blue pixels. Filled
+    # from outside instead, the white would run in where the trunk leaves
+    # the house at the bottom.
+    opacity, blueness = [], []
+    for y in range(height):
+        row = alpha[y * width:(y + 1) * width]
+        solid = [x for x, value in enumerate(row) if value >= 250]
+        first, last = (solid[0], solid[-1]) if solid else (width, -1)
+        for x, value in enumerate(row):
+            inside = first <= x <= last
+            opacity.append(255 if inside else value)
+            blueness.append(value if inside else 255)
+
     logo = bytearray(BADGE_SIZE * (BADGE_TOP + BADGE_SIZE) * 4)
     for y in range(BADGE_SIZE):
         rows = range(top + y * side // BADGE_SIZE, top + (y + 1) * side // BADGE_SIZE)
         for x in range(BADGE_SIZE):
             columns = range(left + x * side // BADGE_SIZE, left + (x + 1) * side // BADGE_SIZE)
-            covered = [alpha[row * width + column] for row in rows for column in columns]
+            covered = [row * width + column for row in rows for column in columns]
+            total = sum(opacity[i] for i in covered)
             index = ((BADGE_TOP + y) * BADGE_SIZE + x) * 4
-            logo[index:index + 3] = bytes(LOGO_BLUE)
-            logo[index + 3] = sum(covered) // len(covered)
+            if total:
+                share = sum(opacity[i] * blueness[i] for i in covered) / total / 255
+                logo[index:index + 3] = bytes(int(blue * share + 255 * (1 - share) + 0.5)
+                                              for blue in LOGO_BLUE)
+            logo[index + 3] = total // len(covered)
 
     size = BADGE_SIZE + BADGE_GAP
     solid = {(x, y) for y in range(BADGE_TOP + BADGE_SIZE) for x in range(BADGE_SIZE)
