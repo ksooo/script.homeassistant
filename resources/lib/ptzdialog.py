@@ -37,7 +37,7 @@ import time
 
 import xbmcgui
 
-from . import formatting
+from . import formatting, sender
 
 # How long a move runs after the last press of its key.
 _STEP = 0.3
@@ -48,6 +48,8 @@ _ZOOM_AGAIN = 0.1
 _REFUSED = 1.5
 # How long the cross stays lit once the camera has taken the way home.
 _HOME_LIT = 1.0
+# How long closing waits for the commands still on their way, the stop among them.
+_LAST_SENT = 2.0
 
 _MOVING = "FF41BDF5"
 _FAILED = formatting.RED
@@ -95,6 +97,7 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
         self._stop_due = 0.0
         self._refused_until = 0.0
         self._lit_until = 0.0
+        self._sender = sender.Sender()
         self.closed = False
 
     def onInit(self):
@@ -124,29 +127,24 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
                 return
             # A held key repeats; the camera is told once and kept going.
             again = (move in _ZOOMS.values() and move == self._moving
+                     and not self._sender.busy
                      and time.time() >= self._sent_at + _ZOOM_AGAIN)
             if move != self._moving or again:
                 self._moving = move
                 self._lit_until = 0.0
                 self._light(move, _MOVING)
                 self._sent_at = time.time()
-                if not self._send_move[move](self._buttons[move]):
-                    self._moving = None
-                    self._light(move, _FAILED)
-                    self._refused_until = time.time() + _REFUSED
-                    return
+                self._send(self._send_move[move], move)
             self._stop_due = time.time() + _STEP
         elif code == ACTION_SELECT_ITEM and "home" in self._buttons:
             # Going home is a move of its own; a stop still due would cut it short.
             self._moving = None
             self._light("home", _MOVING)
-            if self._press(self._buttons["home"]):
-                self._lit_until = time.time() + _HOME_LIT
-            else:
-                self._light("home", _FAILED)
-                self._refused_until = time.time() + _REFUSED
+            self._send(self._press, "home")
 
     def tick(self):
+        for role, done in self._sender.answers():
+            self._answered(role, done)
         now = time.time()
         if self._moving is not None and now >= self._stop_due:
             self._stop()
@@ -162,11 +160,27 @@ class PtzDialog(xbmcgui.WindowXMLDialog):
             self._stop()
         self.closed = True
         self.close()
+        self._sender.close(_LAST_SENT)
 
     def _stop(self):
         self._moving = None
         self.clearProperty("ptz_move")
-        self._press(self._buttons["stop"])
+        self._send(self._press, "stop")
+
+    def _send(self, command, role):
+        button = self._buttons[role]
+        self._sender.send(lambda: command(button), role)
+
+    def _answered(self, role, done):
+        if done:
+            # Unless another key has taken the arrows since.
+            if role == "home" and self.getProperty("ptz_move") == "home":
+                self._lit_until = time.time() + _HOME_LIT
+        elif role != "stop":
+            if role == self._moving:
+                self._moving = None
+            self._light(role, _FAILED)
+            self._refused_until = time.time() + _REFUSED
 
     def _show_mode(self):
         aside = _ARROWS_ASIDE if self._modes_used else _ARROWS
