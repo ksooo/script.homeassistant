@@ -188,7 +188,7 @@ entity is.
 * **Icons are shipped, not fetched.** Kodi renders no SVG, so the icons are
   rasterised to PNG at build time: every Material Design icon tagged Home
   Automation, Weather, Battery or Lock, plus everything the add-on's rules and
-  the integrations name - 1279 in all and 847 KB together. An entity whose
+  the integrations name - 1286 in all and 851 KB together. An entity whose
   icon is outside that set shows the plain circle; running
   `tools/make_icons.py` after adding the name to `tools/icons.txt` fixes that.
 * **Only the last icon rule lives in the add-on.** An explicit `icon`

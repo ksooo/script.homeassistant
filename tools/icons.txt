@@ -28,6 +28,7 @@ alarm-panel-outline
 alert
 alert-circle
 alert-circle-outline
+alert-octagon
 alert-outline
 alien-outline
 amplifier
@@ -264,6 +265,8 @@ cellphone-message
 cellphone-wireless
 chair-rolling
 chandelier
+chart-donut
+check-all
 check-circle
 check-network-outline
 checkbox-blank-circle-outline
@@ -284,6 +287,7 @@ clock-outline
 clock-start
 clock-time-eight-outline
 clock-time-twelve
+close-circle
 close-network-outline
 cloud
 cloud-alert
@@ -824,6 +828,7 @@ mower-on
 music-note
 music-note-eighth
 music-note-off
+new-box
 nfc-variant
 nfc-variant-off
 outdoor-lamp
@@ -844,6 +849,7 @@ parachute
 party-popper
 patio-heater
 pause
+pause-circle
 paw
 paw-off
 pen-lock
@@ -986,6 +992,7 @@ shower-head
 shuffle
 shuffle-disabled
 signal
+signal-cellular-1
 signal-distance-variant
 sim
 sine-wave
