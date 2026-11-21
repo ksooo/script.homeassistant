@@ -161,6 +161,135 @@ def room_headings(store):
     return headings
 
 
+# Below this a battery counts as low, as on Home Assistant's summary card.
+_LOW_BATTERY = 20
+
+
+def status(store, key, tr):
+    """The line Home Assistant's summary card writes under a summary: what is
+    on, open or wanting attention, or that all is well. "" where it writes
+    none.
+    """
+    if key == "climate":
+        return _temperature_range(store)
+    entity_ids = _summary_entities(store, key)
+    if key == "light":
+        on = [entity_id for entity_id in _without_listed_groups(store, entity_ids)
+              if store.states[entity_id].state == "on"]
+        return tr("summary_lights_on") % len(on) if on else tr("summary_lights_off")
+    if key == "security":
+        return _security_status(store, entity_ids, tr)
+    if key == "media_players":
+        playing = sum(1 for entity_id in entity_ids
+                      if store.states[entity_id].state == "playing")
+        if not playing:
+            return tr("summary_not_playing")
+        return _counted(tr, playing, "summary_playing_one", "summary_playing")
+    if key == "maintenance":
+        return _maintenance_status(store, entity_ids, tr)
+    return ""
+
+
+def _counted(tr, count, one, many):
+    return tr(one) if count == 1 else tr(many) % count
+
+
+def _without_listed_groups(store, entity_ids):
+    """Leave out a group whose members are listed themselves, so a lamp is
+    not counted twice: filterGroupsWithListedMembers."""
+    listed = set(entity_ids)
+
+    def has_listed_member(group_id):
+        seen, queue = {group_id}, [group_id]
+        while queue:
+            state = store.states.get(queue.pop(0))
+            for member in (state.attributes.get("entity_id") if state else None) or []:
+                if member in listed:
+                    return True
+                if member not in seen:
+                    seen.add(member)
+                    queue.append(member)
+        return False
+
+    return [entity_id for entity_id in entity_ids if not has_listed_member(entity_id)]
+
+
+def _temperature_range(store):
+    values = []
+    for area in store.areas.values():
+        state = store.states.get(area.get("temperature_entity_id") or "")
+        try:
+            values.append(float(state.state))
+        except (AttributeError, ValueError):
+            continue
+    if not values:
+        return ""
+    low, high = ("%.1f" % min(values), "%.1f" % max(values))
+    return "%s°" % low if low == high else "%s - %s°" % (low, high)
+
+
+def _security_status(store, entity_ids, tr):
+    locks = [entity_id for entity_id in entity_ids if entity_id.startswith("lock.")]
+    alarms = [entity_id for entity_id in entity_ids
+              if entity_id.startswith("alarm_control_panel.")]
+    if not locks and not alarms:
+        return ""
+    unlocked = sum(1 for entity_id in locks
+                   if store.states[entity_id].state in ("unlocked", "jammed", "open"))
+    if unlocked:
+        return tr("summary_locks_unlocked") % unlocked
+    disarmed = sum(1 for entity_id in alarms
+                   if store.states[entity_id].state == "disarmed")
+    if disarmed:
+        return tr("summary_alarms_disarmed") % disarmed
+    return tr("summary_secure")
+
+
+def _maintenance_status(store, entity_ids, tr):
+    low = problems = unavailable = 0
+    for entity_id in entity_ids:
+        state = store.states[entity_id]
+        device_class = store.device_class_of(entity_id)
+        if state.state == "unavailable":
+            unavailable += 1
+        if state.domain == "binary_sensor":
+            if state.state == "on":
+                if device_class == "battery":
+                    low += 1
+                elif device_class == "problem":
+                    problems += 1
+        elif _is_low_battery(store, entity_id, state):
+            low += 1
+    parts = []
+    if low:
+        parts.append(_counted(tr, low, "summary_low_battery", "summary_low_batteries"))
+    if problems:
+        parts.append(_counted(tr, problems, "summary_problem", "summary_problems"))
+    if unavailable:
+        parts.append(_counted(tr, unavailable, "summary_unavailable_device",
+                              "summary_unavailable_devices"))
+    return ", ".join(parts) if parts else tr("summary_all_good")
+
+
+def _is_low_battery(store, entity_id, state):
+    """At or below the threshold and not on the charger. Whether it charges
+    is the first battery_charging entity of the same device."""
+    try:
+        if float(state.state) > _LOW_BATTERY:
+            return False
+    except ValueError:
+        return False
+    entity = store.entities.get(entity_id)
+    if entity is None or not entity.device_id:
+        return True
+    for other_id, other in store.entities.items():
+        if (other.device_id == entity.device_id and other_id in store.states
+                and store.states[other_id].attributes.get("device_class")
+                == "battery_charging"):
+            return store.states[other_id].state != "on"
+    return True
+
+
 def _summary_entities(store, key):
     if key == "maintenance":
         return _sorted(store, _maintenance_entities(store))

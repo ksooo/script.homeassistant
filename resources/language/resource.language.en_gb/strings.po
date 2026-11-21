@@ -775,3 +775,63 @@ msgstr ""
 msgctxt "#30449"
 msgid "2 days ago"
 msgstr ""
+
+msgctxt "#30450"
+msgid "%d on"
+msgstr ""
+
+msgctxt "#30451"
+msgid "All off"
+msgstr ""
+
+msgctxt "#30452"
+msgid "%d unlocked"
+msgstr ""
+
+msgctxt "#30453"
+msgid "%d disarmed"
+msgstr ""
+
+msgctxt "#30454"
+msgid "All secure"
+msgstr ""
+
+msgctxt "#30455"
+msgid "1 playing"
+msgstr ""
+
+msgctxt "#30456"
+msgid "%d playing"
+msgstr ""
+
+msgctxt "#30457"
+msgid "No media playing"
+msgstr ""
+
+msgctxt "#30458"
+msgid "1 low battery"
+msgstr ""
+
+msgctxt "#30459"
+msgid "%d low batteries"
+msgstr ""
+
+msgctxt "#30460"
+msgid "1 problem"
+msgstr ""
+
+msgctxt "#30461"
+msgid "%d problems"
+msgstr ""
+
+msgctxt "#30462"
+msgid "1 unavailable device"
+msgstr ""
+
+msgctxt "#30463"
+msgid "%d unavailable devices"
+msgstr ""
+
+msgctxt "#30464"
+msgid "All good"
+msgstr ""

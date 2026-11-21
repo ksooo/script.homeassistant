@@ -177,6 +177,73 @@ class Summaries(unittest.TestCase):
                           if s.kind == sections.SUMMARY], [])
 
 
+class Statuses(unittest.TestCase):
+    """The line under a summary, as Home Assistant's summary card writes it."""
+
+    WORDS = {"summary_lights_on": "%d on", "summary_low_batteries": "%d low",
+             "summary_locks_unlocked": "%d unlocked", "summary_playing": "%d playing"}
+
+    def status(self, key, **kwargs):
+        return sections.status(house(**kwargs), key, lambda name: self.WORDS.get(name, name))
+
+    def test_lights_count_what_is_on(self):
+        self.assertEqual(self.status("light"), "summary_lights_off")
+        self.assertEqual(self.status(
+            "light", extra_entities=[support.entity("light.stehlampe", "Stehlampe")],
+            extra_states=[support.state("light.stehlampe", "on")]), "1 on")
+
+    def test_a_light_group_is_not_counted_with_its_members(self):
+        self.assertEqual(self.status(
+            "light",
+            extra_entities=[support.entity("light.alle", "Alle")],
+            extra_states=[{"entity_id": "light.alle", "state": "on",
+                           "attributes": {"entity_id": ["light.decke"]}}]),
+            "summary_lights_off")
+
+    def test_climate_gives_the_rooms_temperatures(self):
+        self.assertEqual(self.status("climate"), "21.5°")
+
+    def test_security_reports_an_open_lock_before_all_is_well(self):
+        self.assertEqual(self.status("security"), "summary_secure")
+        self.assertEqual(self.status(
+            "security", extra_entities=[support.entity("lock.keller", "Keller")],
+            extra_states=[support.state("lock.keller", "unlocked")]), "1 unlocked")
+
+    def test_media_players_say_nothing_plays(self):
+        self.assertEqual(self.status(
+            "media_players", extra_entities=[support.entity("media_player.tv", "TV")],
+            extra_states=[support.state("media_player.tv", "idle")]), "summary_not_playing")
+
+    def test_maintenance_lists_what_wants_attention(self):
+        self.assertEqual(self.status("maintenance"), "summary_all_good")
+        self.assertEqual(self.status(
+            "maintenance",
+            extra_entities=[
+                support.entity("sensor.akku", "Akku", device_id="dev_lamp",
+                               device_class="battery", category="diagnostic"),
+                support.entity("binary_sensor.stoerung", "Störung",
+                               device_id="dev_lamp", device_class="problem"),
+                support.entity("sensor.akku_2", "Akku", device_id="dev_lamp",
+                               device_class="battery", category="diagnostic")],
+            extra_states=[support.state("sensor.akku", "12"),
+                          support.state("binary_sensor.stoerung", "on"),
+                          support.state("sensor.akku_2", "unavailable")]),
+            "summary_low_battery, summary_problem, summary_unavailable_device")
+
+    def test_a_battery_on_the_charger_is_not_low(self):
+        self.assertEqual(self.status(
+            "maintenance",
+            extra_entities=[
+                support.entity("sensor.akku", "Akku", device_id="dev_lamp",
+                               device_class="battery", category="diagnostic"),
+                support.entity("binary_sensor.laedt", "Lädt", device_id="dev_lamp",
+                               device_class="battery_charging")],
+            extra_states=[support.state("sensor.akku", "12"),
+                          support.state("binary_sensor.laedt", "on",
+                                        device_class="battery_charging")]),
+            "summary_all_good")
+
+
 class Favourites(unittest.TestCase):
     def test_order_is_left_as_home_assistant_holds_it(self):
         order = ["lock.tuer", "light.decke", "binary_sensor.fenster"]

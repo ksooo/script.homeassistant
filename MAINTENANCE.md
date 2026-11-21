@@ -44,6 +44,7 @@ This is the group that needs looking after.
 | --- | --- | --- |
 | `supported_features` bit masks for vacuum, media player, lock, climate and cover, written as numbers | `resources/lib/actions.py` | a command Home Assistant gained is never offered |
 | Which entity belongs in which summary: the domain table, the device class table, the maintenance rule, and climate following the sensors a room is measured by | `resources/lib/sections.py` | a summary holds too much or too little |
+| The status line under a summary: what `hui-home-summary-card` counts per summary, the low battery threshold, the charging check through `findBatteryChargingEntity`, and light groups left out by `filterGroupsWithListedMembers` | `resources/lib/sections.py` (`status`) | a status line counts differently from Home Assistant |
 | Whether an entity belongs on a dashboard at all: `hidden_by`, `disabled_by`, `entity_category`, and entities with no registry entry | `resources/lib/model.py` (`is_visible`) | entities appear that Home Assistant hides, or the reverse |
 | How the Home panel is assembled: favourites, then shortcuts in their own order, then rooms by floor | `resources/lib/sections.py` (`build`) | a new kind of shortcut never arrives |
 | How a row is named: `friendly_name` for rows, the registry name under a device heading, `name_by_user or name` for a device, and under maintenance a battery after its device and a problem sensor after device and entity (`computeMaintenanceTileCard`) | `resources/lib/model.py` | rows are named differently from Home Assistant |

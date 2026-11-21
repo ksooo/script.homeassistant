@@ -775,3 +775,63 @@ msgstr "Jetzt"
 msgctxt "#30449"
 msgid "2 days ago"
 msgstr "Vorgestern"
+
+msgctxt "#30450"
+msgid "%d on"
+msgstr "%d ein"
+
+msgctxt "#30451"
+msgid "All off"
+msgstr "Alle aus"
+
+msgctxt "#30452"
+msgid "%d unlocked"
+msgstr "%d entriegelt"
+
+msgctxt "#30453"
+msgid "%d disarmed"
+msgstr "%d deaktiviert"
+
+msgctxt "#30454"
+msgid "All secure"
+msgstr "Alles sicher"
+
+msgctxt "#30455"
+msgid "1 playing"
+msgstr "1 Wiedergabe"
+
+msgctxt "#30456"
+msgid "%d playing"
+msgstr "%d Wiedergaben"
+
+msgctxt "#30457"
+msgid "No media playing"
+msgstr "Keine Wiedergabe"
+
+msgctxt "#30458"
+msgid "1 low battery"
+msgstr "1 niedriger Batteriestand"
+
+msgctxt "#30459"
+msgid "%d low batteries"
+msgstr "%d niedrige Batteriestände"
+
+msgctxt "#30460"
+msgid "1 problem"
+msgstr "1 Problem"
+
+msgctxt "#30461"
+msgid "%d problems"
+msgstr "%d Probleme"
+
+msgctxt "#30462"
+msgid "1 unavailable device"
+msgstr "1 nicht verfügbares Gerät"
+
+msgctxt "#30463"
+msgid "%d unavailable devices"
+msgstr "%d nicht verfügbare Geräte"
+
+msgctxt "#30464"
+msgid "All good"
+msgstr "Alles in Ordnung"

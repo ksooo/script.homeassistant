@@ -47,6 +47,10 @@ _WEBRTC_INPUTSTREAM = "inputstream.webrtc"
 # Home Assistant's ha-relative-time does while they are under a minute.
 _CLOCK_INTERVAL = 1.0
 
+# How often at most the summaries' status lines are worked out again: each
+# runs through every state, and states change many times a second.
+_STATUS_INTERVAL = 1.0
+
 # How long a favourite waits for Home Assistant before it gives up, rather
 # than leave Kodi's busy spinner up.
 _SHORTCUT_PATIENCE = 30.0
@@ -176,6 +180,8 @@ class _Dashboard:
         self._camera_due = 0.0
         self._pruned = False
         self._clock_due = 0.0
+        self._statuses_stale = False
+        self._statuses_due = 0.0
         self._overlay = None
         self._live = None
         self._ptz = None
@@ -336,6 +342,7 @@ class _Dashboard:
         self._take_camera_stills()
         self._renew_brands_token()
         self._tick_clock()
+        self._tick_statuses()
         self._tick_overlay()
         self._tick_live()
         self._tick_ptz()
@@ -601,6 +608,7 @@ class _Dashboard:
                 categories.addItems(items)
                 self._select(categories, index)
 
+        self._show_statuses()
         self._show_section(index)
         if (self._sections and self._overlay is None
                 and self._focused_control() not in (CATEGORY_LIST, ROW_LIST,
@@ -777,7 +785,31 @@ class _Dashboard:
             if item.getLabel2() != text:
                 item.setLabel2(text)
 
+    def _tick_statuses(self):
+        if self._statuses_stale and time.time() >= self._statuses_due:
+            self._show_statuses()
+
+    def _show_statuses(self):
+        """Write each summary's status line under its tile, where it changed."""
+        self._statuses_stale = False
+        self._statuses_due = time.time() + _STATUS_INTERVAL
+        try:
+            categories = self.getControl(CATEGORY_LIST)
+        except RuntimeError:
+            return
+        for position, section in enumerate(self._sections):
+            if section.kind != sections.SUMMARY:
+                continue
+            text = sections.status(self._store, section.key, kodi.tr)
+            try:
+                item = categories.getListItem(position)
+            except (RuntimeError, ValueError):
+                continue
+            if item.getLabel2() != text:
+                item.setLabel2(text)
+
     def _refresh_rows(self, entity_ids):
+        self._statuses_stale = True
         try:
             rows = self.getControl(ROW_LIST)
         except RuntimeError:
@@ -1335,6 +1367,9 @@ class Shortcut(_Dashboard, xbmcgui.WindowXMLDialog):
         pass
 
     def _tick_clock(self):
+        pass
+
+    def _tick_statuses(self):
         pass
 
     def _refresh_rows(self, entity_ids):

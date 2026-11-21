@@ -3,7 +3,10 @@
 Shows the contents of the Home Assistant **Home** dashboard inside Kodi: your
 favourites, the light, climate, security, maintenance, weather and energy
 summaries, and every area grouped by floor, floors in the order Home Assistant
-lists them. Inside an area the entities sit under their device. Every entity
+lists them. Under the light, climate, security, media and maintenance
+summaries a line says how things stand, as on Home Assistant's summary
+cards: "2 on", "All secure", "1 low battery". Inside an area the entities sit
+under their device. Every entity
 carries its Material Design icon in a tinted circle, coloured by state the way
 Home Assistant colours it - a locked lock green, an unlocked one red, a lit lamp in its own colour. States update live, and devices can be
 switched with the remote.
