@@ -37,8 +37,8 @@ _SUMMARY_CLASSES = {
 }
 
 # What Home Assistant's maintenance view holds: the battery of every device
-# that runs on one, at any level, and every problem sensor, whatever it
-# reports.
+# that runs on one, at any level and when it cannot be reached, and every
+# problem sensor, whatever it reports.
 _MAINTENANCE_CLASSES = {
     "binary_sensor": ("battery", "problem"),
     "sensor": ("battery",),
@@ -204,8 +204,6 @@ def _maintenance_entities(store):
     matches = []
     for entity_id, state in store.states.items():
         if not store.is_visible(entity_id, include_diagnostic=True):
-            continue
-        if not state.available:
             continue
         device_class = store.device_class_of(entity_id)
         allowed = _MAINTENANCE_CLASSES.get(state.domain)

@@ -124,6 +124,16 @@ class Summaries(unittest.TestCase):
         maintenance = self.summary("maintenance")
         self.assertEqual(maintenance.entity_ids, ["sensor.batterie"])
 
+    def test_maintenance_keeps_a_battery_that_cannot_be_reached(self):
+        maintenance = self.summary(
+            "maintenance",
+            extra_entities=[support.entity("sensor.batterie_2", "Batterie",
+                                           device_id="dev_lamp", device_class="battery",
+                                           category="diagnostic")],
+            extra_states=[support.state("sensor.batterie_2", "unavailable")])
+        self.assertEqual(sorted(maintenance.entity_ids),
+                         ["sensor.batterie", "sensor.batterie_2"])
+
     def test_maintenance_leaves_updates_out(self):
         maintenance = self.summary(
             "maintenance",
