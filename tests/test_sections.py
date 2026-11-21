@@ -124,6 +124,16 @@ class Summaries(unittest.TestCase):
         maintenance = self.summary("maintenance")
         self.assertEqual(maintenance.entity_ids, ["sensor.batterie"])
 
+    def test_maintenance_lists_problem_sensors_whatever_they_report(self):
+        maintenance = self.summary(
+            "maintenance",
+            extra_entities=[support.entity("binary_sensor.stoerung", "Störung",
+                                           device_id="dev_sensor",
+                                           device_class="problem")],
+            extra_states=[support.state("binary_sensor.stoerung", "off")])
+        self.assertEqual(sorted(maintenance.entity_ids),
+                         ["binary_sensor.stoerung", "sensor.batterie"])
+
     def test_media_players_are_a_summary_of_their_own(self):
         players = self.summary(
             "media_players",

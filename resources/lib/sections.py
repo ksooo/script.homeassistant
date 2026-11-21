@@ -37,10 +37,10 @@ _SUMMARY_CLASSES = {
 }
 
 # What Home Assistant's maintenance view holds: the battery of every device
-# that runs on one, at any level, plus anything with an update waiting. Not a
-# list of faults - problem sensors and unavailable entities stay out.
+# that runs on one, at any level, and every problem sensor, whatever it
+# reports, plus anything with an update waiting.
 _MAINTENANCE_CLASSES = {
-    "binary_sensor": ("battery",),
+    "binary_sensor": ("battery", "problem"),
     "sensor": ("battery",),
 }
 
