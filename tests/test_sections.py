@@ -189,6 +189,22 @@ class Summaries(unittest.TestCase):
                          ["binary_sensor.fenster", "cover.markise", "cover.rollladen",
                           "sensor.kueche_temperatur"])
 
+    def test_security_takes_detectors_and_diagnostic_tamper_sensors(self):
+        security = self.summary(
+            "security",
+            extra_entities=[support.entity("binary_sensor.rauch", "Rauch",
+                                           device_class="smoke"),
+                            support.entity("binary_sensor.sabotage", "Sabotage",
+                                           device_class="tamper", category="diagnostic"),
+                            support.entity("binary_sensor.batterie", "Batterie",
+                                           device_class="battery", category="diagnostic")],
+            extra_states=[support.state("binary_sensor.rauch", "off"),
+                          support.state("binary_sensor.sabotage", "off"),
+                          support.state("binary_sensor.batterie", "off")])
+        self.assertIn("binary_sensor.rauch", security.entity_ids)
+        self.assertIn("binary_sensor.sabotage", security.entity_ids)
+        self.assertNotIn("binary_sensor.batterie", security.entity_ids)
+
     def test_hidden_shortcuts_are_skipped(self):
         store = house(home={"shortcuts": [
             {"type": "summary", "key": "light", "hidden": True}]})

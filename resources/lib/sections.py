@@ -36,9 +36,10 @@ _SUMMARY_CLASSES = {
         "binary_sensor": ("window",),
     },
     "security": {
-        "cover": ("garage", "door", "gate"),
-        "binary_sensor": ("door", "window", "garage_door", "opening",
-                          "lock", "safety", "tamper"),
+        "cover": ("garage", "door", "gate", "window"),
+        "binary_sensor": ("door", "window", "garage_door", "opening", "lock",
+                          "carbon_monoxide", "gas", "glass_break", "moisture",
+                          "safety", "smoke", "tamper"),
     },
 }
 
@@ -320,7 +321,8 @@ def _summary_entities(store, key):
         return []
 
     for entity_id, state in store.states.items():
-        if not store.is_visible(entity_id):
+        if not store.is_visible(entity_id) and not (
+                key == "security" and _is_diagnostic_tamper(store, entity_id, state)):
             continue
         if state.domain in domains:
             matches.append(entity_id)
@@ -329,6 +331,14 @@ def _summary_entities(store, key):
         if allowed and store.device_class_of(entity_id) in allowed:
             matches.append(entity_id)
     return _sorted(store, matches)
+
+
+def _is_diagnostic_tamper(store, entity_id, state):
+    """Home Assistant's security summary takes tamper sensors even where
+    they are diagnostic."""
+    return (state.domain == "binary_sensor"
+            and store.device_class_of(entity_id) == "tamper"
+            and store.is_visible(entity_id, include_diagnostic=True))
 
 
 def _room_climate_sensors(store):
