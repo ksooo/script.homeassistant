@@ -703,8 +703,12 @@ class _Dashboard:
     def _make_row(self, entity_id, section):
         # Under a device heading the device is already named; everywhere else
         # the row carries the composed name, the way Home Assistant shows it.
-        name = (self._store.name_of(entity_id) if section.kind == sections.AREA
-                else self._store.display_name_of(entity_id))
+        if section.kind == sections.AREA:
+            name = self._store.name_of(entity_id)
+        elif section.key == "maintenance":
+            name = self._store.maintenance_name_of(entity_id)
+        else:
+            name = self._store.display_name_of(entity_id)
         item = xbmcgui.ListItem(label=name, offscreen=True)
         item.setProperty("kind", "entity")
         item.setProperty("entity_id", entity_id)

@@ -96,6 +96,30 @@ class DisplayNames(unittest.TestCase):
         self.assertEqual(store.display_name_of("sensor.a"), "Wert")
 
 
+class MaintenanceNames(unittest.TestCase):
+    """Home Assistant's maintenance view names its tiles on its own terms."""
+
+    def store(self, device_class, device_id="dev_lamp"):
+        return support.build(
+            entities=[support.entity("binary_sensor.a", "Störung", device_id=device_id,
+                                     device_class=device_class)],
+            states=[support.state("binary_sensor.a", "off",
+                                  # Frozen by Home Assistant, as compat_name.
+                                  friendly_name="Störung im Keller")],
+            devices=support.DEVICES)
+
+    def test_a_battery_is_named_after_its_device(self):
+        self.assertEqual(self.store("battery").maintenance_name_of("binary_sensor.a"),
+                         "Deckenlampe")
+
+    def test_a_problem_sensor_after_device_and_entity(self):
+        self.assertEqual(self.store("problem").maintenance_name_of("binary_sensor.a"),
+                         "Deckenlampe Störung")
+
+    def test_without_a_device_the_entity_names_itself(self):
+        self.assertEqual(self.store("battery", device_id=None)
+                         .maintenance_name_of("binary_sensor.a"), "Störung")
+
 
 class NamesWithDevice(unittest.TestCase):
     def store(self, friendly_name, device_name="Außenkamera Garten"):

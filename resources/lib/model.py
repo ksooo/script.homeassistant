@@ -316,6 +316,18 @@ class Store:
             return state.name
         return self.name_of(entity_id)
 
+    def maintenance_name_of(self, entity_id):
+        """The name Home Assistant's maintenance view gives a tile: a battery
+        is named after its device, a problem sensor after device and entity,
+        and an entity without a device after itself."""
+        entity = self.entities.get(entity_id)
+        device = self.device_name(entity.device_id) if entity and entity.device_id else ""
+        if not device:
+            return self.name_of(entity_id)
+        if self.device_class_of(entity_id) != "problem" or not entity.name:
+            return device
+        return "%s %s" % (device, entity.name)
+
     def name_with_device(self, entity_id):
         """The name with its device in front, for where nothing around it
         names the device - as Home Assistant writes a friendly name, unless
