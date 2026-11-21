@@ -105,15 +105,26 @@ def build(store, options=None, translate=None):
             if shortcut.get("type") != "summary" or shortcut.get("hidden"):
                 continue
             key = shortcut.get("key", "")
-            # Shown even when empty: the shortcut is configured in Home
-            # Assistant, and "nothing needs attention" is worth seeing.
-            sections.append(_by_room(store, key, SUMMARY, label(key),
-                                     _summary_entities(store, key), label))
+            entity_ids = _summary_entities(store, key)
+            if _has_content(store, key, entity_ids):
+                sections.append(_by_room(store, key, SUMMARY, label(key),
+                                         entity_ids, label))
 
     if options.areas:
         sections.extend(_area_sections(store, options, label))
 
     return sections
+
+
+def _has_content(store, key, entity_ids):
+    """Whether Home Assistant's overview shows the summary at all: weather
+    needs a weather entity, energy a grid source, the rest anything to list."""
+    if key == "weather":
+        return any(entity_id.startswith("weather.") for entity_id in entity_ids)
+    if key == "energy":
+        return any(source.get("type") == "grid" and source.get("stat_energy_from")
+                   for source in store.energy.get("energy_sources") or [])
+    return bool(entity_ids)
 
 
 def _by_room(store, key, kind, title, entity_ids, label):

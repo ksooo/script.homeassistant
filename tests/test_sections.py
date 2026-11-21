@@ -167,8 +167,11 @@ class Summaries(unittest.TestCase):
         self.assertEqual([s.key for s in sections.build(store, translate=support.untranslated)
                           if s.kind == sections.SUMMARY], [])
 
-    def test_a_configured_summary_survives_being_empty(self):
-        self.assertEqual(self.summary("weather").entity_ids, [])
+    def test_a_summary_with_nothing_to_show_is_left_out(self):
+        store = house(home={"shortcuts": [{"type": "summary", "key": "weather"},
+                                          {"type": "summary", "key": "energy"}]})
+        self.assertEqual([s.key for s in sections.build(store, translate=support.untranslated)
+                          if s.kind == sections.SUMMARY], [])
 
     def test_hidden_shortcuts_are_skipped(self):
         store = house(home={"shortcuts": [

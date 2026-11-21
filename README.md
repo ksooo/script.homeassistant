@@ -113,7 +113,7 @@ stored is the input the panel works from, and that is what this add-on reads:
 | Section | Source |
 |---|---|
 | Favourites | `frontend/get_system_data` key `home` |
-| Summaries | the `shortcuts` in the same data, hidden ones skipped |
+| Summaries | the `shortcuts` in the same data, hidden ones skipped, and those Home Assistant leaves out for having nothing to show |
 | Areas | floor, area, device and entity registries; entities grouped under their device |
 | Grouping | a room's section groups by device, a summary groups by floor and room; favourites keep the order Home Assistant holds them in |
 | Values | `get_states` plus a `state_changed` subscription |
