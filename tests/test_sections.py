@@ -118,7 +118,8 @@ class Summaries(unittest.TestCase):
     def test_climate_takes_the_rooms_own_sensors_only(self):
         climate = self.summary("climate")
         # sensor.cpu is a temperature too, but no room is measured by it.
-        self.assertEqual(climate.entity_ids, ["sensor.kueche_temperatur"])
+        self.assertIn("sensor.kueche_temperatur", climate.entity_ids)
+        self.assertNotIn("sensor.cpu", climate.entity_ids)
 
     def test_maintenance_lists_batteries_at_any_level(self):
         maintenance = self.summary("maintenance")
@@ -172,6 +173,21 @@ class Summaries(unittest.TestCase):
                                           {"type": "summary", "key": "energy"}]})
         self.assertEqual([s.key for s in sections.build(store, translate=support.untranslated)
                           if s.kind == sections.SUMMARY], [])
+
+    def test_climate_takes_blinds_and_window_sensors(self):
+        climate = self.summary(
+            "climate",
+            extra_entities=[support.entity("cover.rollladen", "Rollladen",
+                                           device_class="shutter"),
+                            support.entity("cover.markise", "Markise"),
+                            support.entity("cover.tor", "Tor", device_class="garage")],
+            extra_states=[support.state("cover.rollladen", "open"),
+                          support.state("cover.markise", "closed"),
+                          support.state("cover.tor", "closed")])
+        # binary_sensor.fenster from the house is a window as well.
+        self.assertEqual(sorted(climate.entity_ids),
+                         ["binary_sensor.fenster", "cover.markise", "cover.rollladen",
+                          "sensor.kueche_temperatur"])
 
     def test_hidden_shortcuts_are_skipped(self):
         store = house(home={"shortcuts": [

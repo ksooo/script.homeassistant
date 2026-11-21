@@ -29,6 +29,12 @@ _SUMMARY_DOMAINS = {
 }
 
 _SUMMARY_CLASSES = {
+    # None stands for a cover without a device class, which Home Assistant
+    # counts in as "none".
+    "climate": {
+        "cover": ("awning", "blind", "curtain", "shade", "shutter", "window", None),
+        "binary_sensor": ("window",),
+    },
     "security": {
         "cover": ("garage", "door", "gate"),
         "binary_sensor": ("door", "window", "garage_door", "opening",
