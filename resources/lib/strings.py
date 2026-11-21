@@ -163,6 +163,8 @@ IDS = {
     "summary_unavailable_device": 30462,
     "summary_unavailable_devices": 30463,
     "summary_all_good": 30464,
+    "devices": 30465,
+    "unnamed_device": 30466,
     "attribute_assumed_state": 30440,
     "attribute_attribution": 30441,
     "attribute_device_class": 30442,

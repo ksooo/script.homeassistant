@@ -835,3 +835,11 @@ msgstr "%d nicht verfügbare Geräte"
 msgctxt "#30464"
 msgid "All good"
 msgstr "Alles in Ordnung"
+
+msgctxt "#30465"
+msgid "Devices"
+msgstr "Geräte"
+
+msgctxt "#30466"
+msgid "Unnamed device"
+msgstr "Unbenanntes Gerät"

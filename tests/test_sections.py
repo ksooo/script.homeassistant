@@ -108,6 +108,42 @@ class AreaSections(unittest.TestCase):
         self.assertIn("Mobile Geräte", titles)
 
 
+class OtherDevices(unittest.TestCase):
+    """Devices without a room come last, under the name Home Assistant gives them."""
+
+    def build(self, entities, states):
+        store = support.build(
+            entities=entities, states=states,
+            devices=list(support.DEVICES) + [{"id": "dev_router", "name": "Router"},
+                                             {"id": "dev_blank", "name": ""}],
+            areas=support.AREAS, floors=support.FLOORS)
+        return sections.build(store, translate=support.untranslated)
+
+    def test_a_device_without_a_room_lands_under_devices(self):
+        built = self.build(
+            [support.entity("sensor.router_upload", "Upload", device_id="dev_router"),
+             support.entity("sensor.ohne", "Ohne Gerät"),
+             support.entity("device_tracker.router", "Tracker", device_id="dev_router"),
+             support.entity("sensor.router_cpu", "CPU", device_id="dev_router",
+                            category="diagnostic"),
+             support.entity("sensor.blank", "Wert", device_id="dev_blank")],
+            [support.state("sensor.router_upload", "1"),
+             support.state("sensor.ohne", "1"),
+             support.state("device_tracker.router", "home"),
+             support.state("sensor.router_cpu", "3"),
+             support.state("sensor.blank", "2")])
+        devices = built[-1]
+        self.assertEqual(devices.key, "devices")
+        self.assertEqual([(g.title, g.entity_ids) for g in devices.groups],
+                         [("Router", ["sensor.router_upload"]),
+                          ("unnamed_device", ["sensor.blank"])])
+
+    def test_without_such_devices_there_is_no_entry(self):
+        built = self.build([support.entity("sensor.ohne", "Ohne Gerät")],
+                           [support.state("sensor.ohne", "1")])
+        self.assertNotIn("devices", [s.key for s in built])
+
+
 class Summaries(unittest.TestCase):
     def summary(self, key, **kwargs):
         home = {"shortcuts": [{"type": "summary", "key": key}]}

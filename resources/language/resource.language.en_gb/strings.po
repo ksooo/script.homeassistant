@@ -835,3 +835,11 @@ msgstr ""
 msgctxt "#30464"
 msgid "All good"
 msgstr ""
+
+msgctxt "#30465"
+msgid "Devices"
+msgstr ""
+
+msgctxt "#30466"
+msgid "Unnamed device"
+msgstr ""

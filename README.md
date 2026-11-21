@@ -2,14 +2,15 @@
 
 Shows the contents of the Home Assistant **Home** dashboard inside Kodi: your
 favourites, the light, climate, security, maintenance, weather and energy
-summaries, and every area grouped by floor, floors in the order Home Assistant
-lists them. Under the light, climate, security, media and maintenance
-summaries a line says how things stand, as on Home Assistant's summary
-cards: "2 on", "All secure", "1 low battery". Inside an area the entities sit
-under their device. Every entity
+summaries, every area grouped by floor, floors in the order Home Assistant
+lists them, and after them the devices that have no room. Under the light,
+climate, security, media and maintenance summaries a line says how things
+stand, as on Home Assistant's summary cards: "2 on", "All secure", "1 low
+battery". Inside an area the entities sit under their device. Every entity
 carries its Material Design icon in a tinted circle, coloured by state the way
-Home Assistant colours it - a locked lock green, an unlocked one red, a lit lamp in its own colour. States update live, and devices can be
-switched with the remote.
+Home Assistant colours it - a locked lock green, an unlocked one red, a lit
+lamp in its own colour. States update live, and devices can be switched with
+the remote.
 
 ![icon](resources/icon.png)
 
@@ -115,6 +116,7 @@ stored is the input the panel works from, and that is what this add-on reads:
 | Favourites | `frontend/get_system_data` key `home` |
 | Summaries | the `shortcuts` in the same data, hidden ones skipped, and those Home Assistant leaves out for having nothing to show |
 | Areas | floor, area, device and entity registries; entities grouped under their device |
+| Devices | devices without a room, with what Home Assistant's other devices view leaves out (automations, scripts, phones' trackers and the like) left out here too |
 | Grouping | a room's section groups by device, a summary groups by floor and room; favourites keep the order Home Assistant holds them in |
 | Values | `get_states` plus a `state_changed` subscription |
 | Energy | `energy/get_prefs` |

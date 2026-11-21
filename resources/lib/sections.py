@@ -43,6 +43,15 @@ _SUMMARY_CLASSES = {
     },
 }
 
+# What Home Assistant's other devices view leaves out: OTHER_DEVICES_FILTERS.
+_OTHER_DEVICES_HIDDEN_PLATFORMS = ("automation", "script", "hassio", "backup",
+                                   "mobile_app", "zone", "person")
+_OTHER_DEVICES_HIDDEN_DOMAINS = ("ai_task", "automation", "configurator",
+                                 "device_tracker", "event", "geo_location", "notify",
+                                 "persistent_notification", "script", "sun", "tag",
+                                 "todo", "zone", "assist_satellite", "conversation",
+                                 "stt", "tts")
+
 # What Home Assistant's maintenance view holds: the battery of every device
 # that runs on one, at any level and when it cannot be reached, and every
 # problem sensor, whatever it reports.
@@ -119,6 +128,9 @@ def build(store, options=None, translate=None):
 
     if options.areas:
         sections.extend(_area_sections(store, options, label))
+        devices = _other_devices_section(store, label)
+        if devices is not None:
+            sections.append(devices)
 
     return sections
 
@@ -410,6 +422,29 @@ def _area_sections(store, options, label):
                 subtitle=floor.get("name", ""), area_id=area["area_id"],
                 groups=groups))
     return sections
+
+
+def _other_devices_section(store, label):
+    """The entities of devices that have no room, as Home Assistant's Devices
+    entry after the rooms lists them; None where there are none."""
+    by_device = {}
+    for entity_id in store.states:
+        entity = store.entities.get(entity_id)
+        if (entity is None or entity.device_id not in store.devices
+                or store.area_of(entity_id) or not store.is_visible(entity_id)
+                or entity.platform in _OTHER_DEVICES_HIDDEN_PLATFORMS
+                or entity.domain in _OTHER_DEVICES_HIDDEN_DOMAINS):
+            continue
+        by_device.setdefault(entity.device_id, []).append(entity_id)
+    if not by_device:
+        return None
+    groups = [Group(store.device_name(device_id) or label("unnamed_device"),
+                    _sorted(store, members))
+              for device_id, members in by_device.items()]
+    groups.sort(key=lambda group: group.title.lower())
+    return Section("devices", AREA, label("devices"),
+                   [entity_id for group in groups for entity_id in group.entity_ids],
+                   groups=groups)
 
 
 def _device_groups(store, entity_ids, label):
