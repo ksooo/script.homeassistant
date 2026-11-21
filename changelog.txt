@@ -1,3 +1,12 @@
+v1.16.0
+- Under the light, climate, security, media and maintenance summaries a line says how things stand, as in Home Assistant: how many lights are on, an unlocked lock, low batteries and problems, or that all is well
+- Maintenance lists problem sensors too, and batteries that cannot be reached, as in Home Assistant. Devices with an update waiting are no longer listed there, and a battery is named after its device
+- Climate also lists blinds, awnings, curtains and window sensors; Security also lists smoke, gas, carbon monoxide, glass break and water leak detectors and tamper sensors
+- Summaries with nothing in them are left out, and rooms with nothing in them are shown, as in Home Assistant. A setting still hides empty rooms
+- Devices that have no room are listed under "Devices" after the rooms
+- A steerable camera follows the arrow keys at once and stops right after the last press
+- The sensors of the Device Panel integration show their icons
+
 v1.15.1
 - The music visualisation shows through the dashboard, as a playing video already did
 - Fixed: the branches in the Home Assistant logo on a favourite's icon were dark instead of white. Favourites added earlier keep the old logo until they are removed and added again
