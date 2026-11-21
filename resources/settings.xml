@@ -106,7 +106,7 @@
                 </setting>
                 <setting id="hide_empty_areas" type="boolean" label="30034" help="30048">
                     <level>0</level>
-                    <default>true</default>
+                    <default>false</default>
                     <control type="toggle"/>
                 </setting>
                 <setting id="confirm_off" type="boolean" label="30037" help="30038">

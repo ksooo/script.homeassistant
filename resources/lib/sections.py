@@ -82,7 +82,7 @@ class Section:
 
 class Options:
     def __init__(self, favourites=True, summaries=True, areas=True,
-                 hide_empty_areas=True):
+                 hide_empty_areas=False):
         self.favourites = favourites
         self.summaries = summaries
         self.areas = areas

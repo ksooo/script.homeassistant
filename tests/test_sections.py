@@ -103,6 +103,10 @@ class AreaSections(unittest.TestCase):
         titles = [s.title for s in sections.build(store, options, translate=support.untranslated)]
         self.assertNotIn("Mobile Geräte", titles)
 
+    def test_empty_rooms_are_shown_by_default(self):
+        titles = [s.title for s in sections.build(house(), translate=support.untranslated)]
+        self.assertIn("Mobile Geräte", titles)
+
 
 class Summaries(unittest.TestCase):
     def summary(self, key, **kwargs):
