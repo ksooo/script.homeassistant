@@ -124,6 +124,14 @@ class Summaries(unittest.TestCase):
         maintenance = self.summary("maintenance")
         self.assertEqual(maintenance.entity_ids, ["sensor.batterie"])
 
+    def test_maintenance_leaves_updates_out(self):
+        maintenance = self.summary(
+            "maintenance",
+            extra_entities=[support.entity("update.firmware", "Firmware",
+                                           device_id="dev_sensor")],
+            extra_states=[support.state("update.firmware", "on")])
+        self.assertEqual(maintenance.entity_ids, ["sensor.batterie"])
+
     def test_maintenance_lists_problem_sensors_whatever_they_report(self):
         maintenance = self.summary(
             "maintenance",
