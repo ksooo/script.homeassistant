@@ -7,6 +7,8 @@ change made in Home Assistant shows up in Kodi without a restart.
 
 import threading
 
+from .ha.client import NotConnected
+
 # Bus events Home Assistant fires when a registry changes. There is no
 # dedicated subscribe command for the registries, so the affected one is
 # fetched again when its event arrives.
@@ -241,6 +243,11 @@ class Store:
     def _reload(self, client):
         try:
             registries = _registries(client)
+        except NotConnected as error:
+            # The connection went while the reload was under way, most often
+            # because the window was closed. A new one fetches everything.
+            self._log("registry reload dropped: %s" % error)
+            return
         except Exception as error:
             self._log("registry reload failed: %s" % error, 3)
             return

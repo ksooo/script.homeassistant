@@ -4,6 +4,7 @@ import unittest
 
 from . import support
 from resources.lib import model
+from resources.lib.ha.client import NotConnected
 
 
 class Lookups(unittest.TestCase):
@@ -238,6 +239,18 @@ class CameraStreams(unittest.TestCase):
         def refuse(entity_id):
             raise RuntimeError("unknown command")
         self.assertEqual(self.load(refuse), {})
+
+
+class RegistryReload(unittest.TestCase):
+    class Gone:
+        def command(self, type_, **payload):
+            raise NotConnected("connection closed")
+
+    def test_a_connection_that_went_away_is_no_error(self):
+        logged = []
+        store = model.Store(log=lambda message, level=0: logged.append(level))
+        store._reload(self.Gone())
+        self.assertEqual(logged, [0])
 
 
 if __name__ == "__main__":
